@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+  <title>RMUD</title>
+  <meta charset="utf-8">
+  <link href="reset.css" rel="stylesheet" type="text/css">
+  <link href="play.css" rel="stylesheet" type="text/css">
+</head>
+
+<body onload="connect()">
+<div class="box">
+  <div class="row header">
+    <p><input type="button" name="login" value="Reconnect" onclick="connect()"></p>
+  </div>
+  <iframe id="gameText" class="row content"></iframe>
+  <div class="row footer">
+    <p>
+      <textarea id="userInput" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" rows="1" placeholder="Введите команду"></textarea>
+      <input id="maskedInput" type="password" placeholder="Введите пароль">
+      <input id="send" type="button"  name="send" value="Отослать" onclick="sendUserInput()" disabled>
+    </p>
+  </div>
+</div>
+
+<script type="text/javascript" src="ansi-to-html.js"></script>
+<script type="text/javascript" src="play.js"></script>
+</body>
+</html>

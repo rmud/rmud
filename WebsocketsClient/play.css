@@ -1,0 +1,95 @@
+@font-face {
+  font-family: PxPlus_IBM_VGA8;
+  src: url(PxPlus_IBM_VGA8.ttf);
+}
+
+html, body {
+  height: 100%;
+  margin: 0;
+  overflow: hidden; /* Disable page bounce on scroll */
+}
+
+/* FLEX BOX SETUP */
+
+.box {
+  display: flex;
+  flex-flow: column;
+  height: 100%;
+}
+
+.box .row {
+  /* border: 1px dotted grey; */
+}
+
+.box .row.header {
+  flex: 0 1 auto;
+  border-bottom: 1px solid grey;
+}
+
+.box .row.content {
+  display: flex;
+  flex-flow: column;
+  flex: 1 1 auto;
+  /* overflow-y: scroll; */
+  border: none;
+}
+
+.box .row.footer {
+  flex: 0 1 auto;
+  /* flex: 0 1 140px; */
+  border-top: 1px solid grey;
+}
+
+/* HEADER */
+
+.box .row.header {
+  display: flex;
+  flex-flow: row;
+  justify-content: flex-end;
+}
+
+/* CONTENT */
+
+.box .row.content iframe {
+  border: none;
+  font-size: 16px;
+  font-family: 'PxPlus_IBM_VGA8';
+}
+
+/* FOOTER */
+
+.box .row.footer p {
+  display: flex;
+  flex-flow: row;
+}
+
+#userInput {
+  flex: 1 1 auto;
+  font-size: 16px;
+  font-family: 'PxPlus_IBM_VGA8';
+  margin: 5px 0px 5px 5px;
+  border: 1px solid lightgray;
+  resize: none;
+  display: block;
+  /* Firefox adds extra vertical space to textareas for horizontal scrollbar,
+   * workaround by hiding the scrollbar. */
+  overflow-x: hidden;
+  line-height: 1.2em;
+}
+
+#maskedInput {
+  flex: 1 1 auto;
+  font-size: 16px;
+  font-family: 'PxPlus_IBM_VGA8';
+  margin: 5px 0px 5px 5px;
+  border: 1px solid lightgray;
+  display: none;
+}
+
+#send {
+  flex: 0 1 auto;
+  font-size: 16px;
+  font-family: 'PxPlus_IBM_VGA8';
+  margin: 5px 5px 5px 5px;
+}
+

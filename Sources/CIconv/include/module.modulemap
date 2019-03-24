@@ -1,0 +1,5 @@
+module CIconv [system] {
+    header "shim.h"
+    link "iconv"
+    export *
+}
