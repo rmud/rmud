@@ -42,7 +42,7 @@ RUN swiftenv install 5.0
 
 WORKDIR /app
 COPY . .
-RUN mkdir -p /build/lib && cp -R /usr/local/versions/5.0/usr/lib/swift/linux/*.so /build/lib
+RUN mkdir -p /build/lib && cp -R /usr/local/versions/5.0/usr/lib/swift/linux/*.so* /build/lib
 RUN swift build -c release && mv `swift build -c release --show-bin-path` /build/bin
 RUN cp -R Tools /build/bin/
 
@@ -52,7 +52,7 @@ FROM ubuntu:18.04
 ENV TZ=Etc/UTC
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 RUN apt-get -qq update && apt-get -y install \
-  libicu60 libxml2 libbsd0 libcurl3 libatomic1 \
+  libicu60 libxml2 libbsd0 libcurl4 libatomic1 \
   php7.2 php7.2-common php7.2-cli php7.2-mbstring \
   locales \
   && rm -r /var/lib/apt/lists/* \
