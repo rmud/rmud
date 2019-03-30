@@ -1,27 +1,22 @@
-language: generic
+language: minimal
 sudo: required
-
-env:
-    global:
-        - SWIFT_VERSION=5.0
 
 matrix:
     include:
         - os: linux
           dist: xenial
-          addons:
-              apt:
-                  packages:
-                      - libbsd-dev
+          services: docker
+          script:
+            - ./ci.sh
         - os: osx
-          osx_image: xcode10.1
+          osx_image: xcode10.2
           addons:
               homebrew:
                   packages:
                       - libressl
-
-install:
-  - eval "$(curl -sL https://swiftenv.fuller.li/install.sh)"
-script:
-  - swift build
+          #env: SWIFT_VERSION=5.0
+          #install:
+          #  - eval "$(curl -sL https://swiftenv.fuller.li/install.sh)"
+          script:
+            - swift build
 
