@@ -3,7 +3,7 @@ sudo: required
 
 env:
     global:
-        - SWIFT_VERSION=swift-5.0-DEVELOPMENT-SNAPSHOT-2019-03-10-a
+        - SWIFT_VERSION=5.0
 
 matrix:
     include:
