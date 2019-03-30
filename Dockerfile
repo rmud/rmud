@@ -1,5 +1,5 @@
 # docker build -t rmud:0.1.0 .
-# docker run -v "$(PWD)/../rmud-data":/rmud-data -v "$(PWD)/../rmud-live":/rmud-live -p 3040:3040 -p 4040:4040 --rm rmud:0.1.0 ./rmud
+# docker run -v "$(pwd)/../rmud-data":/rmud-data -v "$(pwd)/../rmud-live":/rmud-live -p 3040:3040 -p 4040:4040 --rm rmud:0.1.0 ./rmud
 # docker save rmud:0.1.0 | gzip > rmud_0_1_0.tgz
 # docker load -i rmud_0_1_0.tgz
 
