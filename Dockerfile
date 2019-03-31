@@ -60,10 +60,10 @@ RUN apt-get -qq update && apt-get -y install \
 ENV LANG ru_RU.UTF-8
 ENV LANGUAGE ru_RU:en
 ENV LC_ALL ru_RU.UTF-8
-COPY --from=builder /build/bin/rmud /rmud/
-COPY --from=builder /build/bin/Tools /rmud/Tools
-COPY --from=builder /build/lib/* /usr/lib/
 WORKDIR /rmud
+COPY --from=builder /build/bin/rmud .
+COPY --from=builder /build/bin/Tools Tools
+COPY --from=builder /build/lib/* /usr/lib/
 EXPOSE 3040
 EXPOSE 4040
 CMD ["./rmud"]
