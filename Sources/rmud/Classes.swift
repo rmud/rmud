@@ -19,7 +19,7 @@ class Classes {
             let parser = MutliSectionInfoFileParser(filename: filenames.classes)
             linesBySection = try parser.parse()
         } catch {
-            logFatal("Unable to load class information: \(error.userFriendlyDescription)")
+            logFatal("Unable to load \(filenames.classes): \(error.userFriendlyDescription)")
         }
         
         for (section, lines) in linesBySection {

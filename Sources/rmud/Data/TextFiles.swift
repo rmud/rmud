@@ -1,5 +1,18 @@
 import Foundation
 
+enum TextFilesError {
+    case unableToLoadFile(filename: String, error: Error)
+}
+
+extension TextFilesError: LocalizedError {
+    public var errorDescription: String? {
+        switch self {
+            case let .unableToLoadFile(filename, error):
+                return "\(filename): \(error.userFriendlyDescription)"
+        }
+    }
+}
+
 class TextFiles {
     static let sharedInstance = TextFiles()
 
@@ -35,7 +48,11 @@ class TextFiles {
     }
 
     private func load(_ path: String) throws -> String {
-        return try String(contentsOfTextFile: path).trimmingCharacters(in: CharacterSet.newlines)
+        do {
+            return try String(contentsOfTextFile: path).trimmingCharacters(in: CharacterSet.newlines)
+        } catch {
+            throw TextFilesError.unableToLoadFile(filename: path, error: error)
+        }
     }
     
     private func countNewsEntries() {
