@@ -31,14 +31,14 @@ class TextFiles {
     var handbook = ""        // handbook for new immortals
     var policies = ""        // policies page
     var gameLogo = ""        // заставка игры
-    var help = ""            // help screen
+    //var help = ""            // help screen
     
     func load() throws {
         news = try load(filenames.news)
         credits = try load(filenames.credits)
         motd = try load(filenames.motd)
         imotd = try load(filenames.imotd)
-        help = try load(filenames.helpPage)
+        //help = try load(filenames.helpPage)
         info = try load(filenames.info)
         newbie = try load(filenames.newbie)
         immortalsList = try load(filenames.immlist)

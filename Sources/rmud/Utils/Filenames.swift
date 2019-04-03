@@ -20,7 +20,7 @@ class Filenames
 
     // Help
     var helpPrefix: String { return makePath(dataPrefix, "help") }
-    var helpPage: String { return makePath(dataPrefix, "help/screen") }
+    //var helpPage: String { return makePath(dataPrefix, "help/screen") }
     
     // World
     var universe: String { return makePath(dataPrefix, "world/universe") }
