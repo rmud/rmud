@@ -73,8 +73,8 @@ extension Room: Equatable {
 }
 
 extension Room: Hashable {
-    public var hashValue: Int {
-        return ObjectIdentifier(self).hashValue
+    public func hash(into hasher: inout Hasher) {
+        ObjectIdentifier(self).hash(into: &hasher)
     }
 }
 

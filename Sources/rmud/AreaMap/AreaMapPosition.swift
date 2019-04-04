@@ -119,7 +119,11 @@ struct AreaMapPosition: Hashable, Equatable {
             lhs.x == rhs.x && lhs.y == rhs.y
     }
 
-    public var hashValue: Int { return combinedHash(x, y, plane) }
+    public func hash(into hasher: inout Hasher) {
+        x.hash(into: &hasher)
+        y.hash(into: &hasher)
+        plane.hash(into: &hasher)
+    }
 }
 
 func +(left: AreaMapPosition, right: AreaMapPosition) -> AreaMapPosition {

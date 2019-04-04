@@ -10,7 +10,10 @@ class AreaMapper {
                 lhs.direction == rhs.direction
         }
         
-        public var hashValue: Int { return combinedHash(room, direction) }
+        public func hash(into hasher: inout Hasher) {
+            room.hash(into: &hasher)
+            direction.hash(into: &hasher)
+        }
     }
     
     // Prioritizes normal directions over interplane directions

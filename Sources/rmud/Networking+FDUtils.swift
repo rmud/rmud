@@ -76,7 +76,7 @@ public extension fd_set {
 	///
 	/// Zero the fd_set
 	///
-	public mutating func zero() {
+    mutating func zero() {
 		#if swift(>=4.1)
 		withCArrayAccess { $0.initialize(repeating: 0, count: __fd_set_count) }
 		#else
@@ -89,7 +89,7 @@ public extension fd_set {
 	///
 	/// - Parameter fd:	The fd to add to the fd_set
 	///
-	public mutating func set(_ fd: Int32) {
+    mutating func set(_ fd: Int32) {
 		let (index, mask) = fd_set.address(for: fd)
 		withCArrayAccess { $0[index] |= mask }
 	}
@@ -99,7 +99,7 @@ public extension fd_set {
 	///
 	/// - Parameter fd:	The fd to clear from the fd_set
 	///
-	public mutating func clear(_ fd: Int32) {
+    mutating func clear(_ fd: Int32) {
 		let (index, mask) = fd_set.address(for: fd)
 		withCArrayAccess { $0[index] &= ~mask }
 	}
@@ -111,7 +111,7 @@ public extension fd_set {
 	///
 	///	- Returns:	True if present, false otherwise.
 	///
-	public mutating func isSet(_ fd: Int32) -> Bool {
+    mutating func isSet(_ fd: Int32) -> Bool {
 		let (index, mask) = fd_set.address(for: fd)
 		return withCArrayAccess { $0[index] & mask != 0 }
 	}

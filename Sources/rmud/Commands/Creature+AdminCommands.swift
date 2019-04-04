@@ -357,7 +357,7 @@ extension Creature {
             return
         }
         let lowercasedFieldName = fieldName.lowercased()
-        guard let field = db.definitions.roomFields.fieldsByLowercasedName[lowercasedFieldName] else {
+        guard nil != db.definitions.roomFields.fieldsByLowercasedName[lowercasedFieldName] else {
             send("Поля комнаты с таким названием не существует.")
             return
         }
@@ -369,19 +369,19 @@ extension Creature {
             send("Ошибка парсера: \(error)")
             return
         }
-        guard let area = room.area,
-                let entity = db.areaEntitiesByLowercasedName[area.lowercasedName]?.roomEntitiesByVnum[vnum] else {
-            send("Ошибка при поиске прототипа.")
-            return
-        }
+//        guard let area = room.area,
+//                let entity = db.areaEntitiesByLowercasedName[area.lowercasedName]?.roomEntitiesByVnum[vnum] else {
+//            send("Ошибка при поиске прототипа.")
+//            return
+//        }
         
-        let fieldNameWithIndex: String
-        if let name = structureName(fromFieldName: lowercasedFieldName),
-                let index = entity.lastStructureIndex[name] {
-            fieldNameWithIndex = appendIndex(toName: lowercasedFieldName, index: index)
-        } else {
-            fieldNameWithIndex = lowercasedFieldName
-        }
+//        let fieldNameWithIndex: String
+//        if let name = structureName(fromFieldName: lowercasedFieldName),
+//                let index = entity.lastStructureIndex[name] {
+//            fieldNameWithIndex = appendIndex(toName: lowercasedFieldName, index: index)
+//        } else {
+//            fieldNameWithIndex = lowercasedFieldName
+//        }
         send("Не реализовано.")
 //        roomEntity[fieldNameWithIndex]
 //        print("\(roomEntity)")

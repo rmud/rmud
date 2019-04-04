@@ -97,7 +97,7 @@ extension Db {
                 return
             }
             
-            guard let extensionIndex  = dotExtensions.index(where: { filename.hasSuffix($0) }) else {
+            guard let extensionIndex  = dotExtensions.firstIndex(where: { filename.hasSuffix($0) }) else {
                 //log("  WARNING: skipping file: \(filename)")
                 return
             }

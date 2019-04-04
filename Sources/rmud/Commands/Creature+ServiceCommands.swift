@@ -32,6 +32,8 @@ extension Creature {
 
         }) else {
             let message: String
+            message = "Здесь нет продавцов."
+            /*
             switch serviceType {
             case .shop: message = "Здесь нет продавцов."
             case .stable: message = "Здесь нет конюхов."
@@ -39,6 +41,7 @@ extension Creature {
             case .inn: message = "Здесь нет владельцев гостиницы."
             case .post: message = "Здесь нет почтальонов."
             }
+            */
             send(message)
             return
         }

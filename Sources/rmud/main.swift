@@ -34,7 +34,7 @@ func main() -> Int32 {
 
     // Create an EventLoopGroup with an appropriate number
     // of threads for the system we are running on.
-    let group = MultiThreadedEventLoopGroup(numThreads: System.coreCount)
+    let group = MultiThreadedEventLoopGroup(numberOfThreads:  System.coreCount)
     // Make sure to shutdown the group when the application exits.
     defer { try! group.syncShutdownGracefully() }
 

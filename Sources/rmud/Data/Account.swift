@@ -52,7 +52,7 @@ extension Account: Equatable {
 }
 
 extension Account: Hashable {
-    var hashValue: Int {
-        return ObjectIdentifier(self).hashValue
+    func hash(into hasher: inout Hasher) {
+        ObjectIdentifier(self).hash(into: &hasher)
     }
 }

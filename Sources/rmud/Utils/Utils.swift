@@ -45,17 +45,6 @@ func assignNameParts(nameCombined: String,
     }
 
 }
-// See SO post http://stackoverflow.com/questions/1835976/what-is-a-sensible-prime-for-hashcode-calculation
-public func combinedHash(_ firstObject: AnyHashable, _ otherObjects: AnyHashable...) -> Int {
-    let prime = 92821
-    var hash = prime &+ firstObject.hashValue
-    for object in otherObjects {
-        hash = hash &* prime &+ object.hashValue
-    }
-    
-    return hash
-}
-
 
 //extension Collection where Indices.Iterator.Element == Index {
 //    /// Returns the element at the specified index if it is within bounds, otherwise nil
@@ -83,7 +72,7 @@ func shell(launchPath: String, arguments: [String] = [], input: String? = nil) -
     if let inputPipe = inputPipe, let input = input {
         let bytes: [UInt8] = Array(input.utf8)
         let fileHandle = inputPipe.fileHandleForWriting
-        fileHandle.write(Data(bytes: bytes))
+        fileHandle.write(Data(bytes))
         fileHandle.closeFile()
     }
     

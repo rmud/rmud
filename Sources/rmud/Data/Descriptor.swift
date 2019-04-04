@@ -383,7 +383,7 @@ class Descriptor {
     }
     
     func closeSocket() {
-        if let index = networking.descriptors.index(where: { $0 === self }) {
+        if let index = networking.descriptors.firstIndex(where: { $0 === self }) {
             networking.descriptors.remove(at: index)
         }
         switch handle {

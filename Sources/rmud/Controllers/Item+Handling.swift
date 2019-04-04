@@ -59,7 +59,7 @@ extension Item {
         }
 
         // FIXME: slow
-        if let index = db.itemsInGame.index(of: self) {
+        if let index = db.itemsInGame.firstIndex(of: self) {
             db.itemsInGame.remove(at: index)
         }
         
@@ -76,7 +76,7 @@ extension Item {
             return
         }
         
-        if let index = inRoom.items.index(of: self) {
+        if let index = inRoom.items.firstIndex(of: self) {
             inRoom.items.remove(at: index)
         } else {
             logError("removeFromRoom: attempt to remove an object which is not present in room")
@@ -102,7 +102,7 @@ extension Item {
         // FIXME: why? this is also done when giving or dropping it
         setDecayTimerRecursively(activate: true)
 
-        if let index = carriedBy.carrying.index(of: self) {
+        if let index = carriedBy.carrying.firstIndex(of: self) {
             carriedBy.carrying.remove(at: index)
         } else {
             logError("removeFromCreature: attempt to remove an object which the creature is not carrying")
@@ -122,7 +122,7 @@ extension Item {
             return
         }
         
-        if let index = container.contains.index(of: self) {
+        if let index = container.contains.firstIndex(of: self) {
             container.contains.remove(at: index)
         } else {
             logError("removeFromContainer: inconsistent container and item states")
