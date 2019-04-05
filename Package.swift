@@ -11,6 +11,9 @@ let targetCIconvName = "CIconv";
 
 let package = Package(
     name: "rmud",
+    platforms: [
+        .macOS(.v10_13)
+    ],
     dependencies: [
         // Dependencies declare other packages that this package depends on.
         // .package(url: /* package url */, from: "1.0.0"),
