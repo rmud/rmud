@@ -10,6 +10,7 @@ public struct FieldFlags: OptionSet {
     // TODO: use field groups instead
     //public static let newLine    = FieldFlags(rawValue: 1 << 3) // "!"
     public static let structureStart = FieldFlags(rawValue: 1 << 4)
+    public static let structureAutoCreate = FieldFlags(rawValue: 1 << 4)
     public static let deprecated = FieldFlags(rawValue: 1 << 5)
     
     public init(rawValue: Int) {

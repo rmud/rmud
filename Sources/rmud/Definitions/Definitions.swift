@@ -1,13 +1,60 @@
 import Foundation
 
 class Definitions {
-    var areaFields = FieldDefinitions()
-    var roomFields = FieldDefinitions()
-    var mobileFields = FieldDefinitions()
-    var itemFields = FieldDefinitions()
-    var socialFields = FieldDefinitions()
-    
-    var enumerations = Enumerations()
+    let enumerations = Enumerations()
+    let areaFields: FieldDefinitions
+    let roomFields: FieldDefinitions
+    let mobileFields: FieldDefinitions
+    let itemFields: FieldDefinitions
+    let socialFields: FieldDefinitions
+
+    init() {
+        areaFields = FieldDefinitions(enumerations: enumerations)
+        roomFields = FieldDefinitions(enumerations: enumerations)
+        mobileFields = FieldDefinitions(enumerations: enumerations)
+        itemFields = FieldDefinitions(enumerations: enumerations)
+        socialFields = FieldDefinitions(enumerations: enumerations)
+    }
+
+    func registerEnumerations() throws {
+        let e = enumerations
+        
+        AffectType.registerDefinitions(in: e)
+        Apply.registerDefinitions(in: e)
+        AreaResetCondition.registerDefinitions(in: e)
+        ClassId.registerDefinitions(in: e)
+        ContainerFlags.registerDefinitions(in: e)
+        Direction.registerDefinitions(in: e)
+        Liquid.registerDefinitions(in: e)
+        EventActionFlags.registerDefinitions(in: e)
+        ExitFlags.registerDefinitions(in: e)
+        ExitType.registerDefinitions(in: e)
+        Frag.registerDefinitions(in: e)
+        Gender.registerDefinitions(in: e)
+        HitType.registerDefinitions(in: e)
+        ItemEventId.registerDefinitions(in: e)
+        ItemExtraFlags.registerDefinitions(in: e)
+        ItemAccessFlags.registerDefinitions(in: e)
+        ItemType.registerDefinitions(in: e)
+        ItemTypeFlagsDeprecated.registerDefinitions(in: e)
+        ItemWearFlags.registerDefinitions(in: e)
+        LockCondition.registerDefinitions(in: e)
+        Material.registerDefinitions(in: e)
+        MobileEventId.registerDefinitions(in: e)
+        MobileFlags.registerDefinitions(in: e)
+        MovementType.registerDefinitions(in: e)
+        Position.registerDefinitions(in: e)
+        Race.registerDefinitions(in: e)
+        RoomEventId.registerDefinitions(in: e)
+        RoomFlags.registerDefinitions(in: e)
+        Skill.registerDefinitions(in: e)
+        SocialRestrictionFlags.registerDefinitions(in: e)
+        SpecialAttackType.registerDefinitions(in: e)
+        SpecialAttackUsageFlags.registerDefinitions(in: e)
+        Spell.registerDefinitions(in: e)
+        Terrain.registerDefinitions(in: e)
+        WeaponType.registerDefinitions(in: e)
+    }
     
     func registerAreaFields() throws {
         let d = areaFields
@@ -71,38 +118,63 @@ class Definitions {
         // Used for item types without parameters: treasure, worn, other, key, pen, boat, token, or even default container
         try d.insert(name: "тип", type: .list)
         // Light
-        try d.insert(name: "свет.время", type: .number, flags: .structureStart)
+        try d.insert(name: "свет.время", type: .number, flags: .structureAutoCreate)
         // Scroll
-        try d.insert(name: "свиток.заклинания", type: .dictionary, flags: [.required, .structureStart])
+        try d.insert(name: "свиток.заклинания", type: .dictionary, flags: .structureAutoCreate)
         // Wand
-        try d.insert(name: "палочка.заклинания", type: .dictionary, flags: [.required, .structureStart])
-        try d.insert(name: "палочка.заряды", type: .number)
-        try d.insert(name: "палочка.осталось", type: .number)
+        try d.insert(name: "палочка.заклинания", type: .dictionary, flags: .structureAutoCreate)
+        try d.insert(name: "палочка.заряды", type: .number, flags: .structureAutoCreate)
+        try d.insert(name: "палочка.осталось", type: .number, flags: .structureAutoCreate)
         // Staff
-        try d.insert(name: "жезл.заклинания", type: .dictionary, flags: [.required, .structureStart])
-        try d.insert(name: "жезл.заряды", type: .number)
-        try d.insert(name: "жезл.осталось", type: .number)
+        try d.insert(name: "жезл.заклинания", type: .dictionary, flags: .structureAutoCreate)
+        try d.insert(name: "жезл.заряды", type: .number, flags: .structureAutoCreate)
+        try d.insert(name: "жезл.осталось", type: .number, flags: .structureAutoCreate)
         // Weapon
-        try d.insert(name: "оружие.вред", type: .dice, flags: [.required, .structureStart])
-        try d.insert(name: "оружие.удар", type: .enumeration)
-        try d.insert(name: "оружие.яд", type: .number)
-        try d.insert(name: "оружие.волшебство", type: .number) // не используется
+        try d.insert(name: "оружие.вред", type: .dice, flags: .structureAutoCreate)
+        try d.insert(name: "оружие.удар", type: .enumeration, flags: .structureAutoCreate)
+        try d.insert(name: "оружие.яд", type: .number, flags: .structureAutoCreate)
+        try d.insert(name: "оружие.волшебство", type: .number, flags: .structureAutoCreate) // не используется
+        // Treasure
         // Armor
-        try d.insert(name: "доспех.прочность", type: .number, flags: [.required, .structureStart])
+        try d.insert(name: "доспех.прочность", type: .number, flags: .structureAutoCreate)
         // Potion
-        try d.insert(name: "зелье.заклинания", type: .dictionary, flags: [.required, .structureStart])
+        try d.insert(name: "зелье.заклинания", type: .dictionary, flags: .structureAutoCreate)
+        // Worn
+        // Other
         // Container
-        try d.insert(name: "контейнер.вместимость", type: .number, flags: [.structureStart])
-        try d.insert(name: "контейнер.свойства", type: .flags, flags: [.structureStart])
-        try d.insert(name: "контейнер.яд", type: .number, flags: [.structureStart])
-        try d.insert(name: "контейнер.монстр", type: .number, flags: [.structureStart])
-        try d.insert(name: "контейнер.удобство", type: .number, flags: [.structureStart]) // FIXME: unused
-        try d.insert(name: "контейнер.замок_ключ", type: .number, flags: [.structureStart])
-        try d.insert(name: "контейнер.замок_сложность", type: .constrainedNumber(0...150), flags: [.structureStart])
-        try d.insert(name: "контейнер.замок_состояние", type: .enumeration, flags: [.structureStart])
-        try d.insert(name: "контейнер.замок_повреждение", type: .enumeration, flags: [.structureStart])
+        try d.insert(name: "контейнер.вместимость", type: .number, flags: .structureAutoCreate)
+        try d.insert(name: "контейнер.свойства", type: .flags, flags: .structureAutoCreate)
+        try d.insert(name: "контейнер.яд", type: .number, flags: .structureAutoCreate)
+        try d.insert(name: "контейнер.монстр", type: .number, flags: .structureAutoCreate)
+        try d.insert(name: "контейнер.удобство", type: .number, flags: .structureAutoCreate) // FIXME: unused
+        try d.insert(name: "контейнер.замок_ключ", type: .number, flags: .structureAutoCreate)
+        try d.insert(name: "контейнер.замок_сложность", type: .constrainedNumber(0...150), flags: .structureAutoCreate)
+        try d.insert(name: "контейнер.замок_состояние", type: .enumeration, flags: .structureAutoCreate)
+        try d.insert(name: "контейнер.замок_повреждение", type: .number, flags: .structureAutoCreate)
         // Note
+        try d.insert(name: "записка.текст", type: .longText, flags: .structureAutoCreate)
         // Vessel
+        try d.insert(name: "сосуд.емкость", type: .number, flags: .structureAutoCreate)
+        try d.insert(name: "сосуд.осталось", type: .number, flags: .structureAutoCreate)
+        try d.insert(name: "сосуд.жидкость", type: .enumeration, flags: .structureAutoCreate)
+        try d.insert(name: "сосуд.яд", type: .number, flags: .structureAutoCreate)
+        // Key
+        // Food
+        try d.insert(name: "пища.насыщение", type: .number, flags: .structureAutoCreate)
+        try d.insert(name: "пища.влажность", type: .number, flags: .structureAutoCreate)
+        try d.insert(name: "пища.яд", type: .number, flags: .structureAutoCreate)
+        // Money
+        // Pen
+        // Boat
+        // Fountatin
+        // Spellbook
+        try d.insert(name: "книга.заклинания", type: .dictionary, flags: .structureAutoCreate)
+        // Board
+        try d.insert(name: "доска.номер", type: .number, flags: .structureAutoCreate)
+        try d.insert(name: "доска.чтение", type: .number, flags: .structureAutoCreate)
+        try d.insert(name: "доска.запись", type: .number, flags: .structureAutoCreate)
+        // Receipt
+        // Token
 
         // Deprecated in favor of ЗНАЧЕНИЯ.*
         // знач* are used by bulletin boards
@@ -157,13 +229,15 @@ class Definitions {
         // Directions
         for direction in Direction.orderedDirections.map({ $0.nameForAreaFile }) {
             try d.insert(name: "\(direction)", type: .number)
-            try d.insert(name: "\(direction).комната", type: .number, flags: .structureStart)
-            try d.insert(name: "\(direction).описание", type: .line, flags: .structureStart)
-            try d.insert(name: "\(direction).ключ", type: .number, flags: .structureStart)
-            try d.insert(name: "\(direction).признаки", type: .flags, flags: .structureStart)
-            try d.insert(name: "\(direction).сложность", type: .constrainedNumber(0...150), flags: .structureStart)
-            try d.insert(name: "\(direction).тип", type: .enumeration, flags: .structureStart)
-            try d.insert(name: "\(direction).расстояние", type: .constrainedNumber(1...10), flags: .structureStart)
+            try d.insert(name: "\(direction).комната", type: .number, flags: .structureAutoCreate)
+            try d.insert(name: "\(direction).тип", type: .enumeration, flags: .structureAutoCreate)
+            try d.insert(name: "\(direction).признаки", type: .flags, flags: .structureAutoCreate)
+            try d.insert(name: "\(direction).замок_ключ", type: .number, flags: .structureAutoCreate)
+            try d.insert(name: "\(direction).замок_сложность", type: .constrainedNumber(0...150), flags: .structureAutoCreate)
+            try d.insert(name: "\(direction).замок_состояние", type: .enumeration, flags: .structureAutoCreate)
+            try d.insert(name: "\(direction).замок_повреждение", type: .number, flags: .structureAutoCreate)
+            try d.insert(name: "\(direction).расстояние", type: .constrainedNumber(1...10), flags: .structureAutoCreate)
+            try d.insert(name: "\(direction).описание", type: .line, flags: .structureAutoCreate)
         }
         
         // Optional fields
@@ -309,45 +383,6 @@ class Definitions {
         try d.insert(name: "цель.цели", type: .line)
         try d.insert(name: "цель.себяигроку", type: .line)
         try d.insert(name: "цель.себякомнате", type: .line)
-    }
-
-    func registerEnumerations() throws {
-        let e = enumerations
-        
-        AffectType.registerDefinitions(in: e)
-        Apply.registerDefinitions(in: e)
-        AreaResetCondition.registerDefinitions(in: e)
-        ClassId.registerDefinitions(in: e)
-        ContainerFlags.registerDefinitions(in: e)
-        Direction.registerDefinitions(in: e)
-        Liquid.registerDefinitions(in: e)
-        EventActionFlags.registerDefinitions(in: e)
-        ExitFlags.registerDefinitions(in: e)
-        ExitType.registerDefinitions(in: e)
-        Frag.registerDefinitions(in: e)
-        Gender.registerDefinitions(in: e)
-        HitType.registerDefinitions(in: e)
-        ItemEventId.registerDefinitions(in: e)
-        ItemExtraFlags.registerDefinitions(in: e)
-        ItemAccessFlags.registerDefinitions(in: e)
-        ItemType.registerDefinitions(in: e)
-        ItemTypeFlagsDeprecated.registerDefinitions(in: e)
-        ItemWearFlags.registerDefinitions(in: e)
-        Material.registerDefinitions(in: e)
-        MobileEventId.registerDefinitions(in: e)
-        MobileFlags.registerDefinitions(in: e)
-        MovementType.registerDefinitions(in: e)
-        Position.registerDefinitions(in: e)
-        Race.registerDefinitions(in: e)
-        RoomEventId.registerDefinitions(in: e)
-        RoomFlags.registerDefinitions(in: e)
-        Skill.registerDefinitions(in: e)
-        SocialRestrictionFlags.registerDefinitions(in: e)
-        SpecialAttackType.registerDefinitions(in: e)
-        SpecialAttackUsageFlags.registerDefinitions(in: e)
-        Spell.registerDefinitions(in: e)
-        Terrain.registerDefinitions(in: e)
-        WeaponType.registerDefinitions(in: e)
     }
     
     func dumpToFile(named filename: String) throws {

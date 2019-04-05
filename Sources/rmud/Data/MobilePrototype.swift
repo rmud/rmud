@@ -606,7 +606,7 @@ class MobilePrototype {
             result += "  ТЕЛОСЛОЖЕНИЕ \(Value(number: realConstitution).formatted(for: style))\n"
         }
         if let realIntelligence = realIntelligence {
-            result += "  ИНТЕЛЛЕКТ \(Value(number: realIntelligence).formatted(for: style))\n"
+            result += "  РАЗУМ \(Value(number: realIntelligence).formatted(for: style))\n"
         }
         if let realWisdom = realWisdom {
             result += "  МУДРОСТЬ \(Value(number: realWisdom).formatted(for: style))\n"

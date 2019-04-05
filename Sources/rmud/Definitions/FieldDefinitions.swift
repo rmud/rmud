@@ -6,6 +6,12 @@ class FieldDefinitions {
     //private(set) public var orderedFieldNames: [String] = []
     private(set) var requiredFieldNamesLowercased: [String] = []
     
+    private let enumerations: Enumerations
+
+    init(enumerations: Enumerations) {
+        self.enumerations = enumerations
+    }
+
     func entityIdFieldLowercasedName() -> String? {
         for (lowercasedName, fieldInfo) in fieldsByLowercasedName {
             if fieldInfo.flags.contains(.entityId) {
@@ -23,6 +29,13 @@ class FieldDefinitions {
         //orderedFieldNames.append(fieldInfo.name)
         if fieldInfo.flags.contains(.required) {
             requiredFieldNamesLowercased.append(fieldInfo.lowercasedName)
+        }
+        switch fieldInfo.type {
+        case .enumeration, .flags:
+            guard nil != enumerations.enumSpecsByAlias[fieldInfo.lowercasedName] else {
+                throw FieldDefinitionsError(kind: .enumOrFlagsFieldNotFullyDefined(fieldInfo: fieldInfo))
+            }
+        default: break
         }
     }
     
@@ -42,11 +55,14 @@ class FieldDefinitions {
 struct FieldDefinitionsError: Error, CustomStringConvertible {
     enum Kind: CustomStringConvertible {
         case duplicateFieldDefinition(fieldInfo: FieldInfo)
-    
+        case enumOrFlagsFieldNotFullyDefined(fieldInfo: FieldInfo)
+
         var description: String {
             switch self {
             case .duplicateFieldDefinition(let fieldInfo):
                 return "Duplicate field definition: \(fieldInfo.lowercasedName)"
+            case .enumOrFlagsFieldNotFullyDefined(let fieldInfo):
+                return "Enum or flags field not fully defined: \(fieldInfo.lowercasedName)"
             }
         }
     }

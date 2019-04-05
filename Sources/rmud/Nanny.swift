@@ -747,6 +747,23 @@ private func stateCreatureMenu(_ d: Descriptor, _ arg: String) {
     switch arg {
     case "1":
         let creature = d.creature!
+
+        let loadRoomVnum = creature.player!.loadRoom
+        let loadRoom: Room
+        if let room = db.roomsByVnum[loadRoomVnum] {
+            loadRoom = room
+        } else {
+            logError("Game entry room \(loadRoomVnum) does not exist")
+            guard let mortalStartRoom = db.roomsByVnum[vnumMortalStartRoom] else {
+                logError("Mortal start room \(vnumMortalStartRoom) does not exist")
+                logToMud("\(creature.nameNominative) не может войти в игру: отсутствует стартовая комната.",
+                    verbosity: .brief, minLevel: Level.lesserGod)
+                d.send("Невозможно войти в игру.")
+                return;
+            }
+            loadRoom = mortalStartRoom
+        }
+
         creature.descriptor = d
         creature.reset()
         
@@ -758,15 +775,6 @@ private func stateCreatureMenu(_ d: Descriptor, _ arg: String) {
         //if let timeUntilReboot = timeUntilReboot {
         //    act("Через # минут#(у,ы,) будет произведена перезагрузка игры.", "!Мч", creature, timeUntilReboot)
         //}
-
-        let loadRoomVnum = creature.player!.loadRoom
-        let loadRoom: Room
-        if let room = db.roomsByVnum[loadRoomVnum] {
-            loadRoom = room
-        } else {
-            logError("Game entry room \(loadRoomVnum) does not exist")
-            loadRoom = db.roomsByVnum[vnumMortalStartRoom]!
-        }
         creature.teleportTo(room: loadRoom)
         
         creature.hitPoints = creature.affectedMaximumHitPoints()

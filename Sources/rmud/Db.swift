@@ -52,7 +52,7 @@ class Db {
 
         log("Registering area format definitions")
         try registerDefinitions()
-        
+
         //log("Loading area info (universe)")
         //try db.loadUniverse() // TODO: deprecate in favor of AREA entity type
 
@@ -133,6 +133,8 @@ class Db {
     }
     
     func registerDefinitions() throws {
+        log("  enumerations")
+        try db.definitions.registerEnumerations()
         log("  areas")
         try db.definitions.registerAreaFields()
         log("  items")
@@ -143,9 +145,6 @@ class Db {
         try db.definitions.registerMobileFields()
         log("  socials")
         try db.definitions.registerSocialFields()
-        
-        log("  enumerations")
-        try db.definitions.registerEnumerations()
     }
     
     func logUnusedEntityFields() {

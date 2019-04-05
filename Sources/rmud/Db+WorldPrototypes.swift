@@ -107,7 +107,7 @@ extension Db {
             do {
                 try parser.load(filename: fullName)
             } catch {
-                log("\(filenames.worldPrefix)/\(filename): \(error.userFriendlyDescription)")
+                log("\(filenames.worldPrefix)/\(filename):\(error.userFriendlyDescription)")
                 exit(1)
             }
             

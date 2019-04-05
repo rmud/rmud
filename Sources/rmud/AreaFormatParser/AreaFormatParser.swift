@@ -297,7 +297,9 @@ class AreaFormatParser {
         case .base:
             // For base structures, assign a new index every time
             // a structure start field is encountered.
-            if fieldInfo.flags.contains(.structureStart) {
+            if fieldInfo.flags.contains(.structureStart) ||
+                (fieldInfo.flags.contains(.structureAutoCreate) &&
+                    nil == currentEntity.lastStructureIndex[currentStructureName]) {
                 assignIndexToNewStructure(named: currentStructureName)
             }
         case .extended:
@@ -305,7 +307,7 @@ class AreaFormatParser {
             // the structure was opened.
             if firstFieldInStructure {
                 firstFieldInStructure = false
-                if !fieldInfo.flags.contains(.structureStart) {
+                if !fieldInfo.flags.contains(anyOf: [.structureStart, .structureAutoCreate]) {
                     try throwError(.structureCantStartFromThisField)
                 }
             }
