@@ -45,5 +45,14 @@
                 "clear": true
             }
         },
+        {
+            "label": "resave areas",
+            "type": "shell",
+            "command": "swift run -c debug rmud --save-areas",
+            "group": "test",
+            "presentation": {
+                "clear": true
+            }
+        },
     ]
 }
