@@ -19,8 +19,8 @@ class SMTP {
             
             """ + text
         
-        let (result, code) = shell(
-            launchPath: "Tools/send_email.sh", arguments: [hostname, email, password, from, to], input: text)
+        let (result, code) = try! shell(
+            executable: "Tools/send_email.sh", arguments: [hostname, email, password, from, to], input: text)
         guard code == 0 else {
             logError("Unable to send email with confirmation code")
             return

@@ -9,27 +9,35 @@ class Morpher {
         isEnabled = false
         
         do {
-            let (result, code) = shell(
-                launchPath: "Tools/detect_gender.php", arguments: ["Карамон"])
+            let (result, code) = try shell(
+                executable: "Tools/detect_gender.php", arguments: ["Карамон"])
             guard code == 0 && result == "1" else { return false }
+        } catch {
+            return false
         }
 
         do {
-            let (result, code) = shell(
-                launchPath: "Tools/detect_gender.php", arguments: ["Тика"])
+            let (result, code) = try shell(
+                executable: "Tools/detect_gender.php", arguments: ["Тика"])
             guard code == 0 && result == "2" else { return false }
+        } catch {
+            return false
         }
         
         do {
-            let (result, code) = shell(
-                launchPath: "Tools/generate_name_cases.php", arguments: ["Карамон", "1"])
+            let (result, code) = try shell(
+                executable: "Tools/generate_name_cases.php", arguments: ["Карамон", "1"])
             guard code == 0 && result == "Карамона Карамону Карамона Карамоном Карамоне" else { return false }
+        } catch {
+            return false
         }
 
         do {
-            let (result, code) = shell(
-                launchPath: "Tools/generate_name_cases.php", arguments: ["Тика", "2"])
+            let (result, code) = try shell(
+                executable: "Tools/generate_name_cases.php", arguments: ["Тика", "2"])
             guard code == 0 && result == "Тики Тике Тику Тикой Тике" else { return false }
+        } catch {
+            return false
         }
 
         isEnabled = true
@@ -48,8 +56,8 @@ class Morpher {
             
         }
 
-        let (result, code) = shell(
-            launchPath: "Tools/detect_gender.php", arguments: [name])
+        let (result, code) = try! shell(
+            executable: "Tools/detect_gender.php", arguments: [name])
         guard code == 0, let value = result else {
             assertionFailure()
             return .masculine
@@ -67,8 +75,8 @@ class Morpher {
 
         let genderString = (gender == .feminine ? "2" : "1")
         
-        let (result, code) = shell(
-            launchPath: "Tools/generate_name_cases.php", arguments: [name, genderString])
+        let (result, code) = try! shell(
+            executable: "Tools/generate_name_cases.php", arguments: [name, genderString])
         guard code == 0, let value = result else {
             assertionFailure()
             return (name, name, name, name, name)

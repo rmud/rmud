@@ -53,9 +53,9 @@ func assignNameParts(nameCombined: String,
 //    }
 //}
 
-func shell(launchPath: String, arguments: [String] = [], input: String? = nil) -> (String? , Int32) {
+func shell(executableURL: URL, arguments: [String] = [], input: String? = nil) throws -> (String? , Int32) {
     let task = Process()
-    task.launchPath = launchPath
+    task.executableURL = executableURL
     task.arguments = arguments
     
     var inputPipe: Pipe?
@@ -67,7 +67,7 @@ func shell(launchPath: String, arguments: [String] = [], input: String? = nil) -
     let outputPipe = Pipe()
     task.standardOutput = outputPipe
     task.standardError = outputPipe
-    task.launch()
+    try task.run()
     
     if let inputPipe = inputPipe, let input = input {
         let bytes: [UInt8] = Array(input.utf8)
@@ -82,3 +82,7 @@ func shell(launchPath: String, arguments: [String] = [], input: String? = nil) -
     return (output, task.terminationStatus)
 }
 
+func shell(executable: String, arguments: [String] = [], input: String? = nil) throws -> (String? , Int32) {
+    let url = URL(fileURLWithPath: executable, isDirectory: false)
+    return try shell(executableURL: url, arguments: arguments, input: input)
+}
