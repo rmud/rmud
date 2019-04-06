@@ -4,6 +4,7 @@ let accounts = Accounts.sharedInstance
 let areaManager = AreaManager.sharedInstance
 let ban = Ban.sharedInstance
 let classes = Classes.sharedInstance
+let commandInterpreter = CommandInterpreter.sharedInstance
 let db = Db.sharedInstance
 let dns = Dns.sharedInstance
 let endings = Endings.sharedInstance

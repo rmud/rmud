@@ -50,6 +50,11 @@ class Db {
             try endings.load()
         }
 
+        log("Building player command index")
+        BenchmarkTimer.measure {
+            commandInterpreter.buildCommandIndex()
+        }
+
         log("Registering area format definitions")
         try registerDefinitions()
 

@@ -44,7 +44,9 @@ extension Creature {
         log("Room \(room.vnum) not found on map.")
         logToMud("Комната \(room.vnum) не найдена на карте.", verbosity: .brief, minLevel: Level.lesserGod)
     }
-    
+}
+
+extension Creature {
     func doWho(context: CommandContext) {
         var showImmortals = false
         var showMortals = false
@@ -238,7 +240,9 @@ extension Creature {
             }
         }
     }
-    
+}
+
+extension Creature {
     func doScore(context: CommandContext) {
         let raceName = race.info.namesByGender[gender] ?? "(раса неизвестна)"
         
@@ -756,5 +760,20 @@ extension Creature {
         }
         
         preferenceFlags = newFlags
+    }
+}
+
+extension Creature {
+    func doHelp(context: CommandContext) {
+        send("Основные команды RMUD")
+        for commandAbbreviation in commandInterpreter.commandAbbreviations {
+            let command = commandAbbreviation.command
+            let restOfCommand = command.suffix(command.count - commandAbbreviation.abbreviation.count)
+            send("\(bGrn())\(commandAbbreviation.abbreviation)\(nNrm())\(restOfCommand)")
+        }
+    }
+
+    private func buildCommandIndex() {
+        
     }
 }
