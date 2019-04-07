@@ -25,4 +25,7 @@ struct CommandFlags: OptionSet {
     
     // Команды-направления движения, не использовать сокращения при PRF_FULL_DIRS
     static let directionCommand = T(rawValue: 1 << 6)
+
+    // Hide from help output
+    static let hidden = T(rawValue: 1 << 7)
 }

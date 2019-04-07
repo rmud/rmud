@@ -1,5 +1,7 @@
 import Foundation
 
+fileprivate let notImplemented: Command.Handler? = nil
+
 fileprivate let commandInfo: [Command] = [
     
     // Movement
@@ -15,18 +17,18 @@ fileprivate let commandInfo: [Command] = [
             flags: [.highPriority, .noFight, .directionCommand]),
     Command(["опуститься", "вниз", "down"], group: .movement, subcommand: .down, Creature.doMove,
             flags: [.highPriority, .noFight, .directionCommand]),
-    Command(["следовать", "follow"], group: .movement, Creature.notImplemented),
+    Command(["следовать", "follow"], group: .movement, notImplemented),
 
     // Communication
-    Command(["сказать", "tell"], group: .communication, Creature.notImplemented),
-    Command(["ответить", "reply"], group: .communication, Creature.notImplemented),
-    Command(["произнести", "say"], group: .communication, Creature.notImplemented),
-    Command(["крикнуть", "shout"], group: .communication, Creature.notImplemented),
-    Command(["приказать", "order"], group: .communication, Creature.notImplemented),
-    Command(["группа", "group"], group: .communication, Creature.notImplemented),
-    Command(["гговорить", "gtell"], group: .communication, Creature.notImplemented),
-    Command(["*"], group: .communication, Creature.notImplemented),
-    Command(["эмоции", "emote"], group: .communication, Creature.notImplemented),
+    Command(["сказать", "tell"], group: .communication, notImplemented),
+    Command(["ответить", "reply"], group: .communication, notImplemented),
+    Command(["произнести", "say"], group: .communication, notImplemented),
+    Command(["крикнуть", "shout"], group: .communication, notImplemented),
+    Command(["приказать", "order"], group: .communication, notImplemented),
+    Command(["группа", "group"], group: .communication, notImplemented),
+    Command(["гговорить", "gtell"], group: .communication, notImplemented),
+    Command(["*"], group: .communication, notImplemented),
+    Command(["эмоции", "emote"], group: .communication, notImplemented),
 
     // Information
     Command(["?"], group: .information, Creature.doHelp,
@@ -39,8 +41,8 @@ fileprivate let commandInfo: [Command] = [
     Command(["смотреть", "look"], group: .information, Creature.doLook,
             minPosition: .resting,
             arg1: [.creature, .item, .word], cases1: [.accusative], where1: [.equipment, .inventory, .room], extra1: [.optional]),
-    Command(["взглянуть", "glance"], group: .information, Creature.notImplemented),
-    Command(["наблюдать", "watch"], group: .information, Creature.notImplemented),
+    Command(["взглянуть", "glance"], group: .information, notImplemented),
+    Command(["наблюдать", "watch"], group: .information, notImplemented),
     Command(["оглядеться", "scan", "выходы"], group: .information, Creature.doScan,
             minPosition: .resting),
     Command(["кто", "who"], group: .information, Creature.doWho,
@@ -48,9 +50,9 @@ fileprivate let commandInfo: [Command] = [
     Command(["счет", "score"], group: .information, Creature.doScore,
         flags: .informational, minPosition: .sleeping,
         arg1: .word, extra1: [/*.allowFillWords,*/ .optional]),
-    Command(["титул", "title"], group: .information, Creature.notImplemented),
-    Command(["время", "time"], group: .information, Creature.notImplemented),
-    Command(["луны", "moons"], group: .information, Creature.notImplemented),
+    Command(["титул", "title"], group: .information, notImplemented),
+    Command(["время", "time"], group: .information, notImplemented),
+    Command(["луны", "moons"], group: .information, notImplemented),
     Command(["режим", "option"], group: .information, Creature.doOption,
             flags: .informational, minPosition: .sleeping,
             arg1: .word, extra1: .optional,
@@ -59,105 +61,105 @@ fileprivate let commandInfo: [Command] = [
     // Position
     Command(["встать", "stand"], group: .position, Creature.doStand,
             minPosition: .resting),
-    Command(["отдохнуть", "rest"], group: .position, Creature.notImplemented),
+    Command(["отдохнуть", "rest"], group: .position, notImplemented),
     Command(["спать", "sleep"], group: .position, Creature.doSleep,
             flags: [.noFight, .noMount], minPosition: .resting),
     Command(["проснуться", "wake"], group: .position, Creature.doWake,
             minPosition: .sleeping),
-    Command(["будить", "awaken"], group: .position, Creature.notImplemented),
+    Command(["будить", "awaken"], group: .position, notImplemented),
 
     // Items
     Command(["вещи", "inventory", "инвентарь"], group: .items, Creature.doInventory,
             flags: [.informational], minPosition: .sleeping),
-    Command(["экипировка", "equipment"], group: .items, Creature.notImplemented),
-    Command(["взять", "get"], group: .items, Creature.notImplemented),
-    Command(["положить", "put"], group: .items, Creature.notImplemented),
-    Command(["надеть", "wear"], group: .items, Creature.notImplemented),
-    Command(["снять", "remove"], group: .items, Creature.notImplemented),
-    Command(["дать", "give"], group: .items, Creature.notImplemented),
-    Command(["делить", "split"], group: .items, Creature.notImplemented),
+    Command(["экипировка", "equipment"], group: .items, notImplemented),
+    Command(["взять", "get"], group: .items, notImplemented),
+    Command(["положить", "put"], group: .items, notImplemented),
+    Command(["надеть", "wear"], group: .items, notImplemented),
+    Command(["снять", "remove"], group: .items, notImplemented),
+    Command(["дать", "give"], group: .items, notImplemented),
+    Command(["делить", "split"], group: .items, notImplemented),
     Command(["бросить", "drop"], group: .items, Creature.doDrop,
             minPosition: .resting,
             arg1: .item, cases1: .accusative, where1: .inventory, extra1: [.oneOrMore, .optional]),
-    Command(["вооружиться", "wield"], group: .items, Creature.notImplemented),
-    Command(["держать", "hold"], group: .items, Creature.notImplemented),
-    Command(["убрать", "remove"], group: .items, Creature.notImplemented),
+    Command(["вооружиться", "wield"], group: .items, notImplemented),
+    Command(["держать", "hold"], group: .items, notImplemented),
+    Command(["убрать", "remove"], group: .items, notImplemented),
 
     // DoorsAndContainers
-    Command(["закрыть", "close"], group: .doorsAndContainers, Creature.notImplemented),
-    Command(["открыть", "open"], group: .doorsAndContainers, Creature.notImplemented),
-    Command(["запереть", "lock"], group: .doorsAndContainers, Creature.notImplemented),
-    Command(["отпереть", "unlock"], group: .doorsAndContainers, Creature.notImplemented),
+    Command(["закрыть", "close"], group: .doorsAndContainers, notImplemented),
+    Command(["открыть", "open"], group: .doorsAndContainers, notImplemented),
+    Command(["запереть", "lock"], group: .doorsAndContainers, notImplemented),
+    Command(["отпереть", "unlock"], group: .doorsAndContainers, notImplemented),
 
     // Food
-    Command(["наполнить", "fill"], group: .food, Creature.notImplemented),
-    Command(["опорожнить", "empty"], group: .food, Creature.notImplemented),
-    Command(["перелить", "pour"], group: .food, Creature.notImplemented),
-    Command(["пить", "drink"], group: .food, Creature.notImplemented),
-    Command(["пригубить", "sip"], group: .food, Creature.notImplemented),
-    Command(["есть", "eat"], group: .food, Creature.notImplemented),
-    Command(["пробовать", "taste"], group: .food, Creature.notImplemented),
+    Command(["наполнить", "fill"], group: .food, notImplemented),
+    Command(["опорожнить", "empty"], group: .food, notImplemented),
+    Command(["перелить", "pour"], group: .food, notImplemented),
+    Command(["пить", "drink"], group: .food, notImplemented),
+    Command(["пригубить", "sip"], group: .food, notImplemented),
+    Command(["есть", "eat"], group: .food, notImplemented),
+    Command(["пробовать", "taste"], group: .food, notImplemented),
 
     // Mounts
-    Command(["вскочить", "mount"], group: .mounts, Creature.notImplemented),
-    Command(["соскочить", "unmount"], group: .mounts, Creature.notImplemented),
-    Command(["привязать", "fill"], group: .mounts, Creature.notImplemented),
-    Command(["отвязать", "fill"], group: .mounts, Creature.notImplemented),
+    Command(["вскочить", "mount"], group: .mounts, notImplemented),
+    Command(["соскочить", "unmount"], group: .mounts, notImplemented),
+    Command(["привязать", "fill"], group: .mounts, notImplemented),
+    Command(["отвязать", "fill"], group: .mounts, notImplemented),
 
     // MagicItems
-    Command(["осушить", "quaff"], group: .mounts, Creature.notImplemented),
-    Command(["зачитать", "recite"], group: .mounts, Creature.notImplemented),
-    Command(["взмахнуть", "wave"], group: .mounts, Creature.notImplemented),
-    Command(["указать", "point"], group: .mounts, Creature.notImplemented),
+    Command(["осушить", "quaff"], group: .mounts, notImplemented),
+    Command(["зачитать", "recite"], group: .mounts, notImplemented),
+    Command(["взмахнуть", "wave"], group: .mounts, notImplemented),
+    Command(["указать", "point"], group: .mounts, notImplemented),
 
     // SkillsAndSpells
-    Command(["умения", "skills"], group: .skillsAndSpells, Creature.notImplemented),
-    Command(["заклинания", "spells"], group: .skillsAndSpells, Creature.notImplemented),
-    Command(["запомнить", "memorize"], group: .skillsAndSpells, Creature.notImplemented),
-    Command(["забыть", "forget"], group: .skillsAndSpells, Creature.notImplemented),
-    Command(["колдовать", "cast"], group: .skillsAndSpells, Creature.notImplemented),
-    Command(["появиться", "appear"], group: .skillsAndSpells, Creature.notImplemented),
+    Command(["умения", "skills"], group: .skillsAndSpells, notImplemented),
+    Command(["заклинания", "spells"], group: .skillsAndSpells, notImplemented),
+    Command(["запомнить", "memorize"], group: .skillsAndSpells, notImplemented),
+    Command(["забыть", "forget"], group: .skillsAndSpells, notImplemented),
+    Command(["колдовать", "cast"], group: .skillsAndSpells, notImplemented),
+    Command(["появиться", "appear"], group: .skillsAndSpells, notImplemented),
 
     // Combat
-    Command(["сравнить", "consider"], group: .combat, Creature.notImplemented),
-    Command(["убить", "kill"], group: .combat, Creature.notImplemented),
-    Command(["бежать", "flee"], group: .combat, Creature.notImplemented),
-    Command(["отступить", "retreat"], group: .combat, Creature.notImplemented),
-    Command(["помочь", "assist"], group: .combat, Creature.notImplemented),
+    Command(["сравнить", "consider"], group: .combat, notImplemented),
+    Command(["убить", "kill"], group: .combat, notImplemented),
+    Command(["бежать", "flee"], group: .combat, notImplemented),
+    Command(["отступить", "retreat"], group: .combat, notImplemented),
+    Command(["помочь", "assist"], group: .combat, notImplemented),
 
     // ShopsAndStables
     Command(["список", "list", "меню", "menu"], group: .shopsAndStables, subcommand: .shopList, Creature.doService,
             flags: [.noFight],
             arg1: .word, extra1: .optional),
-    Command(["купить", "buy"], group: .shopsAndStables, Creature.notImplemented),
-    Command(["продать", "sell"], group: .shopsAndStables, Creature.notImplemented),
-    Command(["чинить", "repair"], group: .shopsAndStables, Creature.notImplemented),
-    Command(["оценить", "evaluate"], group: .shopsAndStables, Creature.notImplemented),
-    Command(["сдать", "stable"], group: .shopsAndStables, Creature.notImplemented),
-    Command(["забрать", "redeem"], group: .shopsAndStables, Creature.notImplemented),
+    Command(["купить", "buy"], group: .shopsAndStables, notImplemented),
+    Command(["продать", "sell"], group: .shopsAndStables, notImplemented),
+    Command(["чинить", "repair"], group: .shopsAndStables, notImplemented),
+    Command(["оценить", "evaluate"], group: .shopsAndStables, notImplemented),
+    Command(["сдать", "stable"], group: .shopsAndStables, notImplemented),
+    Command(["забрать", "redeem"], group: .shopsAndStables, notImplemented),
 
     // Banks
-    Command(["баланс", "balance"], group: .banks, Creature.notImplemented),
-    Command(["вложить", "deposit"], group: .banks, Creature.notImplemented),
-    Command(["получить", "withdraw"], group: .banks, Creature.notImplemented),
+    Command(["баланс", "balance"], group: .banks, notImplemented),
+    Command(["вложить", "deposit"], group: .banks, notImplemented),
+    Command(["получить", "withdraw"], group: .banks, notImplemented),
 
     // Taverns
-    Command(["стоимость", "offer"], group: .taverns, Creature.notImplemented),
-    Command(["прописаться", "register"], group: .taverns, Creature.notImplemented),
-    Command(["постой", "rent"], group: .taverns, Creature.notImplemented),
+    Command(["стоимость", "offer"], group: .taverns, notImplemented),
+    Command(["прописаться", "register"], group: .taverns, notImplemented),
+    Command(["постой", "rent"], group: .taverns, notImplemented),
     Command(["конец", "quit"], group: .taverns, Creature.doQuit,
             flags: [.informational, .noFight], minPosition: .sleeping),
     Command(["конец!", "quit!"], group: .taverns, subcommand: .quit, Creature.doQuit,
-            flags: [.informational, .noFight], minPosition: .sleeping),
+            flags: [.informational, .noFight, .hidden], minPosition: .sleeping),
 
     // Other
-    Command(["правила", "rules"], group: .other, Creature.notImplemented),
-    Command(["новости", "news"], group: .other, Creature.notImplemented),
-    Command(["система", "system"], group: .other, Creature.notImplemented),
-    Command(["благодарности", "credits"], group: .other, Creature.notImplemented),
-    Command(["глюк", "bug"], group: .other, Creature.notImplemented),
-    Command(["идея", "idea"], group: .other, Creature.notImplemented),
-    Command(["опечатка", "typo"], group: .other, Creature.notImplemented),
+    Command(["правила", "rules"], group: .other, notImplemented),
+    Command(["новости", "news"], group: .other, notImplemented),
+    Command(["система", "system"], group: .other, notImplemented),
+    Command(["благодарности", "credits"], group: .other, notImplemented),
+    Command(["глюк", "bug"], group: .other, notImplemented),
+    Command(["идея", "idea"], group: .other, notImplemented),
+    Command(["опечатка", "typo"], group: .other, notImplemented),
 
     // Administrative
 
@@ -195,15 +197,16 @@ fileprivate let commandInfo: [Command] = [
 ]
 
 class CommandInterpreter {
-    struct CommandAbbreviation {
-        let command: String
+    struct CommandIndexEntry {
+        let command: Command
+        let commandName: String
         let abbreviation: String
     }
 
     static let sharedInstance = CommandInterpreter()
 
-    typealias BestAbbreviations = [CommandAbbreviation]
-    let commandGroups = OrderedDictionary<String, BestAbbreviations>()
+    typealias CommandIndexEntries = [CommandIndexEntry]
+    let commandGroups = OrderedDictionary<String, CommandIndexEntries>()
 
     func enumerateCommands(minimumLevel: UInt8, commandPrefix: String, fullDirections: Bool, handler: (_ command: Command, _ stop: inout Bool) -> ()) {
         for priority in 0...1 {
@@ -235,11 +238,13 @@ class CommandInterpreter {
     func buildCommandIndex(minimumLevel: UInt8 = Level.implementor) {
         enumerateCommands(minimumLevel: minimumLevel, commandPrefix: "", fullDirections: true) { command, stop in
             guard let alias = command.aliases.first else { return }
-            let commandAbbreviation = CommandAbbreviation(
-                command: alias, abbreviation: abbreviation(for: alias))
-            var bestAbbreviations = commandGroups[command.group.rawValue] ?? BestAbbreviations()
-            bestAbbreviations.append(commandAbbreviation)
-            commandGroups[command.group.rawValue] = bestAbbreviations
+            let commandIndexEntry = CommandIndexEntry(
+                command: command,
+                commandName: alias,
+                abbreviation: abbreviation(for: alias))
+            var entries = commandGroups[command.group.rawValue] ?? CommandIndexEntries()
+            entries.append(commandIndexEntry)
+            commandGroups[command.group.rawValue] = entries
         }
     }
 

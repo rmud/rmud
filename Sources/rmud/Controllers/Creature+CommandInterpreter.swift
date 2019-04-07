@@ -60,7 +60,11 @@ extension Creature {
                 nonOptionalArgumentMissing(command.arg2What)
                 return
             }
-            command.handler(self)(context)
+            if let handler = command.handler {
+                handler(self)(context)
+            } else {
+                send("Эта команда всё ещё не реализована.")
+            }
         }
         
         if !found {

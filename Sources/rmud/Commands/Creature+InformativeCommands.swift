@@ -1,12 +1,6 @@
 import Foundation
 
 extension Creature {
-    func notImplemented(context: CommandContext) {
-        send("Эта команда всё ещё не реализована.")
-    }
-}
-
-extension Creature {
     func doMap(context: CommandContext) {
         guard let room = inRoom,
                 let area = room.area,
@@ -782,10 +776,14 @@ extension Creature {
             let paddedGroupName = groupName.leftExpandingTo(minimumLength: groupNameMaxLength, with: " ")
             var line = "\(bCyn())\(paddedGroupName.uppercased())\(groupSuffix)\(nNrm())"
             var lineLength = groupName.count + groupSuffix.count // without ANSI codes
-            for commandAbbreviation in commandGroups[groupName] ?? [] {
-                let command = commandAbbreviation.command
-                let restOfCommand = command.suffix(command.count - commandAbbreviation.abbreviation.count)
-                let newTextLength = (line.isEmpty ? 0 : separator.count) + command.count
+            for commandIndexEntry in commandGroups[groupName] ?? [] {
+                guard !commandIndexEntry.command.flags.contains(.hidden) else {
+                    continue
+                }
+
+                let commandName = commandIndexEntry.commandName
+                let restOfCommand = commandName.suffix(commandName.count - commandIndexEntry.abbreviation.count)
+                let newTextLength = (line.isEmpty ? 0 : separator.count) + commandName.count
                 if lineLength + newTextLength > pageWidth {
                     send(line)
                     let indent = paddedGroupName.count + groupSuffix.count
@@ -795,7 +793,11 @@ extension Creature {
                 if !line.isEmpty {
                     line += separator
                 }
-                line += "\(bGrn())\(commandAbbreviation.abbreviation)\(nNrm())\(restOfCommand)"
+                if nil != commandIndexEntry.command.handler {
+                    line += "\(bGrn())\(commandIndexEntry.abbreviation)\(nNrm())\(restOfCommand)"
+                } else {
+                    line += "\(bRed())\(commandIndexEntry.abbreviation)\(nRed())\(restOfCommand)\(nNrm())"
+                }
                 lineLength += newTextLength
             }
             send(line)

@@ -21,12 +21,12 @@ struct Command {
     var arg2Cases: GrammaticalCases
     var arg2Extra: CommandArgumentFlags.Extra
     
-    var handler: Handler
+    var handler: Handler?
 
     init(_ aliases: [String],
         group: CommandGroup,
         subcommand: SubCommand = .none,
-        _ handler: @escaping Handler,
+        _ handler: Handler?,
         
         flags: CommandFlags = [],
          
