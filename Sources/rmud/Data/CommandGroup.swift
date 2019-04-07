@@ -1,0 +1,18 @@
+enum CommandGroup: String {
+    case movement = "передвижение"
+    case communication = "общение"
+    case information = "информация"
+    case position = "положение"
+    case items = "предметы"
+    case doorsAndContainers = "двери и контейнеры"
+    case food = "еда"
+    case mounts = "седлаемые"
+    case magicItems = "магические предметы"
+    case skillsAndSpells = "умения и заклинания"
+    case combat = "бой"
+    case shopsAndStables = "магазины и конюшни"
+    case banks = "банки"
+    case taverns = "таверны"
+    case other = "другое"
+    case administrative = "административные"
+}

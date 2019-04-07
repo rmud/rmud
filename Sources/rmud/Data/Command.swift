@@ -4,6 +4,7 @@ struct Command {
     typealias Handler = (_ creature: Creature) -> (_ context: CommandContext) -> ()
     
     var aliases: [String]
+    var group: CommandGroup
     var subcommand: SubCommand
     var flags: CommandFlags
     
@@ -23,6 +24,7 @@ struct Command {
     var handler: Handler
 
     init(_ aliases: [String],
+        group: CommandGroup,
         subcommand: SubCommand = .none,
         _ handler: @escaping Handler,
         
@@ -42,6 +44,7 @@ struct Command {
         extra2 arg2Extra: CommandArgumentFlags.Extra = []
         ) {
         self.aliases = aliases
+        self.group = group
         self.subcommand = subcommand
         self.flags = flags
         self.minimumPosition = minPosition

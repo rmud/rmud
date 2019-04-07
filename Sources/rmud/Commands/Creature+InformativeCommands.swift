@@ -1,6 +1,12 @@
 import Foundation
 
 extension Creature {
+    func notImplemented(context: CommandContext) {
+        send("Эта команда всё ещё не реализована.")
+    }
+}
+
+extension Creature {
     func doMap(context: CommandContext) {
         guard let room = inRoom,
                 let area = room.area,
@@ -766,14 +772,15 @@ extension Creature {
 extension Creature {
     func doHelp(context: CommandContext) {
         send("Основные команды RMUD")
-        for commandAbbreviation in commandInterpreter.commandAbbreviations {
-            let command = commandAbbreviation.command
-            let restOfCommand = command.suffix(command.count - commandAbbreviation.abbreviation.count)
-            send("\(bGrn())\(commandAbbreviation.abbreviation)\(nNrm())\(restOfCommand)")
+        let commandGroups = commandInterpreter.commandGroups
+        for groupName in commandGroups.orderedKeys {
+            send("\n\(bCyn())-- \(groupName.uppercased()) --\(nNrm())")
+            for commandAbbreviation in commandGroups[groupName] ?? [] {
+                let command = commandAbbreviation.command
+                let restOfCommand = command.suffix(command.count - commandAbbreviation.abbreviation.count)
+                send("\(bGrn())\(commandAbbreviation.abbreviation)\(nNrm())\(restOfCommand)")
+            }
         }
-    }
-
-    private func buildCommandIndex() {
-        
+        send("\nПодробная информация доступна по команде СПРАВКА [команда]")
     }
 }
