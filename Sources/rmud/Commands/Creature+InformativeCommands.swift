@@ -771,15 +771,30 @@ extension Creature {
 
 extension Creature {
     func doHelp(context: CommandContext) {
+        let separator = " "
+        let groupSuffix = ":"
         send("Основные команды RMUD")
         let commandGroups = commandInterpreter.commandGroups
         for groupName in commandGroups.orderedKeys {
-            send("\n\(bCyn())-- \(groupName.uppercased()) --\(nNrm())")
+            var line = "\(bCyn())\(groupName.uppercased())\(groupSuffix)\(nNrm())"
+            var lineLength = groupName.count + groupSuffix.count // without ANSI codes
             for commandAbbreviation in commandGroups[groupName] ?? [] {
                 let command = commandAbbreviation.command
                 let restOfCommand = command.suffix(command.count - commandAbbreviation.abbreviation.count)
-                send("\(bGrn())\(commandAbbreviation.abbreviation)\(nNrm())\(restOfCommand)")
+                let newTextLength = (line.isEmpty ? 0 : separator.count) + command.count
+                if lineLength + newTextLength > pageWidth {
+                    send(line)
+                    let indent = groupName.count + groupSuffix.count
+                    line = String(repeating: " ", count: indent)
+                    lineLength = indent
+                }
+                if !line.isEmpty {
+                    line += separator
+                }
+                line += "\(bGrn())\(commandAbbreviation.abbreviation)\(nNrm())\(restOfCommand)"
+                lineLength += newTextLength
             }
+            send(line)
         }
         send("\nПодробная информация доступна по команде СПРАВКА [команда]")
     }
