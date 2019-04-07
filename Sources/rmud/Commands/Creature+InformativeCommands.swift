@@ -773,10 +773,14 @@ extension Creature {
     func doHelp(context: CommandContext) {
         let separator = " "
         let groupSuffix = ":"
-        send("Основные команды RMUD")
+        send("Основные команды RMUD\n")
         let commandGroups = commandInterpreter.commandGroups
+        let groupNameMaxLength = commandGroups.orderedKeys.max {
+            $1.count > $0.count 
+        }?.count ?? 0
         for groupName in commandGroups.orderedKeys {
-            var line = "\(bCyn())\(groupName.uppercased())\(groupSuffix)\(nNrm())"
+            let paddedGroupName = groupName.leftExpandingTo(minimumLength: groupNameMaxLength, with: " ")
+            var line = "\(bCyn())\(paddedGroupName.uppercased())\(groupSuffix)\(nNrm())"
             var lineLength = groupName.count + groupSuffix.count // without ANSI codes
             for commandAbbreviation in commandGroups[groupName] ?? [] {
                 let command = commandAbbreviation.command
@@ -784,7 +788,7 @@ extension Creature {
                 let newTextLength = (line.isEmpty ? 0 : separator.count) + command.count
                 if lineLength + newTextLength > pageWidth {
                     send(line)
-                    let indent = groupName.count + groupSuffix.count
+                    let indent = paddedGroupName.count + groupSuffix.count
                     line = String(repeating: " ", count: indent)
                     lineLength = indent
                 }
