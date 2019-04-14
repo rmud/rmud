@@ -107,10 +107,10 @@ fileprivate let commandInfo: [Command] = [
     Command(["отвязать", "fill"], group: .mounts, notImplemented),
 
     // MagicItems
-    Command(["осушить", "quaff"], group: .mounts, notImplemented),
-    Command(["зачитать", "recite"], group: .mounts, notImplemented),
-    Command(["взмахнуть", "wave"], group: .mounts, notImplemented),
-    Command(["указать", "point"], group: .mounts, notImplemented),
+    Command(["осушить", "quaff"], group: .magicItems, notImplemented),
+    Command(["зачитать", "recite"], group: .magicItems, notImplemented),
+    Command(["взмахнуть", "wave"], group: .magicItems, notImplemented),
+    Command(["указать", "point"], group: .magicItems, notImplemented),
 
     // SkillsAndSpells
     Command(["умения", "skills"], group: .skillsAndSpells, notImplemented),
