@@ -25,6 +25,6 @@ class Ansi {
     static let bBlu = "\u{1B}[1;34m"
     static let bMag = "\u{1B}[1;35m"
     static let bCyn = "\u{1B}[1;36m"
-    static let bWht = "\u{1B}[1;37m" // FIXME: maybe inviisble on white background?
+    static let bWht = "\u{1B}[1;37m" // FIXME: maybe invisible on white background?
 }
 
