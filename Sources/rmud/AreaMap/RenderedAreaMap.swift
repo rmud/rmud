@@ -11,7 +11,7 @@ class RenderedAreaMap {
         case upDown
     }
 
-    static let fillCharacter: ColoredCharacter = " "
+    static let fillCharacter = ColoredCharacter(".", Ansi.nBlu)
     
     // Passages
     static let xPassage: [ColoredCharacter] = ["-"]
@@ -250,9 +250,14 @@ class RenderedAreaMap {
             case .insideArea:
                 break
             case .toAnotherArea:
-                return result.map { ColoredCharacter($0.character, Ansi.nCyn) }
+                return result.map {
+                    $0 == T.fillCharacter ? $0 :
+                    ColoredCharacter($0.character, Ansi.nCyn)
+                }
             case .invalid:
-                return result.map { ColoredCharacter($0.character, Ansi.bRed) }
+                return result.map {
+                    $0 == T.fillCharacter ? $0 :
+                    ColoredCharacter($0.character, Ansi.bRed) }
         }
         return result
     }
