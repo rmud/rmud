@@ -4,16 +4,61 @@ import Foundation
 
 extension Creature {
     func doGoto(context: CommandContext) {
-        guard let location = findTargetRoom(argument: context.argument1) else {
+        guard let targetRoom = chooseTeleportTargetRoom(argument: context.argument1) else {
             return
         }
 
+        goto(room: targetRoom)
+    }
+
+    private func goto(room: Room) {
         sendPoofOut()
-        teleportTo(room: location)
+        teleportTo(room: room)
         sendPoofIn()
         lookAtRoom(ignoreBrief: false)
     }
     
+    private func chooseTeleportTargetRoom(argument: String) -> Room? {
+        guard !argument.isEmpty else {
+            send("Укажите номер комнаты, имя области, имя персонажа, название монстра или предмета.")
+            return nil
+        }
+        
+        if let first = argument.unicodeScalars.first,
+                CharacterSet.decimalDigits.contains(first) &&
+                !argument.contains("."),
+                let roomVnum = Int(argument) {
+            guard let room = db.roomsByVnum[roomVnum] else {
+                send("Комнаты с таким номером не существует.")
+                return nil
+            }
+            return room
+        }
+
+        if let area = areaManager.findArea(byAbbreviatedName: argument) {
+            guard let room = chooseTeleportTargetRoom(area: area) else {
+                return nil
+            }
+            return room
+        }
+        
+        // FIXME
+        
+        return nil
+    }
+
+    private func chooseTeleportTargetRoom(area: Area) -> Room? {
+        if let originVnum = area.originVnum,
+                let room = db.roomsByVnum[originVnum] {
+            return room
+        } else if let room = area.rooms.first {
+            send("У области отсутствует основная комната, переход в первую комнату области.")
+            return room
+        } else {
+            send("Область пуста.")
+            return nil
+        }
+    }
 }
 
 // MARK: - doReload
@@ -457,25 +502,12 @@ extension Creature {
     
     private func gotoArea(name: String) {
         if let area = areaManager.findArea(byAbbreviatedName: name) {
-            let targetRoom: Room
-            if let originVnum = area.originVnum,
-                    let room = db.roomsByVnum[originVnum] {
-                targetRoom = room
-            } else if let room = area.rooms.first {
-                send("У области отсутствует основная комната, переход в первую комнату области.")
-                targetRoom = room
-            } else {
-                send("Область пуста.")
+            guard let targetRoom = chooseTeleportTargetRoom(area: area) else {
                 return
             }
-            
-            sendPoofOut()
-            teleportTo(room: targetRoom)
-            sendPoofIn()
-            lookAtRoom(ignoreBrief: false)
+            goto(room: targetRoom)
         } else {
             send("Области с таким названием не существует.")
-            return
         }
     }
 }

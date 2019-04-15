@@ -640,28 +640,6 @@ extension Creature {
         } while !areAbilitiesPlayable()
     }
     
-    func findTargetRoom(argument: String) -> Room? {
-        guard !argument.isEmpty else {
-            send("Укажите номер комнаты, имя персонажа или название монстра или предмета.")
-            return nil
-        }
-        
-        if let first = argument.unicodeScalars.first,
-                CharacterSet.decimalDigits.contains(first) &&
-                !argument.contains("."),
-                let roomVnum = Int(argument) {
-            guard let room = db.roomsByVnum[roomVnum] else {
-                send("Комнаты с таким номером не существует.")
-                return nil
-            }
-            return room
-        }
-        
-        // FIXME
-        
-        return nil
-    }
-    
     func sendWearMessage(item: Item, position: EquipmentPosition, shouldCancelAction: inout Bool) {
         shouldCancelAction = false
         
