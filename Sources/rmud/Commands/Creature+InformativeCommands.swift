@@ -631,13 +631,15 @@ extension Creature {
     }
     
     private func togglePageWidth(_ value: String) {
+        let minPageWidth = 60
+        let maxPageWidth = 255
         guard !value.isEmpty, let newPageWidth = Int16(value) else {
-            send("Укажите число символов на строке в диапазоне 40-255 или 0 для значения по умолчанию.")
+            send("Укажите число символов на строке в диапазоне \(minPageWidth)-\(maxPageWidth) или 0 для значения по умолчанию.")
             return
         }
         
-        guard newPageWidth == 0 || (newPageWidth >= 40 && newPageWidth <= 255) else {
-            send("Значение должно быть 0 или в диапазоне 40-255.")
+        guard newPageWidth == 0 || (newPageWidth >= minPageWidth && newPageWidth <= maxPageWidth) else {
+            send("Значение должно быть 0 или в диапазоне \(minPageWidth)-\(maxPageWidth).")
             return
         }
 
