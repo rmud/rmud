@@ -2,11 +2,19 @@ import Foundation
 
 class RenderedAreaMap {
     typealias T = RenderedAreaMap
-    
+
+    enum RenderedPassage {
+        case horizontal
+        case vertical
+        case up
+        case down
+        case upDown
+    }
+
     static let fillCharacter: ColoredCharacter = " "
     
     // Passages
-    static let xPassage: ColoredCharacter = "-"
+    static let xPassage: [ColoredCharacter] = ["-"]
     static let yPassage: [ColoredCharacter] = [fillCharacter, "|", fillCharacter]
     
     // Room / long passage
@@ -15,9 +23,9 @@ class RenderedAreaMap {
     static let longZPassage = [ColoredCharacter](" * ")
     
     // Middle room marks
-    static let up: ColoredCharacter = "^"
-    static let down: ColoredCharacter = "v"
-    static let upDown: ColoredCharacter = "%"
+    static let up = [ColoredCharacter]("^")
+    static let down = [ColoredCharacter]("v")
+    static let upDown = [ColoredCharacter]("%")
     
     typealias MapsByPlane = [/* Plane */ Int: /* Plane map */ [[ColoredCharacter]]]
 
@@ -170,30 +178,49 @@ class RenderedAreaMap {
                 renderedRoomCentersByRoom[room] = AreaMapPosition(x + roomWidth / 2, y, plane)
                 firstRoomsByPlane[plane] = room
                 mapsByPlane[plane]![y].replaceSubrange(x..<(x + roomWidth), with: T.room)
-                if room.hasValidExit(.north) {
-                    mapsByPlane[plane]![y - 1].replaceSubrange(x..<(x + roomWidth), with: T.yPassage)
+                if let destination = room.exitDestination(.north) {
+                    mapsByPlane[plane]![y - 1].replaceSubrange(x..<(x + roomWidth),
+                        with: renderedPassage(.vertical, exitDestination: destination))
                 }
-                if room.hasValidExit(.east) {
-                    mapsByPlane[plane]![y][x + roomWidth] = T.xPassage
+                if let destination = room.exitDestination(.east) {
+                    // Assigning single char for optimization, because it's known that horizontal
+                    // renderings of passages can't be wider
+                    mapsByPlane[plane]![y][x + roomWidth] =
+                        renderedPassage(.horizontal, exitDestination: destination).first!
                 }
-                if room.hasValidExit(.south) {
-                    mapsByPlane[plane]![y + roomHeight].replaceSubrange(x..<(x + roomWidth), with: T.yPassage)
+                if let destination = room.exitDestination(.south) {
+                    mapsByPlane[plane]![y + roomHeight].replaceSubrange(x..<(x + roomWidth),
+                        with: renderedPassage(.vertical, exitDestination: destination))
                 }
-                if room.hasValidExit(.west) {
-                    mapsByPlane[plane]![y][x - 1] = T.xPassage
+                if let destination = room.exitDestination(.west) {
+                    mapsByPlane[plane]![y][x - 1] =
+                        renderedPassage(.horizontal, exitDestination: destination).first!
                 }
-                if room.hasValidExit(.up) && room.hasValidExit(.down) {
-                    mapsByPlane[plane]![y][x + roomWidth / 2] = T.upDown
-                } else if room.hasValidExit(.up) {
-                    mapsByPlane[plane]![y][x + roomWidth / 2] = T.up
-                } else if room.hasValidExit(.down) {
-                    mapsByPlane[plane]![y][x + roomWidth / 2] = T.down
+                let upDestinationOrNil = room.exitDestination(.up)
+                let downDestinationOrNil = room.exitDestination(.down)
+                if let upDestination = upDestinationOrNil, let downDestination = downDestinationOrNil {
+                    let destination: Room.ExitDestination
+                    if upDestination == .invalid || downDestination == .invalid {
+                        destination = .invalid
+                    } else if upDestination == .toAnotherArea || downDestination == .toAnotherArea {
+                        destination = .toAnotherArea
+                    } else {
+                        destination = .insideArea
+                    }
+                    mapsByPlane[plane]![y][x + roomWidth / 2] =
+                        renderedPassage(.upDown, exitDestination: destination).first!
+                } else if let destination = room.exitDestination(.up) {
+                    mapsByPlane[plane]![y][x + roomWidth / 2] =
+                        renderedPassage(.up, exitDestination: destination).first!
+                } else if let destination = room.exitDestination(.down) {
+                    mapsByPlane[plane]![y][x + roomWidth / 2] =
+                        renderedPassage(.down, exitDestination: destination).first!
                 }
             case .passage(let axis):
                 switch axis {
                 case .x:
                     mapsByPlane[plane]![y].replaceSubrange(x..<(x + roomWidth), with: T.longXPassage)
-                    mapsByPlane[plane]![y][x + roomWidth] = T.xPassage
+                    mapsByPlane[plane]![y][x + roomWidth] = T.xPassage.first!
                 case .y:
                     mapsByPlane[plane]![y - 1].replaceSubrange(x..<(x + roomWidth), with: T.yPassage)
                     mapsByPlane[plane]![y].replaceSubrange(x..<(x + roomWidth), with: T.yPassage)
@@ -203,5 +230,30 @@ class RenderedAreaMap {
                 }
             }
         }
+    }
+        
+    private func renderedPassage(_ passage: RenderedPassage, exitDestination: Room.ExitDestination) -> [ColoredCharacter] {
+        let result: [ColoredCharacter]
+        switch passage {
+            case .horizontal:
+                result = T.xPassage
+            case .vertical:
+                result = T.yPassage
+            case .up:
+                result = T.up
+            case .down:
+                result = T.down
+            case .upDown:
+                result = T.upDown
+        }
+        switch exitDestination {
+            case .insideArea:
+                break
+            case .toAnotherArea:
+                return result.map { ColoredCharacter($0.character, Ansi.nCyn) }
+            case .invalid:
+                return result.map { ColoredCharacter($0.character, Ansi.bRed) }
+        }
+        return result
     }
 }

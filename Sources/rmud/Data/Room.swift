@@ -1,6 +1,12 @@
 import Foundation
 
 class Room {
+    enum ExitDestination {
+        case insideArea
+        case toAnotherArea
+        case invalid
+    }
+    
     var prototype: RoomPrototype
     var uid: UInt64
     weak var area: Area?
@@ -42,6 +48,19 @@ class Room {
             return exit.toRoom(includingImaginaryExits: includingImaginaryRooms) != nil
         }
         return false
+    }
+
+    func exitDestination(_ direction: Direction) -> ExitDestination? {
+        guard let exit = exits[direction], let toVnum = exit.toVnum else {
+            return nil
+        }
+        guard let toRoom = db.roomsByVnum[toVnum] else {
+            return .invalid
+        }
+        guard toRoom.area == area else {
+            return .toAnotherArea
+        }
+        return .insideArea
     }
     
     // FIXME: overrides which cancel action should probably be prioritized
