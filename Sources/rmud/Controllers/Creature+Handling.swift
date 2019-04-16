@@ -185,10 +185,18 @@ extension Creature {
         }
     }
     
-    // Add self to the leader's follower list and set his master to leader
-    private func follow(leader: Creature) {
+    // Start following leader
+    func follow(leader: Creature, silent: Bool) {
         leader.followers.insert(self, at: 0)
         following = leader
+        if !silent {
+            act("Теперь Вы будете следовать за 2т.", .toSleeping,
+                .toCreature(self), .excludingCreature(leader))
+            act("1*и начал1(,а,о,и) следовать за Вами.",
+                .excludingCreature(self), .toCreature(leader))
+            act("1+и начал1(,а,о,и) следовать за 2+т.", .toRoom,
+                .excludingCreature(self), .excludingCreature(leader))
+        }
     }
     
     // Remove the follower from his master's follower list and null his master
@@ -212,7 +220,7 @@ extension Creature {
         }
         if !isLeaving {
             // если он не "уходит насовсем" (например, умер)
-            follow(leader: newLeader)
+            follow(leader: newLeader, silent: true)
             if let player = player {
                 player.flags.insert(.group)
             }
@@ -224,7 +232,7 @@ extension Creature {
                 return true
             }
             // Switch to new leader
-            follower.follow(leader: newLeader)
+            follower.follow(leader: newLeader, silent: true)
             act("Вы прекратили следовать за 2*т и начали следовать за 3*т.",
                 .toSleeping, .toCreature(follower), .excludingCreature(self), .excludingCreature(newLeader))
             act("1*и прекратил1(,а,о,и) следовать за Вами и начал1(,а,о,и) следовать за 3*т.",
