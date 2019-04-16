@@ -32,7 +32,7 @@ extension Creature {
     
     func hasPlayerMaster() -> Bool {
         var creature = self
-        while let master = creature.master {
+        while let master = creature.following {
             if master.isPlayer { return true }
             creature = master
         }

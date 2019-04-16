@@ -153,7 +153,7 @@ extension Item {
         if let player = recipient.player {
             player.flags.insert(.saveme)
         }
-        if recipient.isPlayer || (recipient.hasMaster && recipient.isCharmed()) {
+        if recipient.isPlayer || (recipient.isFollowing && recipient.isCharmed()) {
             setDecayTimerRecursively(activate: true)
         }
     }

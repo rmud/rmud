@@ -29,7 +29,7 @@ extension Creature {
         }
 
         if let player = player, player.flags.contains(.group) &&
-            (!hasMaster || master!.isMobile || !master!.player!.flags.contains(.group)) {
+            (!isFollowing || following!.isMobile || !following!.player!.flags.contains(.group)) {
             let _ = selectNewLeader(allowAnyone: true)
         }
         
@@ -37,7 +37,7 @@ extension Creature {
             follower.stopFollowing()
         }
         
-        if hasMaster {
+        if isFollowing {
             stopFollowing()
         }
 
@@ -86,7 +86,7 @@ extension Creature {
                 level < Level.hero {
             player.adminInvisibilityLevel = Level.hero
             player.preferenceFlags.insert(.noHassle)
-            if let master = master, !isSameGroup(with: master) {
+            if let master = following, !isSameGroup(with: master) {
                 stopFollowing()
             }
             return true
@@ -140,7 +140,7 @@ extension Creature {
     // Call this to stop following or charm spells
     // FIXME: this function is doing too much unrelated things
     func stopFollowing() {
-        guard let master = master else {
+        guard let master = following else {
             logError("stopFollowing: \(nameNominative) has no leader")
             return
         }
@@ -164,7 +164,7 @@ extension Creature {
         }
 
         if let player = master.player, player.flags.contains(.group) &&
-            (master.master == nil || master.master!.isMobile || !master.master!.player!.flags.contains(.group)) {
+            (master.following == nil || master.following!.isMobile || !master.following!.player!.flags.contains(.group)) {
             // проверяем, остались ли кроме этого еще последователи-групписы
             var hasGroupedFollowers = false
             for follower in master.followers {
@@ -188,26 +188,26 @@ extension Creature {
     // Add self to the leader's follower list and set his master to leader
     private func follow(leader: Creature) {
         leader.followers.insert(self, at: 0)
-        master = leader
+        following = leader
     }
     
     // Remove the follower from his master's follower list and null his master
     private func removeFollower() {
-        if let master = master {
+        if let master = following {
             master.followers = master.followers.filter { $0 != self }
         }
-        master = nil
+        following = nil
     }
     
     // Set group to follow leader instead of self
     func passLeadership(to newLeader: Creature, isLeaving: Bool) {
-        if newLeader.master != self {
+        if newLeader.following != self {
             logError("passLeadership: new leader is not following the old one")
             return
         }
         
         newLeader.removeFollower()
-        if hasMaster {
+        if isFollowing {
             stopFollowing()
         }
         if !isLeaving {
@@ -280,7 +280,7 @@ extension Creature {
         if let player = player {
             player.flags.insert(.saveme)
         }
-        if isPlayer || (hasMaster && isCharmed()) {
+        if isPlayer || (isFollowing && isCharmed()) {
             item.setDecayTimerRecursively(activate: true)
         }
     }

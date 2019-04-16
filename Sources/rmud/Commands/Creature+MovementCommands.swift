@@ -255,7 +255,7 @@ extension Creature {
             
             let count: Int
             if isCharmed() {
-                count = toRoom.creatures.count(where: { $0 != master })
+                count = toRoom.creatures.count(where: { $0 != following })
             } else if isPlayer {
                 count = toRoom.creatures.count(where: { $0.isPlayer })
             } else {
@@ -345,7 +345,7 @@ extension Creature {
     
         if isHeld() {
             if isMount {
-                if let master = master {
+                if let master = following {
                     act(spells.message(.holdPerson, "ПАРАЛИЗОВАН"), .excludingCreature(self), .toCreature(master))
                 }
             } else {
@@ -360,7 +360,7 @@ extension Creature {
         if inTerrain == .waterNoSwim && !flying && !hasBoat() && !isRiding {
             // а если верхом - то достаточно лодки или полёта у mount'а
             if isMount {
-                if let master = master {
+                if let master = following {
                     act("2и не может увезти Вас отсюда.", .toCreature(master), .excludingCreature(self))
                 }
             } else {
@@ -380,7 +380,7 @@ extension Creature {
                 return true
             }
             if !fear && isCharmed(),
-                    let master = master,
+                    let master = following,
                     let masterInRoom = master.inRoom,
                     inRoom === masterInRoom {
                 act(spells.message(.charmPerson, "НЕ_УЙДЕШЬ"), .toCreature(self), .excludingCreature(master))
@@ -488,7 +488,7 @@ extension Creature {
         if isMounted {
             let message = "2+и с 3+т на спине \(mount.leavingVerb(2)) &."
             for creature in peopleInRoom {
-                let masterIsMountOrRider = creature.master == mount || creature.master == rider
+                let masterIsMountOrRider = creature.following == mount || creature.following == rider
                 guard creature.canSee(mount) || creature.canSee(rider) else {
                     if masterIsMountOrRider {
                         creature.runtimeFlags.remove(.follow)
@@ -511,7 +511,7 @@ extension Creature {
         } else {
             let message = "2*и \(leavingVerb(2)) &."
             for creature in peopleInRoom {
-                let masterIsMountOrRider = creature.master == self
+                let masterIsMountOrRider = creature.following == self
                 guard creature.canSee(self) else {
                     if masterIsMountOrRider {
                         creature.runtimeFlags.remove(.follow)
@@ -543,7 +543,7 @@ extension Creature {
         guard creaturePreferenceFlags.contains(.hideTeamMovement) else { return true }
         return !isSameTeam(with: creature) ||
             self == leader ||
-            (creature != leader && creature.master != leader)
+            (creature != leader && creature.following != leader)
     }
     
     private func arrivalVerb(_ index: Int) -> String {

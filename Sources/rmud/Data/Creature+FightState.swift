@@ -21,10 +21,10 @@ extension Creature {
         //    return false;
         if let player = player, player.flags.contains(.group),
                 let victimPlayer = victim.player, victimPlayer.flags.contains(.group) {
-            return victim.master == self || master == victim || (master != nil && master == victim.master)
+            return victim.following == self || following == victim || (following != nil && following == victim.following)
         }
     
-        return (victim == master && isCharmed()) || (self == victim.master && victim.isCharmed())
+        return (victim == following && isCharmed()) || (self == victim.following && victim.isCharmed())
     }
     
     // Это same_group() + те, кто за ними следуют (в т.ч. чармисы).
@@ -32,8 +32,8 @@ extension Creature {
         return isSameGroup(with: victim) ||
             // arilou: в проверках ниже вызываю walk_together(), а не same_group()
             // чтобы обработался случай двух очарованных существ с РАЗНЫМИ хозяевами
-            (victim.master != nil && victim.master!.areWalkingTogether(with: self)) ||
-            (master != nil && master!.areWalkingTogether(with: victim))
+            (victim.following != nil && victim.following!.areWalkingTogether(with: self)) ||
+            (following != nil && following!.areWalkingTogether(with: victim))
     }
     
     // Два свободных монстра всегда за одно, если только

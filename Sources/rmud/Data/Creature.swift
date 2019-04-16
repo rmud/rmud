@@ -314,8 +314,8 @@ class Creature {
     
     var inRoom: Room?
     
-    var master: Creature?
-    var hasMaster: Bool { return master != nil }
+    var following: Creature?
+    var isFollowing: Bool { return following != nil }
     var followers: [Creature] = []
     
     var fighting: Creature? // Opponent
