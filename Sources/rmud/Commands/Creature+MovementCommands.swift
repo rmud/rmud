@@ -1,5 +1,7 @@
 //import Foundation
 
+// MARK: - doMove
+
 extension Creature {
     enum MovementMode {
         case normal
@@ -331,7 +333,7 @@ extension Creature {
         return needMovement
     }
     
-    func cantLeaveRoom(isMount: Bool = false, fear: Bool = false) -> Bool {
+    private func cantLeaveRoom(isMount: Bool = false, fear: Bool = false) -> Bool {
         guard let inRoom = inRoom else { return true }
         
         // Если мы в падении и ничего не изменилось - не ходить никуда
@@ -420,7 +422,7 @@ extension Creature {
         }
     }
     
-    func sneakSuccessful(victim: Creature) -> (success: Bool, victimIsImmune: Bool) {
+    private func sneakSuccessful(victim: Creature) -> (success: Bool, victimIsImmune: Bool) {
         if !runtimeFlags.contains(.sneaking) {
             return (success: false, victimIsImmune: false)
         }
