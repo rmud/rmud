@@ -5,6 +5,7 @@ class AreaManager {
 
     var areasByLowercasedName: [String: Area] = [:]
     var areasByStartingVnum: [Int: Area] = [:]
+    var areasInSearchOrder: [Area] = []
     var areasInResetOrder: [Area] = []
     
     init() {
@@ -28,8 +29,10 @@ class AreaManager {
             }
             areasByLowercasedName[area.lowercasedName] = area
             areasByStartingVnum[area.vnumRange.lowerBound] = area
-            areasInResetOrder = areasByLowercasedName.sorted { $0.key < $1.key }.map { $1 }
         }
+        areasInResetOrder = areasByLowercasedName.sorted { $0.key < $1.key }.map { $1 }
+        // Currently happens to match:
+        areasInSearchOrder = areasInResetOrder
     }
     
     func createRooms() {
@@ -78,8 +81,9 @@ class AreaManager {
         }
         
         // No luck, try abbreviations
-        for (name, area) in areasByLowercasedName {
-            if lowercased.isAbbreviation(of: name, caseInsensitive: true) {
+        for area in areasInSearchOrder {
+            // Both names are already lowercased, so do a case sensitive compare
+            if lowercased.isAbbreviation(of: area.lowercasedName, caseInsensitive: false) {
                 return area
             }
         }
