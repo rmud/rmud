@@ -325,7 +325,9 @@ extension Creature {
                 .toCreature(self), .number(Int(days)), .number(Int(hours)))
         }
     }
-    
+}
+
+extension Creature {
     func doOption(context: CommandContext) {
         guard !context.argument1.isEmpty else {
             showOptions()

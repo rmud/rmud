@@ -14,6 +14,9 @@ struct CommandArgumentFlags {
         static let noMobile     = T(rawValue: 1 << 3) // цель не может быть монстром
         static let word         = T(rawValue: 1 << 4)
         static let restOfString = T(rawValue: 1 << 5)
+        
+        // Use Extra.oneOrMore instead in command interpreter.
+        // FIXME: This enumeration is used in spell definitions, so can't be removed yet
         static let many         = T(rawValue: 1 << 6)
     }
     
