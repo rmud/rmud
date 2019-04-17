@@ -34,10 +34,10 @@ enum Race: UInt8 {
 
     var isElf: Bool { return self == .highElf || self == .wildElf }
     
-    var isSpeechless: Bool {
+    var canTalk: Bool {
         switch self {
-        case .animal, .insect, .plant, .amorphous: return true
-        default: return false
+        case .animal, .insect, .plant, .amorphous: return false
+        default: return true
         }
     }
     

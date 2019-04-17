@@ -1,5 +1,30 @@
 import Foundation
 
+// MARK: - doSay
+
+extension Creature {
+    func doSay(context: CommandContext) {
+        guard !context.argument1.isEmpty else {
+            send("Что Вы хотите произнести?")
+            return
+        }
+        guard race.canTalk else {
+            send("Вы не умеете разговаривать.")
+            return
+        }
+        guard !isAffected(by: .silence) else {
+            act(spells.message(.silence, "МОЛЧАНИЕ"),
+                .toCreature(self))
+            act("1*и беззвучно пошевелил1(,а,о,и) губами.", .toRoom,
+                .excludingCreature(self))
+            return
+        }
+        act("1и произнес1(,ла,ло,ли): \"&\"", .toRoom,
+            .excludingCreature(self), .text(context.argument1))
+        act("Вы произнесли: \"&\"",
+            .toCreature(self), .text(context.argument1))
+    }
+}
 
 // MARK: - doOrder
 

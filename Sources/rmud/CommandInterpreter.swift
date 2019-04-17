@@ -23,7 +23,8 @@ fileprivate let commandInfo: [Command] = [
     // Communication
     Command(["сказать", "tell"], group: .communication, notImplemented),
     Command(["ответить", "reply"], group: .communication, notImplemented),
-    Command(["произнести", "say"], group: .communication, notImplemented),
+    Command(["произнести", "say"], group: .communication, Creature.doSay,
+            arg1: .restOfString),
     Command(["крикнуть", "shout"], group: .communication, notImplemented),
     Command(["приказать", "order"], group: .communication, Creature.doOrder,
             minPosition: .resting,
