@@ -34,6 +34,13 @@ enum Race: UInt8 {
 
     var isElf: Bool { return self == .highElf || self == .wildElf }
     
+    var isSpeechless: Bool {
+        switch self {
+        case .animal, .insect, .plant, .amorphous: return true
+        default: return false
+        }
+    }
+    
     static let aliases = ["раса"]
     
     var info: RaceInfo {
