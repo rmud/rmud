@@ -41,7 +41,6 @@ extension Creature {
                                 what: command.arg1What,
                                 where: command.arg1Where,
                                 cases: command.arg1Cases,
-                                extra: command.arg1Extra,
                                 intoCreatures: &context.creatures1,
                                 intoItems: &context.items1,
                                 intoArgument: &context.argument1) else {
@@ -53,7 +52,6 @@ extension Creature {
                                 what: command.arg2What,
                                 where: command.arg2Where,
                                 cases: command.arg2Cases,
-                                extra: command.arg2Extra,
                                 intoCreatures: &context.creatures2,
                                 intoItems: &context.items2,
                                 intoArgument: &context.argument2) else {
@@ -76,7 +74,6 @@ extension Creature {
                                what: CommandArgumentFlags.What,
                                where whereAt: CommandArgumentFlags.Where,
                                cases: GrammaticalCases,
-                               extra: CommandArgumentFlags.Extra,
                                intoCreatures: inout [Creature],
                                intoItems: inout [Item],
                                intoArgument: inout String) -> Bool {
@@ -130,7 +127,7 @@ extension Creature {
         // Creatures, items and words are described by single word, so try to read one from input:
         let originalScanLocation = scanner.scanLocation // in case we need to undo word read later
         guard let word = scanner.scanUpToCharacters(from: .whitespaces) else {
-            return extra.contains(.optional)
+            return true // all args are optional now // extra.contains(.optional)
         }
         
         // - as me
@@ -151,7 +148,7 @@ extension Creature {
         }
         //print("fetchArgument: name=\(targetName ?? "nil"), index=\(targetIndex), amount=\(amount)")
 
-        if !extra.contains(.oneOrMore) {
+        if !what.contains(.many) {
             targetAmount = 1
         }
         
@@ -165,7 +162,7 @@ extension Creature {
         if what.contains(.item) && whereAt.contains(anyOf: [.inventory, .world]) {
             for item in carrying {
                 guard targetName == nil || item.isAbbrevOfNameOrSynonym(targetName!, cases: cases) else { continue }
-                guard extra.contains(.notOnlyVisible) || canSee(item) else { continue }
+                guard /* extra.contains(.notOnlyVisible) || */ canSee(item) else { continue }
                 defer { currentIndex += 1 }
                 guard currentIndex >= targetStartIndex else { continue }
                 
@@ -182,7 +179,7 @@ extension Creature {
                 
                 guard creature.isPlayer || !what.contains(.noMobile) else { continue }
                 guard targetName == nil || creature.isAbbrevOfNameOrSynonym(targetName!, cases: cases) else { continue }
-                guard extra.contains(.notOnlyVisible) || canSee(creature) else { continue }
+                guard /* extra.contains(.notOnlyVisible) || */ canSee(creature) else { continue }
 
                 defer { currentIndex += 1 }
                 guard currentIndex >= targetStartIndex else { continue }
@@ -213,11 +210,9 @@ extension Creature {
         if what.contains(.restOfString) {
             scanner.scanLocation = originalScanLocation // undo word read
             intoArgument = scanner.textToParse.trimmingCharacters(in: .whitespaces)
-            if intoArgument.isEmpty {
-                return extra.contains(.optional)
-            }
             return true
         }
+
         return true
     }
 }

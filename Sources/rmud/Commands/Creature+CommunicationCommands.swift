@@ -1,14 +1,22 @@
 import Foundation
 
+
+// MARK: - doOrder
+
 extension Creature {
     func doOrder(context: CommandContext) {
+        let creatures = context.creatures1
+        let command = context.argument2
+
+        guard !creatures.isEmpty && !command.isEmpty else {
+            send("Кому Вы хотите приказать и что?")
+            return
+        }
+        
         guard !isAffected(by: .silence) else {
             act(spells.message(.silence, "МОЛЧАНИЕ"), .toCreature(self))
             return
         }
-        
-        let creatures = context.creatures1
-        let command = context.argument2
 
         //let shallAbide: (Creature) -> Bool = { creature in
         //    return creature.master == self && creature.isCharmed()

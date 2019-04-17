@@ -18,7 +18,7 @@ fileprivate let commandInfo: [Command] = [
     Command(["опуститься", "вниз", "down"], group: .movement, subcommand: .down, Creature.doMove,
             flags: [.highPriority, .noFight, .directionCommand]),
     Command(["следовать", "follow"], group: .movement, Creature.doFollow,
-            arg1: .creature, cases1: .instrumental, where1: .room, extra1: .optional),
+            arg1: .creature, cases1: .instrumental, where1: .room),
 
     // Communication
     Command(["сказать", "tell"], group: .communication, notImplemented),
@@ -27,7 +27,7 @@ fileprivate let commandInfo: [Command] = [
     Command(["крикнуть", "shout"], group: .communication, notImplemented),
     Command(["приказать", "order"], group: .communication, Creature.doOrder,
             minPosition: .resting,
-            arg1: .creature, cases1: .dative, where1: .room, extra1: .oneOrMore,
+            arg1: [.creature, .many], cases1: .dative, where1: .room,
             arg2: .restOfString),
     Command(["группа", "group"], group: .communication, notImplemented),
     Command(["гговорить", "gtell"], group: .communication, notImplemented),
@@ -41,10 +41,10 @@ fileprivate let commandInfo: [Command] = [
             flags: .informational, minPosition: .sleeping),
     Command(["карта", "map"], group: .information, Creature.doMap,
             minPosition: .resting,
-            arg1: .word, extra1: [.optional]),
+            arg1: .word),
     Command(["смотреть", "look"], group: .information, Creature.doLook,
             minPosition: .resting,
-            arg1: [.creature, .item, .word], cases1: [.accusative], where1: [.equipment, .inventory, .room], extra1: [.optional]),
+            arg1: [.creature, .item, .word], cases1: [.accusative], where1: [.equipment, .inventory, .room]),
     Command(["взглянуть", "glance"], group: .information, notImplemented),
     Command(["наблюдать", "watch"], group: .information, notImplemented),
     Command(["оглядеться", "scan", "выходы"], group: .information, Creature.doScan,
@@ -53,14 +53,14 @@ fileprivate let commandInfo: [Command] = [
         flags: .informational, minPosition: .sleeping),
     Command(["счет", "score"], group: .information, Creature.doScore,
         flags: .informational, minPosition: .sleeping,
-        arg1: .word, extra1: [/*.allowFillWords,*/ .optional]),
+        arg1: .word),
     Command(["титул", "title"], group: .information, notImplemented),
     Command(["время", "time"], group: .information, notImplemented),
     Command(["луны", "moons"], group: .information, notImplemented),
     Command(["режим", "option"], group: .information, Creature.doOption,
             flags: .informational, minPosition: .sleeping,
-            arg1: .word, extra1: .optional,
-            arg2: .restOfString, extra2: .optional),
+            arg1: .word,
+            arg2: .restOfString),
 
     // Position
     Command(["встать", "stand"], group: .position, Creature.doStand,
@@ -84,7 +84,7 @@ fileprivate let commandInfo: [Command] = [
     Command(["делить", "split"], group: .items, notImplemented),
     Command(["бросить", "drop"], group: .items, Creature.doDrop,
             minPosition: .resting,
-            arg1: .item, cases1: .accusative, where1: .inventory, extra1: [.oneOrMore, .optional]),
+            arg1: [.item, .many], cases1: .accusative, where1: .inventory),
     Command(["вооружиться", "wield"], group: .items, notImplemented),
     Command(["держать", "hold"], group: .items, notImplemented),
     Command(["убрать", "remove"], group: .items, notImplemented),
@@ -133,8 +133,8 @@ fileprivate let commandInfo: [Command] = [
 
     // ShopsAndStables
     Command(["список", "list", "меню", "menu"], group: .shopsAndStables, subcommand: .shopList, Creature.doService,
-            flags: [.noFight],
-            arg1: .word, extra1: .optional),
+            flags: .noFight,
+            arg1: .word),
     Command(["купить", "buy"], group: .shopsAndStables, notImplemented),
     Command(["продать", "sell"], group: .shopsAndStables, notImplemented),
     Command(["чинить", "repair"], group: .shopsAndStables, notImplemented),
@@ -170,34 +170,32 @@ fileprivate let commandInfo: [Command] = [
     // 31+
     Command(["идти", "goto"], group: .administrative, Creature.doGoto,
             flags: .informational, minPosition: .dead, minLevel: Level.hero,
-            arg1: .word, extra1: []),
+            arg1: .word),
     
     // 32+
     Command(["показать", "show"], group: .administrative, Creature.doShow,
             flags: .informational, minPosition: .dead, minLevel: Level.lesserGod,
-            arg1: .word, extra1: .optional,
-            arg2: .restOfString, extra2: .optional
-    ),
+            arg1: .word,
+            arg2: .restOfString),
     Command(["создать", "load"], group: .administrative, Creature.doLoad,
             flags: .informational, minPosition: .dead, minLevel: Level.lesserGod,
-            arg1: .word, extra1: .optional,
-            arg2: .word, extra2: .optional),
+            arg1: .word,
+            arg2: .word),
     
     // 33+
     Command(["установить", "set"], group: .administrative, Creature.doSet,
             flags: .informational, minPosition: .dead, minLevel: Level.middleGod,
-            arg1: .word, extra1: .optional,
-            arg2: .word, extra2: .optional
-    ),
+            arg1: .word,
+            arg2: .word),
     
     // 34+
     Command(["область", "area"], group: .administrative, Creature.doArea,
             flags: .informational, minPosition: .dead, minLevel: Level.greaterGod,
-            arg1: .word, extra1: [.optional],
-            arg2: [.restOfString], extra2: .optional),
+            arg1: .word,
+            arg2: .restOfString),
     Command(["перечитать", "reload"], group: .administrative, Creature.doReload,
             flags: .informational, minPosition: .dead, minLevel: Level.greaterGod,
-            arg1: .word, extra1: .optional),
+            arg1: .word)
 ]
 
 class CommandInterpreter {
