@@ -167,8 +167,8 @@ class Networking {
             ws.onText { ws, text in
                 DispatchQueue.main.async {
                     if let descriptor = networking.descriptors.first(where: { d in
-                        if case .webSocket = d.handle {
-                            return true
+                        if case .webSocket(let webSocket) = d.handle {
+                            return webSocket === ws
                         }
                         return false
                     }) {
