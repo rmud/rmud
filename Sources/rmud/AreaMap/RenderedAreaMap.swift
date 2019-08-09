@@ -73,7 +73,7 @@ class RenderedAreaMap {
         return renderedRoomCentersByRoom[room]?.plane
     }
 
-    public var planeSize: (width: Int, height: Int) {
+    public func planeSizeInCharacters() -> (width: Int, height: Int) {
         let logicalWidth = areaMap.range.size(axis: .x)
         let logicalHeight = areaMap.range.size(axis: .y)
         let width = T.roomWidth * logicalWidth + T.roomSpacingWidth * (logicalWidth - 1) + 2 * T.horizontalPadding
@@ -85,50 +85,50 @@ class RenderedAreaMap {
 
         guard let roomCenter = renderedRoomCentersByRoom[room] else { return [] }
 
-        let width = T.roomWidth * horizontalRooms + T.roomSpacingWidth * (horizontalRooms + 1)
-        let height = T.roomHeight * verticalRooms + T.roomSpacingHeight * (verticalRooms + 1)
+        let widthInCharacters = T.roomWidth * horizontalRooms + T.roomSpacingWidth * (horizontalRooms + 1)
+        let heightInCharacters = T.roomHeight * verticalRooms + T.roomSpacingHeight * (verticalRooms + 1)
 
-        let topLeftHalf = AreaMapPosition(width / 2, height / 2, 0)
+        let topLeftHalf = AreaMapPosition(widthInCharacters / 2, heightInCharacters / 2, 0)
         let from = roomCenter - topLeftHalf
 
-        return fragment(plane: roomCenter.plane, x: from.x, y: from.y, width: width, height: height, playerRoom: playerRoom, pad: true)
+        return fragment(plane: roomCenter.plane, x: from.x, y: from.y, widthInCharacters: widthInCharacters, heightInCharacters: heightInCharacters, playerRoom: playerRoom, pad: true)
     }
 
     public func fragment(wholePlane plane: Int, playerRoom: Room? = nil) -> [[ColoredCharacter]] {
 
-        let size = planeSize
+        let size = planeSizeInCharacters()
 
-        return fragment(plane: plane, x: 0, y: 0, width: size.width, height: size.height, playerRoom: playerRoom, pad: true)
+        return fragment(plane: plane, x: 0, y: 0, widthInCharacters: size.width, heightInCharacters: size.height, playerRoom: playerRoom, pad: true)
     }
 
-    public func fragment(plane: Int, x: Int, y: Int, width: Int, height: Int, playerRoom: Room? = nil, pad: Bool) -> [[ColoredCharacter]] {
+    public func fragment(plane: Int, x: Int, y: Int, widthInCharacters: Int, heightInCharacters: Int, playerRoom: Room? = nil, pad: Bool) -> [[ColoredCharacter]] {
 
         guard let map = mapsByPlane[plane] else { return [] }
         guard map.count > 0 && map[0].count > 0 else { return [] }
 
-        let mapRange = AreaMapRange(from: AreaMapPosition(0, 0, plane), to: AreaMapPosition(map[0].count, map.count, plane))
+        let mapRange = AreaMapRange(from: AreaMapPosition(0, 0, plane), toInclusive: AreaMapPosition(map[0].count, map.count, plane))
 
         let fromPosition = AreaMapPosition(x, y, 0)
-        let toPosition = AreaMapPosition(x + width, y + height, 0)
+        let toPosition = AreaMapPosition(x + widthInCharacters, y + heightInCharacters, 0)
 
         let from = pad
             ? fromPosition
             : upperBound(fromPosition, mapRange.from)
-        let to = pad
+        let toInclusive = pad
             ? toPosition
-            : lowerBound(toPosition, mapRange.to)
+            : lowerBound(toPosition, mapRange.toInclusive)
 
         let topLeftPadding = upperBound(mapRange.from - from, AreaMapPosition(0, 0, 0))
-        let bottomRightPadding = upperBound(to - mapRange.to, AreaMapPosition(0, 0, 0))
+        let bottomRightPadding = upperBound(toInclusive - mapRange.toInclusive, AreaMapPosition(0, 0, 0))
 
         var fragmentLines = [[ColoredCharacter]]()
 
         let playerRoomCenter = playerRoom != nil
             ? renderedRoomCentersByRoom[playerRoom!]
             : nil
-        for y in from.y..<to.y {
-            guard y - from.y >= topLeftPadding.y && to.y - y - 1 >= bottomRightPadding.y else {
-                let line = [ColoredCharacter](repeating: T.fillCharacter, count: to.x - from.x)
+        for y in from.y..<toInclusive.y {
+            guard y - from.y >= topLeftPadding.y && toInclusive.y - y - 1 >= bottomRightPadding.y else {
+                let line = [ColoredCharacter](repeating: T.fillCharacter, count: toInclusive.x - from.x)
                 fragmentLines.append(line)
                 continue
             }
@@ -137,16 +137,16 @@ class RenderedAreaMap {
             //line.reserveCapacity(to.x - from.x) // take color into account too
 
             line += [ColoredCharacter](repeating: T.fillCharacter, count: topLeftPadding.x)
-            line += map[y][from.x + topLeftPadding.x..<to.x - bottomRightPadding.x]
+            line += map[y][from.x + topLeftPadding.x..<toInclusive.x - bottomRightPadding.x]
             line += [ColoredCharacter](repeating: T.fillCharacter, count: bottomRightPadding.x)
 
             if let playerRoomCenter = playerRoomCenter, playerRoomCenter.plane == plane && playerRoomCenter.y == y {
                 let leftBracketPosition = playerRoomCenter.x - T.roomWidth / 2
                 let rightBracketPosition = playerRoomCenter.x + T.roomWidth / 2
-                if leftBracketPosition >= from.x && rightBracketPosition < to.x {
+                if leftBracketPosition >= from.x && rightBracketPosition < toInclusive.x {
                     line[leftBracketPosition - from.x] = ColoredCharacter("[", Ansi.bGrn)
                 }
-                if rightBracketPosition >= from.x && rightBracketPosition < to.x {
+                if rightBracketPosition >= from.x && rightBracketPosition < toInclusive.x {
                     line[rightBracketPosition - from.x] = ColoredCharacter("]", Ansi.bGrn)
                 }
             }
@@ -157,11 +157,11 @@ class RenderedAreaMap {
         return fragmentLines
     }
 
-    func render() {
+    private func render() {
         mapsByPlane.removeAll()
         
         for (plane, _) in areaMap.rangesByPlane {
-            let size = planeSize
+            let size = planeSizeInCharacters()
             let renderedEmptyRow = [ColoredCharacter](repeating: T.fillCharacter, count: size.width)
             mapsByPlane[plane] = [[ColoredCharacter]](repeating: renderedEmptyRow, count: size.height)
         }
