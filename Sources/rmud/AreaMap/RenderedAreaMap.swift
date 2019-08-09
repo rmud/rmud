@@ -50,14 +50,14 @@ class RenderedAreaMap {
     private var firstRoomsByPlane = [Int: Room]()
     private var renderedRoomCentersByRoom = [Room: AreaMapPosition]() // AreaMapPosition is used here only for convenience, its x and y specify room center offset in characters relative to top-left corner of the rendered map
     
-    let roomWidth = 3
-    let roomHeight = 1
-    let roomSpacingWidth = 1
-    let roomSpacingHeight = 1
+    static let roomWidth = 3
+    static let roomHeight = 1
+    static let roomSpacingWidth = 1
+    static let roomSpacingHeight = 1
 
     // Extra space to draw room exits near the map border
-    let horizontalPadding = 1
-    let verticalPadding = 1
+    static let horizontalPadding = 1
+    static let verticalPadding = 1
 
     init(areaMap: AreaMap, renderConfiguration: RenderConfiguration) {
         self.areaMap = areaMap
@@ -72,8 +72,8 @@ class RenderedAreaMap {
     public var planeSize: (width: Int, height: Int) {
         let logicalWidth = areaMap.range.size(axis: .x)
         let logicalHeight = areaMap.range.size(axis: .y)
-        let width = roomWidth * logicalWidth + roomSpacingWidth * (logicalWidth - 1) + 2 * horizontalPadding
-        let height = roomHeight * logicalHeight + roomSpacingHeight * (logicalHeight - 1) + 2 * verticalPadding
+        let width = T.roomWidth * logicalWidth + T.roomSpacingWidth * (logicalWidth - 1) + 2 * T.horizontalPadding
+        let height = T.roomHeight * logicalHeight + T.roomSpacingHeight * (logicalHeight - 1) + 2 * T.verticalPadding
         return (width: width, height: height)
     }
 
@@ -81,8 +81,8 @@ class RenderedAreaMap {
 
         guard let roomCenter = renderedRoomCentersByRoom[room] else { return [] }
 
-        let width = roomWidth * horizontalRooms + roomSpacingWidth * (horizontalRooms + 1)
-        let height = roomHeight * verticalRooms + roomSpacingHeight * (verticalRooms + 1)
+        let width = T.roomWidth * horizontalRooms + T.roomSpacingWidth * (horizontalRooms + 1)
+        let height = T.roomHeight * verticalRooms + T.roomSpacingHeight * (verticalRooms + 1)
 
         let topLeftHalf = AreaMapPosition(width / 2, height / 2, 0)
         let from = roomCenter - topLeftHalf
@@ -137,8 +137,8 @@ class RenderedAreaMap {
             line += [ColoredCharacter](repeating: T.fillCharacter, count: bottomRightPadding.x)
 
             if let playerRoomCenter = playerRoomCenter, playerRoomCenter.plane == plane && playerRoomCenter.y == y {
-                let leftBracketPosition = playerRoomCenter.x - roomWidth / 2
-                let rightBracketPosition = playerRoomCenter.x + roomWidth / 2
+                let leftBracketPosition = playerRoomCenter.x - T.roomWidth / 2
+                let rightBracketPosition = playerRoomCenter.x + T.roomWidth / 2
                 if leftBracketPosition >= from.x && rightBracketPosition < to.x {
                     line[leftBracketPosition - from.x] = ColoredCharacter("[", Ansi.bGrn)
                 }
@@ -169,28 +169,28 @@ class RenderedAreaMap {
             let plane = position.plane
             guard mapsByPlane[plane] != nil else { continue }
 
-            let x = horizontalPadding + (roomWidth + roomSpacingWidth) * (position.x - mapRange.from.x)
-            let y = verticalPadding + (roomHeight + roomSpacingHeight) * (position.y - mapRange.from.y)
+            let x = T.horizontalPadding + (T.roomWidth + T.roomSpacingWidth) * (position.x - mapRange.from.x)
+            let y = T.verticalPadding + (T.roomHeight + T.roomSpacingHeight) * (position.y - mapRange.from.y)
 
             switch element {
             case .room(let room):
                 let isKnownRoom = self.isKnownRoom(vnum: room.vnum)
                 guard isKnownRoom || configuration.showUnknownRooms else { break }
-                renderedRoomCentersByRoom[room] = AreaMapPosition(x + roomWidth / 2, y, plane)
+                renderedRoomCentersByRoom[room] = AreaMapPosition(x + T.roomWidth / 2, y, plane)
                 firstRoomsByPlane[plane] = room
-                mapsByPlane[plane]![y].replaceSubrange(x..<(x + roomWidth), with: [ColoredCharacter]("( )", isKnownRoom ? Ansi.nNrm : Ansi.bGra))
+                mapsByPlane[plane]![y].replaceSubrange(x..<(x + T.roomWidth), with: [ColoredCharacter]("( )", isKnownRoom ? Ansi.nNrm : Ansi.bGra))
                 if let destination = room.exitDestination(.north) {
-                    mapsByPlane[plane]![y - 1].replaceSubrange(x..<(x + roomWidth),
+                    mapsByPlane[plane]![y - 1].replaceSubrange(x..<(x + T.roomWidth),
                                                                with: renderedPassage(.vertical, exitDestination: destination, isKnownRoom: isKnownRoom))
                 }
                 if let destination = room.exitDestination(.east) {
                     // Assigning single char for optimization, because it's known that horizontal
                     // renderings of passages can't be wider
-                    mapsByPlane[plane]![y][x + roomWidth] =
+                    mapsByPlane[plane]![y][x + T.roomWidth] =
                         renderedPassage(.horizontal, exitDestination: destination, isKnownRoom: isKnownRoom).first!
                 }
                 if let destination = room.exitDestination(.south) {
-                    mapsByPlane[plane]![y + roomHeight].replaceSubrange(x..<(x + roomWidth),
+                    mapsByPlane[plane]![y + T.roomHeight].replaceSubrange(x..<(x + T.roomWidth),
                         with: renderedPassage(.vertical, exitDestination: destination, isKnownRoom: isKnownRoom))
                 }
                 if let destination = room.exitDestination(.west) {
@@ -212,17 +212,17 @@ class RenderedAreaMap {
                     let isKnownRoomUp = exitVnumUpOrNil != nil ? self.isKnownRoom(vnum: exitVnumUpOrNil!) : false
                     let exitVnumDownOrNil = room.exitVnum(.down)
                     let isKnownRoomDown = exitVnumDownOrNil != nil ?  self.isKnownRoom(vnum: exitVnumDownOrNil!) : false
-                    mapsByPlane[plane]![y][x + roomWidth / 2] =
+                    mapsByPlane[plane]![y][x + T.roomWidth / 2] =
                         renderedPassage(.upDown, exitDestination: destination, isKnownRoom: isKnownRoom || isKnownRoomUp || isKnownRoomDown).first!
                 } else if let destination = upDestinationOrNil {
                     let exitVnumUpOrNil = room.exitVnum(.up)
                     let isKnownRoomUp = exitVnumUpOrNil != nil ? self.isKnownRoom(vnum: exitVnumUpOrNil!) : false
-                    mapsByPlane[plane]![y][x + roomWidth / 2] =
+                    mapsByPlane[plane]![y][x + T.roomWidth / 2] =
                         renderedPassage(.up, exitDestination: destination, isKnownRoom: isKnownRoom || isKnownRoomUp).first!
                 } else if let destination = downDestinationOrNil {
                     let exitVnumDownOrNil = room.exitVnum(.down)
                     let isKnownRoomDown = exitVnumDownOrNil != nil ?  self.isKnownRoom(vnum: exitVnumDownOrNil!) : false
-                    mapsByPlane[plane]![y][x + roomWidth / 2] =
+                    mapsByPlane[plane]![y][x + T.roomWidth / 2] =
                         renderedPassage(.down, exitDestination: destination, isKnownRoom: isKnownRoom || isKnownRoomDown).first!
                 }
             case let .passage(axis, toRoom, fromRoom):
@@ -230,15 +230,15 @@ class RenderedAreaMap {
                 guard isKnownRoom || configuration.showUnknownRooms else { break }
                 switch axis {
                 case .x:
-                    mapsByPlane[plane]![y].replaceSubrange(x..<(x + roomWidth), with: T.longXPassage)
-                    mapsByPlane[plane]![y][x + roomWidth] = T.xPassage.first!
+                    mapsByPlane[plane]![y].replaceSubrange(x..<(x + T.roomWidth), with: T.longXPassage)
+                    mapsByPlane[plane]![y][x + T.roomWidth] = T.xPassage.first!
                 case .y:
                     let yPassage = [T.fillCharacter, ColoredCharacter("|", isKnownRoom ? Ansi.nNrm : Ansi.bGra), T.fillCharacter]
-                    mapsByPlane[plane]![y - 1].replaceSubrange(x..<(x + roomWidth), with: yPassage)
-                    mapsByPlane[plane]![y].replaceSubrange(x..<(x + roomWidth), with: yPassage)
-                    mapsByPlane[plane]![y + roomHeight].replaceSubrange(x..<(x + roomWidth), with: yPassage)
+                    mapsByPlane[plane]![y - 1].replaceSubrange(x..<(x + T.roomWidth), with: yPassage)
+                    mapsByPlane[plane]![y].replaceSubrange(x..<(x + T.roomWidth), with: yPassage)
+                    mapsByPlane[plane]![y + T.roomHeight].replaceSubrange(x..<(x + T.roomWidth), with: yPassage)
                 case .plane:
-                    mapsByPlane[plane]![y].replaceSubrange(x..<(x + roomWidth), with: T.longZPassage)
+                    mapsByPlane[plane]![y].replaceSubrange(x..<(x + T.roomWidth), with: T.longZPassage)
                 }
             }
         }
