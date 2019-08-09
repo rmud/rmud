@@ -52,7 +52,6 @@ class RenderedAreaMap {
     }
     
     private var mapsByPlane = MapsByPlane()
-    private var firstRoomsByPlane = [Int: Room]()
     private var renderedRoomCentersByRoom = [Room: AreaMapPosition]() // AreaMapPosition is used here only for convenience, its x and y specify room center offset in characters relative to top-left corner of the rendered map
     
     static let roomWidth = 3
@@ -160,7 +159,6 @@ class RenderedAreaMap {
 
     func render() {
         mapsByPlane.removeAll()
-        firstRoomsByPlane.removeAll()
         
         for (plane, _) in areaMap.rangesByPlane {
             let size = planeSize
@@ -191,7 +189,6 @@ class RenderedAreaMap {
                 guard isExploredRoom == (elementTypes == .explored) else { break }
                 
                 renderedRoomCentersByRoom[room] = AreaMapPosition(x + T.roomWidth / 2, y, plane)
-                firstRoomsByPlane[plane] = room
                 mapsByPlane[plane]![y].replaceSubrange(x..<(x + T.roomWidth), with: [ColoredCharacter]("( )", isExploredRoom ? Ansi.nNrm : Ansi.bGra))
                 if let destination = room.exitDestination(.north) {
                     mapsByPlane[plane]![y - 1].replaceSubrange(x..<(x + T.roomWidth),
