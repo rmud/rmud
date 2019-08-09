@@ -180,22 +180,30 @@ class RenderedAreaMap {
                 firstRoomsByPlane[plane] = room
                 mapsByPlane[plane]![y].replaceSubrange(x..<(x + T.roomWidth), with: [ColoredCharacter]("( )", isKnownRoom ? Ansi.nNrm : Ansi.bGra))
                 if let destination = room.exitDestination(.north) {
+                    let exitVnumNorthOrNil = room.exitVnum(.north)
+                    let isKnownRoomNorth = exitVnumNorthOrNil != nil ? self.isKnownRoom(vnum: exitVnumNorthOrNil!) : false
                     mapsByPlane[plane]![y - 1].replaceSubrange(x..<(x + T.roomWidth),
-                                                               with: renderedPassage(.vertical, exitDestination: destination, isKnownRoom: isKnownRoom))
+                                                               with: renderedPassage(.vertical, exitDestination: destination, isKnownRoom: isKnownRoom || isKnownRoomNorth))
                 }
                 if let destination = room.exitDestination(.east) {
                     // Assigning single char for optimization, because it's known that horizontal
                     // renderings of passages can't be wider
+                    let exitVnumEastOrNil = room.exitVnum(.east)
+                    let isKnownRoomEast = exitVnumEastOrNil != nil ? self.isKnownRoom(vnum: exitVnumEastOrNil!) : false
                     mapsByPlane[plane]![y][x + T.roomWidth] =
-                        renderedPassage(.horizontal, exitDestination: destination, isKnownRoom: isKnownRoom).first!
+                        renderedPassage(.horizontal, exitDestination: destination, isKnownRoom: isKnownRoom || isKnownRoomEast).first!
                 }
                 if let destination = room.exitDestination(.south) {
+                    let exitVnumSouthOrNil = room.exitVnum(.south)
+                    let isKnownRoomSouth = exitVnumSouthOrNil != nil ? self.isKnownRoom(vnum: exitVnumSouthOrNil!) : false
                     mapsByPlane[plane]![y + T.roomHeight].replaceSubrange(x..<(x + T.roomWidth),
-                        with: renderedPassage(.vertical, exitDestination: destination, isKnownRoom: isKnownRoom))
+                        with: renderedPassage(.vertical, exitDestination: destination, isKnownRoom: isKnownRoom || isKnownRoomSouth))
                 }
                 if let destination = room.exitDestination(.west) {
+                    let exitVnumWestOrNil = room.exitVnum(.west)
+                    let isKnownRoomWest = exitVnumWestOrNil != nil ? self.isKnownRoom(vnum: exitVnumWestOrNil!) : false
                     mapsByPlane[plane]![y][x - 1] =
-                        renderedPassage(.horizontal, exitDestination: destination, isKnownRoom: isKnownRoom).first!
+                        renderedPassage(.horizontal, exitDestination: destination, isKnownRoom: isKnownRoom || isKnownRoomWest).first!
                 }
                 let upDestinationOrNil = room.exitDestination(.up)
                 let downDestinationOrNil = room.exitDestination(.down)
