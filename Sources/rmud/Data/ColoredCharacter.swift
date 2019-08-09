@@ -23,8 +23,8 @@ extension ColoredCharacter: Equatable {
 }
 
 extension Array where Element == ColoredCharacter {
-    public init(_ string: String) {
-        self = string.map { ColoredCharacter(extendedGraphemeClusterLiteral: $0) }
+    public init(_ string: String, _ color: String = Ansi.nNrm) {
+        self = string.map { ColoredCharacter($0, color) }
     }
 
     public func padding(toLength length: Int, withPad pad: ColoredCharacter) -> [ColoredCharacter] {

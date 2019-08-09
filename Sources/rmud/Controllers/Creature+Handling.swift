@@ -128,8 +128,14 @@ extension Creature {
     }
     
     func put(in room: Room) {
+        assert(inRoom == nil)
         room.creatures.insert(self, at: 0)
         inRoom = room
+        
+        if let player = player {
+            player.knownRooms.insert(room.vnum)
+            player.rerenderMap()
+        }
     }
     
     func teleportTo(room: Room) {

@@ -49,6 +49,13 @@ class Room {
         }
         return false
     }
+    
+    func exitVnum(_ direction: Direction) -> Int? {
+        guard let exit = exits[direction], let toVnum = exit.toVnum else {
+            return nil
+        }
+        return toVnum
+    }
 
     func exitDestination(_ direction: Direction) -> ExitDestination? {
         guard let exit = exits[direction], let toVnum = exit.toVnum else {

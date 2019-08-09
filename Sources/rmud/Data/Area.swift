@@ -11,12 +11,7 @@ class Area {
     var originVnum: Int?
     
     var rooms: [Room] = []
-    var map = AreaMap() {
-        didSet {
-            renderedMap = RenderedAreaMap(areaMap: map)
-        }
-    }
-    var renderedMap: RenderedAreaMap?
+    var map = AreaMap()
     
     init?(prototype: AreaPrototype) {
         self.prototype = prototype

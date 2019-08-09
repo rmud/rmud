@@ -30,7 +30,6 @@ public class AreaMap {
     var roomsCount: Int { return positionsByRoom.count }
     private(set) var range = AreaMapRange(AreaMapPosition(0, 0, 0))
     private(set) var rangesByPlane = [Int: AreaMapRange]()
-    private(set) var version = 0
 
     init(startingRoom: Room? = nil) {
         if let startingRoom = startingRoom {
@@ -39,13 +38,14 @@ public class AreaMap {
         }
     }
 
-    func dig(toRoom: Room, fromRoom: Room, direction: Direction, distance: Int, drawPassage: Bool, onlyTest: Bool = false) -> DigResult {
+    func dig(toRoom: Room, fromRoom: Room, direction: Direction, distance: Int, drawPassage: Bool, onlyTest: Bool = false) -> (digResult: DigResult, isRerenderRequired: Bool) {
+        var isRerenderRequired = false
         
-        guard distance >= 1 else { return .didNothing }
+        guard distance >= 1 else { return (.didNothing, isRerenderRequired) }
         
         if let toPosition = positionsByRoom[toRoom] {
             // redrawing still may be required (passage created)
-            defer { version = version &+ 1 }
+            isRerenderRequired = true
             
             // if both rooms exist they are possibly at a distance and not linked yet, try to link them if they're on same row
             if drawPassage, let fromPosition = positionsByRoom[fromRoom] {
@@ -61,18 +61,18 @@ public class AreaMap {
                             for at in from + 1...to - 1 {
                                 var passagePosition = fromPosition
                                 passagePosition.set(axis: axis, value: at)
-                                mapElementsByPosition[passagePosition] = .passage(axis)
+                                mapElementsByPosition[passagePosition] = .passage(axis, toRoom: toRoom, fromRoom: fromRoom)
                             }
                         }
-                        return .longPassageAddedToExistingRoom
+                        return (.longPassageAddedToExistingRoom, isRerenderRequired)
                     }
                 } else {
-                    return .toRoomExistsButNotOnSameLineWithFromRoom
+                    return (.toRoomExistsButNotOnSameLineWithFromRoom, isRerenderRequired)
                 }
             }
-            return .toRoomAlreadyExists
+            return (.toRoomAlreadyExists, isRerenderRequired)
         }
-        guard let fromPosition = positionsByRoom[fromRoom] else { return .fromRoomDoesNotExist }
+        guard let fromPosition = positionsByRoom[fromRoom] else { return (.fromRoomDoesNotExist, isRerenderRequired) }
 
         var shiftDistance = 0
         for step in 1...distance {
@@ -100,17 +100,17 @@ public class AreaMap {
                 for step in 1..<distance {
                     let intermediateOffset = AreaMapPosition(direction, step)
                     let passagePosition = fromPosition + intermediateOffset
-                    mapElementsByPosition[passagePosition] = .passage(axis)
+                    mapElementsByPosition[passagePosition] = .passage(axis, toRoom: toRoom, fromRoom: fromRoom)
                 }
             }
             // Draw room at the end of passage
             let toPosition = fromPosition + AreaMapPosition(direction, distance)
             add(room: toRoom, position: toPosition)
 
-            version = version &+ 1
+            isRerenderRequired = true
         }
 
-        return result
+        return (result, isRerenderRequired)
     }
 
     func add(room: Room, position: AreaMapPosition) {
@@ -154,7 +154,6 @@ public class AreaMap {
             }
         }
 
-        let fillElement = AreaMapElement.passage(axis)
         let fillFrom = (from + AreaMapPosition(direction, 1)).get(axis: axis)
         let fillTo = (from + AreaMapPosition(direction, distance)).get(axis: axis)
         let fillRange = min(fillFrom, fillTo)...max(fillFrom, fillTo)
@@ -167,16 +166,16 @@ public class AreaMap {
             case .room(let room) where room.hasValidExit(direction):
                 if let neighborElement = oldMapElementsByPosition[oldPosition + AreaMapPosition(direction, 1)] {
                     
-                    var shouldFill: Bool
+                    var shouldFillWithElement: AreaMapElement?
                     switch neighborElement {
-                    case let .room(neighborRoom) where room.exits[direction]?.toRoom() == neighborRoom:
-                        shouldFill = true
-                    case let .passage(passageAxis) where passageAxis == axis:
-                        shouldFill = true
+                    case .room(let neighborRoom) where room.exits[direction]?.toRoom() == neighborRoom:
+                        shouldFillWithElement = .passage(axis, toRoom: neighborRoom, fromRoom: room)
+                    case .passage(let passageAxis, _, _) where passageAxis == axis:
+                        shouldFillWithElement = neighborElement
                     default:
-                        shouldFill = false
+                        shouldFillWithElement = nil
                     }
-                    if shouldFill {
+                    if let fillElement = shouldFillWithElement {
                         for fillCoordinate in fillRange {
                             var position = oldPosition
                             position.set(axis: axis, value: fillCoordinate)
@@ -184,7 +183,8 @@ public class AreaMap {
                         }
                     }
                 }
-            case .passage(axis):
+            case .passage(let axis, _, _):
+                let fillElement = element
                 for fillCoordinate in fillRange {
                     var position = oldPosition
                     position.set(axis: axis, value: fillCoordinate)
@@ -224,7 +224,7 @@ public class AreaMap {
                 switch element {
                 case .room(let room):
                     grid[atY][atX] = String(room.vnum).padding(toLength: elementWidth, withPad: " ", startingAt: 0)
-                case .passage(let axis):
+                case .passage(let axis, _, _):
                     switch axis {
                     case .y:
                         grid[atY][atX] = "|".padding(toLength: elementWidth, withPad: " ", startingAt: 0)

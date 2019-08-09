@@ -103,7 +103,8 @@ class AreaMapper {
         
         let renderMap: (_ currentRoom: Room?)->String = { currentRoom in
             var fragments: [[ColoredCharacter]] = []
-            let renderedMap = RenderedAreaMap(areaMap: areaMap)
+            let configuration = RenderedAreaMap.RenderConfiguration(knownRooms: .all, showUnknownRooms: true)
+            let renderedMap = RenderedAreaMap(areaMap: areaMap, renderConfiguration: configuration)
             let planes = renderedMap.planes.sorted(by: <)
             for plane in planes {
                 let map = renderedMap.fragment(wholePlane: plane, playerRoom: currentRoom)
@@ -151,7 +152,7 @@ class AreaMapper {
                     }
                 }
                 if stage.withoutShifting {
-                    let result = areaMap.dig(toRoom: nextRoom, fromRoom: currentRoom, direction: direction, distance: distance, drawPassage: drawPassage, onlyTest: true)
+                    let (result, _) = areaMap.dig(toRoom: nextRoom, fromRoom: currentRoom, direction: direction, distance: distance, drawPassage: drawPassage, onlyTest: true)
                     if result != .didAddRoomWithoutObstacles && result != .longPassageAddedToExistingRoom {
                         // Can't add this room without obstacles, postpone.
                         // Do NOT add to visited yet!
@@ -199,7 +200,7 @@ class AreaMapper {
                     continue
                 }
                 
-                let result = areaMap.dig(toRoom: nextRoom, fromRoom: currentRoom, direction: direction, distance: distance, drawPassage: drawPassage)
+                let (result, _) = areaMap.dig(toRoom: nextRoom, fromRoom: currentRoom, direction: direction, distance: distance, drawPassage: drawPassage)
                 //areaMap.debugPrint()
                 if dumpToFile,
                         settings.debugSaveRoomAlreadyExistsSteps ||
@@ -249,7 +250,7 @@ class AreaMapper {
                 continue
             }
             let distance = Int(exit.distance)
-            let result = areaMap.dig(toRoom: nextRoom, fromRoom: currentRoom, direction: direction, distance: distance, drawPassage: true)
+            let (result, _) = areaMap.dig(toRoom: nextRoom, fromRoom: currentRoom, direction: direction, distance: distance, drawPassage: true)
             if result == .toRoomExistsButNotOnSameLineWithFromRoom {
                 if !exit.flags.contains(.torn) {
                     logWarning("Broken visual link between rooms \(currentRoom.vnum) and \(nextRoom.vnum): rooms are on different lines")

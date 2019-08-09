@@ -1,6 +1,13 @@
 import Foundation
 
 extension Player {
+    func rerenderMap() {
+        guard let areaMap = creature.inRoom?.area?.map else { return }
+        let isHolylight = preferenceFlags.contains(.holylight)
+        let configuration = RenderedAreaMap.RenderConfiguration(knownRooms: .some(knownRooms), showUnknownRooms: isHolylight)
+        renderedMap = RenderedAreaMap(areaMap: areaMap, renderConfiguration: configuration)
+    }
+    
     func stopWatching() -> Bool {
         //XXX ещё подобное действие выпоняется в make_pronpt() (act.informative.cpp)
         //т.к. в тот момент act() не сработает

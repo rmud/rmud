@@ -107,7 +107,7 @@ extension Creature {
         
         let map: [[ColoredCharacter]]
         if preferenceFlags?.contains(.map) ?? false {
-            map = room.area?.renderedMap?.fragment(near: room, playerRoom: room, horizontalRooms: mapWidth, verticalRooms: mapHeight) ?? []
+            map = player?.renderedMap?.fragment(near: room, playerRoom: room, horizontalRooms: mapWidth, verticalRooms: mapHeight) ?? []
         } else {
             map = []
         }
