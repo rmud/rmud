@@ -133,7 +133,7 @@ extension Creature {
         inRoom = room
         
         if let player = player {
-            player.knownRooms.insert(room.vnum)
+            player.exploredRooms.insert(room.vnum)
             player.rerenderMap()
         }
     }

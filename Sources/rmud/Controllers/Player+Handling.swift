@@ -4,7 +4,7 @@ extension Player {
     func rerenderMap() {
         guard let areaMap = creature.inRoom?.area?.map else { return }
         let isHolylight = preferenceFlags.contains(.holylight)
-        let configuration = RenderedAreaMap.RenderConfiguration(knownRooms: .some(knownRooms), showUnknownRooms: isHolylight)
+        let configuration = RenderedAreaMap.RenderConfiguration(exploredRooms: .some(exploredRooms), showUnexploredRooms: isHolylight)
         renderedMap = RenderedAreaMap(areaMap: areaMap, renderConfiguration: configuration)
     }
     

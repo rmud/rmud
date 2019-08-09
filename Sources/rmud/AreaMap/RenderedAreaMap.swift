@@ -3,14 +3,14 @@ import Foundation
 class RenderedAreaMap {
     typealias T = RenderedAreaMap
 
-    enum KnownRooms {
+    enum ExploredRooms {
         case all
         case some(Set<Int>)
     }
     
     struct RenderConfiguration {
-        let knownRooms: KnownRooms
-        let showUnknownRooms: Bool
+        let exploredRooms: ExploredRooms
+        let showUnexploredRooms: Bool
     }
     
     enum RenderedPassage {
@@ -22,8 +22,8 @@ class RenderedAreaMap {
     }
     
     enum ElementType {
-        case unknown
-        case known
+        case unexplored
+        case explored
     }
 
     static let fillCharacter = ColoredCharacter(".", Ansi.nBlu)
@@ -168,11 +168,11 @@ class RenderedAreaMap {
             mapsByPlane[plane] = [[ColoredCharacter]](repeating: renderedEmptyRow, count: size.height)
         }
         
-        if configuration.showUnknownRooms {
-            drawMapElements(elementTypes: .unknown)
+        if configuration.showUnexploredRooms {
+            drawMapElements(elementTypes: .unexplored)
         }
         
-        drawMapElements(elementTypes: .known)
+        drawMapElements(elementTypes: .explored)
     }
     
     private func drawMapElements(elementTypes: ElementType) {
@@ -187,29 +187,29 @@ class RenderedAreaMap {
             
             switch element {
             case .room(let room):
-                let isKnownRoom = self.isKnownRoom(vnum: room.vnum)
-                guard isKnownRoom == (elementTypes == .known) else { break }
+                let isExploredRoom = self.isExploredRoom(vnum: room.vnum)
+                guard isExploredRoom == (elementTypes == .explored) else { break }
                 
                 renderedRoomCentersByRoom[room] = AreaMapPosition(x + T.roomWidth / 2, y, plane)
                 firstRoomsByPlane[plane] = room
-                mapsByPlane[plane]![y].replaceSubrange(x..<(x + T.roomWidth), with: [ColoredCharacter]("( )", isKnownRoom ? Ansi.nNrm : Ansi.bGra))
+                mapsByPlane[plane]![y].replaceSubrange(x..<(x + T.roomWidth), with: [ColoredCharacter]("( )", isExploredRoom ? Ansi.nNrm : Ansi.bGra))
                 if let destination = room.exitDestination(.north) {
                     mapsByPlane[plane]![y - 1].replaceSubrange(x..<(x + T.roomWidth),
-                                                               with: renderedPassage(.vertical, exitDestination: destination, isKnownRoom: isKnownRoom))
+                                                               with: renderedPassage(.vertical, exitDestination: destination, isExploredRoom: isExploredRoom))
                 }
                 if let destination = room.exitDestination(.east) {
                     // Assigning single char for optimization, because it's known that horizontal
                     // renderings of passages can't be wider
                     mapsByPlane[plane]![y][x + T.roomWidth] =
-                        renderedPassage(.horizontal, exitDestination: destination, isKnownRoom: isKnownRoom).first!
+                        renderedPassage(.horizontal, exitDestination: destination, isExploredRoom: isExploredRoom).first!
                 }
                 if let destination = room.exitDestination(.south) {
                     mapsByPlane[plane]![y + T.roomHeight].replaceSubrange(x..<(x + T.roomWidth),
-                                                                          with: renderedPassage(.vertical, exitDestination: destination, isKnownRoom: isKnownRoom))
+                                                                          with: renderedPassage(.vertical, exitDestination: destination, isExploredRoom: isExploredRoom))
                 }
                 if let destination = room.exitDestination(.west) {
                     mapsByPlane[plane]![y][x - 1] =
-                        renderedPassage(.horizontal, exitDestination: destination, isKnownRoom: isKnownRoom).first!
+                        renderedPassage(.horizontal, exitDestination: destination, isExploredRoom: isExploredRoom).first!
                 }
                 let upDestinationOrNil = room.exitDestination(.up)
                 let downDestinationOrNil = room.exitDestination(.down)
@@ -223,24 +223,24 @@ class RenderedAreaMap {
                         destination = .insideArea
                     }
                     mapsByPlane[plane]![y][x + T.roomWidth / 2] =
-                        renderedPassage(.upDown, exitDestination: destination, isKnownRoom: isKnownRoom).first!
+                        renderedPassage(.upDown, exitDestination: destination, isExploredRoom: isExploredRoom).first!
                 } else if let destination = upDestinationOrNil {
                     mapsByPlane[plane]![y][x + T.roomWidth / 2] =
-                        renderedPassage(.up, exitDestination: destination, isKnownRoom: isKnownRoom).first!
+                        renderedPassage(.up, exitDestination: destination, isExploredRoom: isExploredRoom).first!
                 } else if let destination = downDestinationOrNil {
                     mapsByPlane[plane]![y][x + T.roomWidth / 2] =
-                        renderedPassage(.down, exitDestination: destination, isKnownRoom: isKnownRoom).first!
+                        renderedPassage(.down, exitDestination: destination, isExploredRoom: isExploredRoom).first!
                 }
             case let .passage(axis, toRoom, fromRoom):
-                let isKnownRoom = self.isKnownRoom(vnum: toRoom.vnum) && self.isKnownRoom(vnum: fromRoom.vnum)
-                guard isKnownRoom == (elementTypes == .known) else { break }
+                let isExploredRoom = self.isExploredRoom(vnum: toRoom.vnum) && self.isExploredRoom(vnum: fromRoom.vnum)
+                guard isExploredRoom == (elementTypes == .explored) else { break }
                 
                 switch axis {
                 case .x:
                     mapsByPlane[plane]![y].replaceSubrange(x..<(x + T.roomWidth), with: T.longXPassage)
                     mapsByPlane[plane]![y][x + T.roomWidth] = T.xPassage.first!
                 case .y:
-                    let yPassage = [T.fillCharacter, ColoredCharacter("|", isKnownRoom ? Ansi.nNrm : Ansi.bGra), T.fillCharacter]
+                    let yPassage = [T.fillCharacter, ColoredCharacter("|", isExploredRoom ? Ansi.nNrm : Ansi.bGra), T.fillCharacter]
                     mapsByPlane[plane]![y - 1].replaceSubrange(x..<(x + T.roomWidth), with: yPassage)
                     mapsByPlane[plane]![y].replaceSubrange(x..<(x + T.roomWidth), with: yPassage)
                     mapsByPlane[plane]![y + T.roomHeight].replaceSubrange(x..<(x + T.roomWidth), with: yPassage)
@@ -251,14 +251,14 @@ class RenderedAreaMap {
         }
     }
     
-    private func isKnownRoom(vnum: Int) -> Bool {
-        if case .some(let vnums) = configuration.knownRooms {
+    private func isExploredRoom(vnum: Int) -> Bool {
+        if case .some(let vnums) = configuration.exploredRooms {
             return vnums.contains(vnum)
         }
         return true
     }
         
-    private func renderedPassage(_ passage: RenderedPassage, exitDestination: Room.ExitDestination, isKnownRoom: Bool) -> [ColoredCharacter] {
+    private func renderedPassage(_ passage: RenderedPassage, exitDestination: Room.ExitDestination, isExploredRoom: Bool) -> [ColoredCharacter] {
         var result: [ColoredCharacter]
         switch passage {
             case .horizontal:
@@ -272,7 +272,7 @@ class RenderedAreaMap {
             case .upDown:
                 result = T.upDown
         }
-        if !isKnownRoom {
+        if !isExploredRoom {
             result = result.map {
                 $0 == T.fillCharacter ? $0 :
                     ColoredCharacter($0.character, Ansi.bGra)
