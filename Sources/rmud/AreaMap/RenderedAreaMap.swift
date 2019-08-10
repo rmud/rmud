@@ -51,6 +51,8 @@ class RenderedAreaMap {
         return mapsByPlane.keys
     }
     
+    var roomLegends: [RoomLegend] = []
+    
     private var mapsByPlane = MapsByPlane()
     private var renderedRoomCentersByRoom = [Room: AreaMapPosition]() // AreaMapPosition is used here only for convenience, its x and y specify room center offset in characters relative to top-left corner of the rendered map
     
@@ -187,6 +189,10 @@ class RenderedAreaMap {
             case .room(let room):
                 let isExploredRoom = self.isExploredRoom(vnum: room.vnum)
                 guard isExploredRoom == (elementTypes == .explored) else { break }
+                
+                if let legend = room.legend {
+                    roomLegends.append(legend)
+                }
                 
                 renderedRoomCentersByRoom[room] = AreaMapPosition(x + T.roomWidth / 2, y, plane)
                 mapsByPlane[plane]![y].replaceSubrange(x..<(x + T.roomWidth), with: [ColoredCharacter]("( )", isExploredRoom ? Ansi.nNrm : Ansi.bGra))

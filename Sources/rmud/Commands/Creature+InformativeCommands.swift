@@ -7,16 +7,24 @@ extension Creature {
             return
         }
 
-        let sendMap: (_ map: String)->() = { map in
-            guard !map.isEmpty else {
+        let sendMap: (_ mapString: String)->() = { mapString in
+            guard !mapString.isEmpty else {
                 self.send("На этом уровне карта отсутствует.")
                 return
             }
-            self.send(map)
+            self.send(mapString)
+        }
+        
+        let sendLegends: (_ roomLegends: [RoomLegend])->() = { legends in
+            self.send("Легенда:")
+            legends.forEach { legend in
+                self.send("\(Ansi.nYel)\(legend.symbol)\(Ansi.nNrm) \(legend.name)")
+            }
         }
         
         let what = context.argument1
         if what.isEqual(toOneOf: ["вся", "все", "all"], caseInsensitive: true) {
+            sendLegends(renderedMap.roomLegends)
             let planes = renderedMap.planes.sorted(by: >)
             for plane in planes {
                 send("Уровень \(plane):")
@@ -27,6 +35,7 @@ extension Creature {
         }
         
         if let plane = Int(what) {
+            sendLegends(renderedMap.roomLegends)
             send("Уровень \(plane):")
             let map = renderedMap.fragment(wholePlane: plane, playerRoom: room)
             sendMap(map.renderedAsString(withColor: true))
@@ -34,6 +43,7 @@ extension Creature {
         }
 
         if let plane = renderedMap.plane(forRoom: room) {
+            sendLegends(renderedMap.roomLegends)
             let map = renderedMap.fragment(wholePlane: plane, playerRoom: room)
             sendMap(map.renderedAsString(withColor: true))
             return
