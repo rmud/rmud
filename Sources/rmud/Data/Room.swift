@@ -19,6 +19,7 @@ class Room {
 
     var exits: [RoomExit?] = Array(repeating: nil, count: Direction.count)
     var flags: RoomFlags = []
+    var legend: RoomLegend?
     var items: [Item] = []
     var creatures: [Creature] = []
     var eventOverrides: [Event<RoomEventId>] = []
@@ -36,6 +37,7 @@ class Room {
         extraDescriptions = prototype.extraDescriptions
 
         flags = prototype.flags
+        legend = prototype.legend
 
         exits = prototype.exits.map { exitPrototype in
             guard let exitPrototype = exitPrototype else { return nil }
@@ -48,13 +50,6 @@ class Room {
             return exit.toRoom(includingImaginaryExits: includingImaginaryRooms) != nil
         }
         return false
-    }
-    
-    func exitVnum(_ direction: Direction) -> Int? {
-        guard let exit = exits[direction], let toVnum = exit.toVnum else {
-            return nil
-        }
-        return toVnum
     }
 
     func exitDestination(_ direction: Direction) -> ExitDestination? {

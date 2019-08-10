@@ -2,50 +2,50 @@ import Foundation
 
 public struct AreaMapRange {
     var from: AreaMapPosition
-    var to: AreaMapPosition
+    var toInclusive: AreaMapPosition
 
-    init(_ position: AreaMapPosition) {
+    init(expandedWith position: AreaMapPosition) {
         self.from = position
-        self.to = position
+        self.toInclusive = position
     }
 
-    init(from: AreaMapPosition, to: AreaMapPosition) {
+    init(from: AreaMapPosition, toInclusive: AreaMapPosition) {
         self.from = from
-        self.to = to
+        self.toInclusive = toInclusive
     }
     
     var size: AreaMapPosition {
-        return to - from + AreaMapPosition(1, 1, 1)
+        return toInclusive - from + AreaMapPosition(1, 1, 1)
     }
     
     func size(axis: AreaMapPosition.Axis) -> Int {
-        return to.get(axis: axis) - from.get(axis: axis) + 1
+        return toInclusive.get(axis: axis) - from.get(axis: axis) + 1
     }
     
     mutating func expand(with position: AreaMapPosition) {
         self.from = lowerBound(self.from, position)
-        self.to = upperBound(self.to, position)
+        self.toInclusive = upperBound(self.toInclusive, position)
     }
 
     func expanded(with position: AreaMapPosition) -> AreaMapRange {
-        return AreaMapRange(from: lowerBound(self.from, position), to: upperBound(self.to, position))
+        return AreaMapRange(from: lowerBound(self.from, position), toInclusive: upperBound(self.toInclusive, position))
     }
 
     mutating func unite(with range: AreaMapRange) {
         self.from = lowerBound(self.from, range.from)
-        self.to = upperBound(self.to, range.to)
+        self.toInclusive = upperBound(self.toInclusive, range.toInclusive)
     }
 
     func united(with range: AreaMapRange) -> AreaMapRange {
-        return AreaMapRange(from: lowerBound(self.from, range.from), to: upperBound(self.to, range.to))
+        return AreaMapRange(from: lowerBound(self.from, range.from), toInclusive: upperBound(self.toInclusive, range.toInclusive))
     }
 
     mutating func shift(by offset: AreaMapPosition) {
         self.from += offset
-        self.to += offset
+        self.toInclusive += offset
     }
 
     func shifted(by offset: AreaMapPosition) -> AreaMapRange {
-        return AreaMapRange(from: self.from + offset, to: self.to + offset)
+        return AreaMapRange(from: self.from + offset, toInclusive: self.toInclusive + offset)
     }
 }

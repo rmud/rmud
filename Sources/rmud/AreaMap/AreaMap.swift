@@ -28,7 +28,7 @@ public class AreaMap {
 
     var elementsCount: Int { return mapElementsByPosition.count }
     var roomsCount: Int { return positionsByRoom.count }
-    private(set) var range = AreaMapRange(AreaMapPosition(0, 0, 0))
+    private(set) var range = AreaMapRange(expandedWith: AreaMapPosition(0, 0, 0))
     private(set) var rangesByPlane = [Int: AreaMapRange]()
 
     init(startingRoom: Room? = nil) {
@@ -122,7 +122,7 @@ public class AreaMap {
         if let planeRange = rangesByPlane[position.plane] {
             rangesByPlane[position.plane] = planeRange.expanded(with: position)
         } else {
-            rangesByPlane[position.plane] = AreaMapRange(position)
+            rangesByPlane[position.plane] = AreaMapRange(expandedWith: position)
         }
     }
 
@@ -214,8 +214,8 @@ public class AreaMap {
             }
             result += "Plane \(plane):\n"
             
-            let fillLine = [String](repeating: " ".padding(toLength: elementWidth, withPad: " ", startingAt: 0), count: range.to.x - range.from.x + 1)
-            var grid = [[String]](repeating: fillLine, count: range.to.y - range.from.y + 1)
+            let fillLine = [String](repeating: " ".padding(toLength: elementWidth, withPad: " ", startingAt: 0), count: range.toInclusive.x - range.from.x + 1)
+            var grid = [[String]](repeating: fillLine, count: range.toInclusive.y - range.from.y + 1)
 
             for (position, element) in mapElementsByPosition {
                 guard position.plane == plane else { continue }

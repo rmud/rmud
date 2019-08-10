@@ -103,7 +103,7 @@ class AreaMapper {
         
         let renderMap: (_ currentRoom: Room?)->String = { currentRoom in
             var fragments: [[ColoredCharacter]] = []
-            let configuration = RenderedAreaMap.RenderConfiguration(knownRooms: .all, showUnknownRooms: true)
+            let configuration = RenderedAreaMap.RenderConfiguration(exploredRooms: .all, showUnexploredRooms: true)
             let renderedMap = RenderedAreaMap(areaMap: areaMap, renderConfiguration: configuration)
             let planes = renderedMap.planes.sorted(by: <)
             for plane in planes {

@@ -7,16 +7,32 @@ extension Creature {
             return
         }
 
-        let sendMap: (_ map: String)->() = { map in
-            guard !map.isEmpty else {
+        let sendMap: (_ mapString: String)->() = { mapString in
+            guard !mapString.isEmpty else {
                 self.send("На этом уровне карта отсутствует.")
                 return
             }
-            self.send(map)
+            self.send(mapString)
+        }
+        
+        let sendLegends: (_ roomLegends: [RenderedAreaMap.RoomLegendWithMetadata])->() = { legendsWithMetadata in
+            self.send("Легенда:")
+            let isHolylight = self.preferenceFlags?.contains(.holylight) ?? false
+
+            legendsWithMetadata.forEach { legendWithMetadata in
+                let legend = legendWithMetadata.finalLegend
+                var line = "\(Ansi.nYel)\(legend.symbol)\(Ansi.nNrm) \(legend.name)"
+                if isHolylight {
+                    let room = legendWithMetadata.room
+                    line += " \(Ansi.bCyn)[\(room.vnum)]\(Ansi.nNrm)"
+                }
+                self.send(line)
+            }
         }
         
         let what = context.argument1
         if what.isEqual(toOneOf: ["вся", "все", "all"], caseInsensitive: true) {
+            sendLegends(renderedMap.roomLegends)
             let planes = renderedMap.planes.sorted(by: >)
             for plane in planes {
                 send("Уровень \(plane):")
@@ -27,6 +43,7 @@ extension Creature {
         }
         
         if let plane = Int(what) {
+            sendLegends(renderedMap.roomLegends)
             send("Уровень \(plane):")
             let map = renderedMap.fragment(wholePlane: plane, playerRoom: room)
             sendMap(map.renderedAsString(withColor: true))
@@ -34,6 +51,7 @@ extension Creature {
         }
 
         if let plane = renderedMap.plane(forRoom: room) {
+            sendLegends(renderedMap.roomLegends)
             let map = renderedMap.fragment(wholePlane: plane, playerRoom: room)
             sendMap(map.renderedAsString(withColor: true))
             return

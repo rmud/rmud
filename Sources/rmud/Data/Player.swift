@@ -132,7 +132,7 @@ class Player {
         return creature.level < Level.hero && adminInvisibilityLevel > 0 && preferenceFlags.contains(.noHassle)
     }
     
-    var knownRooms = Set<Int>()
+    var exploredRooms = Set<Int>()
     var renderedMap: RenderedAreaMap?
     
     init(creature: Creature, account: Account) {
