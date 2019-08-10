@@ -134,7 +134,7 @@ class RoomPrototype {
         flags = RoomFlags(rawValue: entity["ксвойства"]?.uint32 ?? 0)
         
         for i in entity.structureIndexes("легенда") {
-            let legend = self.legend ?? RoomLegend()
+            var legend = self.legend ?? RoomLegend()
             if let name = entity["легенда.название", i]?.string {
                 legend.name = name
             }

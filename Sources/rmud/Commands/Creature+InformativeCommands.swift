@@ -15,10 +15,18 @@ extension Creature {
             self.send(mapString)
         }
         
-        let sendLegends: (_ roomLegends: [RoomLegend])->() = { legends in
+        let sendLegends: (_ roomLegends: [RenderedAreaMap.RoomLegendWithMetadata])->() = { legendsWithMetadata in
             self.send("Легенда:")
-            legends.forEach { legend in
-                self.send("\(Ansi.nYel)\(legend.symbol)\(Ansi.nNrm) \(legend.name)")
+            let isHolylight = self.preferenceFlags?.contains(.holylight) ?? false
+
+            legendsWithMetadata.forEach { legendWithMetadata in
+                let legend = legendWithMetadata.finalLegend
+                var line = "\(Ansi.nYel)\(legend.symbol)\(Ansi.nNrm) \(legend.name)"
+                if isHolylight {
+                    let room = legendWithMetadata.room
+                    line += " \(Ansi.bCyn)[\(room.vnum)]\(Ansi.nNrm)"
+                }
+                self.send(line)
             }
         }
         
