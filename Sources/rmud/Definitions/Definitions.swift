@@ -252,6 +252,8 @@ class Definitions {
         try d.insert(name: "кперехват.жертве", type: .line)
         try d.insert(name: "кперехват.комнате", type: .line)
         try d.insert(name: "ксвойства", type: .flags)
+        try d.insert(name: "легенда.название", type: .line, flags: .structureStart)
+        try d.insert(name: "легенда.символ", type: .line)
         try d.insert(name: "предметы", type: .dictionary)
         try d.insert(name: "процедура", type: .list)
         

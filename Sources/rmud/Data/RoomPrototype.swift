@@ -40,6 +40,7 @@ class RoomPrototype {
     // The rest are optional
     var exits: [ExitPrototype?] = Array(repeating: nil, count: Direction.count)
     var flags: RoomFlags = []
+    var legend: RoomLegend?
     var mobilesToLoadCountByVnum: [Int: Int] = [:]
     var itemsToLoadCountByVnum: [Int: Int] = [:]
     var coinsToLoad: Int = 0
@@ -132,6 +133,17 @@ class RoomPrototype {
         
         flags = RoomFlags(rawValue: entity["ксвойства"]?.uint32 ?? 0)
         
+        for i in entity.structureIndexes("легенда") {
+            let legend = self.legend ?? RoomLegend()
+            if let name = entity["легенда.название", i]?.string {
+                legend.name = name
+            }
+            if let symbolString = entity["легенда.символ", i]?.string, let symbol = symbolString.first {
+                legend.symbol = symbol
+            }
+            self.legend = legend
+        }
+
         if let mobiles = entity["монстры"]?.dictionary {
             for (vnumRaw, countRawOrNil) in mobiles {
                 guard let mobileVnum = Int(exactly: vnumRaw) else {
@@ -269,6 +281,17 @@ class RoomPrototype {
         if !flags.isEmpty {
             let enumSpec = definitions.enumerations.enumSpecsByAlias["ксвойства"]
             result += "  КСВОЙСТВА \(Value(flags: flags).formatted(for: style, enumSpec: enumSpec))\n"
+        }
+        
+        if let legend = legend {
+            result += structureIfNotEmpty("ЛЕГЕНДА") { content in
+                if !legend.name.isEmpty {
+                    content += "    НАЗВАНИЕ \(Value(line: legend.name).formatted(for: style))\n"
+                }
+                if legend.symbol != RoomLegend.defaultSymbol {
+                    content += "    СИМВОЛ \(Value(line: "\(legend.symbol)").formatted(for: style))\n"
+                }
+            }
         }
         
         if !mobilesToLoadCountByVnum.isEmpty {

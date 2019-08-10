@@ -208,25 +208,29 @@ class RenderedAreaMap {
                     mapsByPlane[plane]![y][x - 1] =
                         renderedPassage(.horizontal, exitDestination: destination, isExploredRoom: isExploredRoom).first!
                 }
-                let upDestinationOrNil = room.exitDestination(.up)
-                let downDestinationOrNil = room.exitDestination(.down)
-                if let upDestination = upDestinationOrNil, let downDestination = downDestinationOrNil {
-                    let destination: Room.ExitDestination
-                    if upDestination == .invalid || downDestination == .invalid {
-                        destination = .invalid
-                    } else if upDestination == .toAnotherArea || downDestination == .toAnotherArea {
-                        destination = .toAnotherArea
-                    } else {
-                        destination = .insideArea
+                if let legend = room.legend {
+                    mapsByPlane[plane]![y][x + T.roomWidth / 2] = ColoredCharacter(legend.symbol, isExploredRoom ? Ansi.nYel : Ansi.bGra)
+                } else {
+                    let upDestinationOrNil = room.exitDestination(.up)
+                    let downDestinationOrNil = room.exitDestination(.down)
+                    if let upDestination = upDestinationOrNil, let downDestination = downDestinationOrNil {
+                        let destination: Room.ExitDestination
+                        if upDestination == .invalid || downDestination == .invalid {
+                            destination = .invalid
+                        } else if upDestination == .toAnotherArea || downDestination == .toAnotherArea {
+                            destination = .toAnotherArea
+                        } else {
+                            destination = .insideArea
+                        }
+                        mapsByPlane[plane]![y][x + T.roomWidth / 2] =
+                            renderedPassage(.upDown, exitDestination: destination, isExploredRoom: isExploredRoom).first!
+                    } else if let destination = upDestinationOrNil {
+                        mapsByPlane[plane]![y][x + T.roomWidth / 2] =
+                            renderedPassage(.up, exitDestination: destination, isExploredRoom: isExploredRoom).first!
+                    } else if let destination = downDestinationOrNil {
+                        mapsByPlane[plane]![y][x + T.roomWidth / 2] =
+                            renderedPassage(.down, exitDestination: destination, isExploredRoom: isExploredRoom).first!
                     }
-                    mapsByPlane[plane]![y][x + T.roomWidth / 2] =
-                        renderedPassage(.upDown, exitDestination: destination, isExploredRoom: isExploredRoom).first!
-                } else if let destination = upDestinationOrNil {
-                    mapsByPlane[plane]![y][x + T.roomWidth / 2] =
-                        renderedPassage(.up, exitDestination: destination, isExploredRoom: isExploredRoom).first!
-                } else if let destination = downDestinationOrNil {
-                    mapsByPlane[plane]![y][x + T.roomWidth / 2] =
-                        renderedPassage(.down, exitDestination: destination, isExploredRoom: isExploredRoom).first!
                 }
             case let .passage(axis, toRoom, fromRoom):
                 let isExploredRoom = self.isExploredRoom(vnum: toRoom.vnum) && self.isExploredRoom(vnum: fromRoom.vnum)
