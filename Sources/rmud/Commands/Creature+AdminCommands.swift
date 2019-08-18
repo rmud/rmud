@@ -422,10 +422,34 @@ extension Creature {
         let p = room.prototype
         
         switch fieldInfo.lowercasedName {
+        // комната
         case "название": p.name = adjusted(p.name, with: value, constrainedTo: fieldInfo)
         case "комментарий": p.comment = adjusted(p.comment, with: value, constrainedTo: fieldInfo)
         case "местность": p.terrain = adjusted(p.terrain, with: value, constrainedTo: fieldInfo)
+        // описание
+        // дополнительно.ключ
+        // дополнительно.текст
+        // проход.направление
+        // проход.комната
+        // проход.тип
+        // проход.признаки
+        // проход.замок_ключ
+        // проход.замок_сложность
+        // проход.замок_состояние
+        // проход.замок_повреждение
+        // проход.расстояние
+        // проход.описание
+        // ксвойства
+        // легенда.название
+        // легенда.символ
+        // монстры
+        // предметы
         case "деньги":   p.coinsToLoad = adjusted(p.coinsToLoad, with: value, constrainedTo: fieldInfo)
+        // кперехват.событие
+        // кперехват.выполнение
+        // кперехват.игроку
+        // кперехват.жертве
+        // кперехват.комнате
         default: send("Это поле не может быть установлено.")
         }
     }
