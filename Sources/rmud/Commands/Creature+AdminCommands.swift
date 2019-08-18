@@ -159,6 +159,9 @@ extension Creature {
     private static var showSubcommands: [ShowSubcommand] = [
         // FIXME: сделать все в единственном числе? без аргумента показывать полный список
         ShowSubcommand("areas",     "область",    "область",    Level.lesserGod, .areas ),
+        ShowSubcommand("room",      "комната",    "комнату",    Level.lesserGod, .room),
+        ShowSubcommand("mobile",    "монстр",     "монстра",    Level.lesserGod, .mobile),
+        ShowSubcommand("item",      "предмет",    "предмет",    Level.lesserGod, .item),
         ShowSubcommand("player",    "персонаж",   "персонажа",  Level.lesserGod, .player ),
         ShowSubcommand("stats",     "статистика", "статистику", Level.lesserGod, .statistics ),
         ShowSubcommand("snooping",  "шпионаж",    "шпионаж",    Level.middleGod, .snoop ),
@@ -167,10 +170,7 @@ extension Creature {
         ShowSubcommand("linkdead",  "связь",      "связь",      Level.lesserGod, .linkdead ),
         ShowSubcommand("moons",     "луны",       "луны",       Level.middleGod, .moons ),
         ShowSubcommand("multiplay", "мультиплей", "мультиплей", Level.lesserGod, .multiplay ),
-        ShowSubcommand("cases",     "падежи",     "падежи",     Level.lesserGod, .cases),
-        ShowSubcommand("room",      "комната",    "комнату",    Level.lesserGod, .room),
-        ShowSubcommand("mobile",    "монстр",     "монстра",    Level.lesserGod, .mobile),
-        ShowSubcommand("item",      "предмет",    "предмет",    Level.lesserGod, .item)
+        ShowSubcommand("cases",     "падежи",     "падежи",     Level.lesserGod, .cases)
     ]
     
     func doShow(context: CommandContext) {
@@ -414,30 +414,42 @@ extension Creature {
             send("Комнаты с виртуальным номером \(vnum) не существует.")
             return
         }
-        let lowercasedFieldName = fieldName.lowercased()
-        guard let definition = db.definitions.roomFields.fieldsByLowercasedName[lowercasedFieldName] else {
+        guard let fieldInfo = db.definitions.roomFields.fieldInfo(byAbbreviatedFieldName: fieldName) else {
             send("Поля комнаты с таким названием не существует.")
             return
         }
 
-        let prototype = room.prototype
-        if lowercasedFieldName == "деньги" {
-            prototype.coinsToLoad = set(value, initial: prototype.coinsToLoad, constrainedTo: definition)
-        } else {
-            send("Это поле не может быть установлено.")
+        let p = room.prototype
+        
+        switch fieldInfo.lowercasedName {
+        case "название": p.name = adjusted(p.name, with: value, constrainedTo: fieldInfo)
+        case "деньги":   p.coinsToLoad = adjusted(p.coinsToLoad, with: value, constrainedTo: fieldInfo)
+        default: send("Это поле не может быть установлено.")
         }
     }
-    
-    private func set<T: FixedWidthInteger>(_ value: String, initial: T, constrainedTo fieldInfo: FieldInfo) -> T {
+
+    private func adjusted(_ initial: String, with arg: String, constrainedTo fieldInfo: FieldInfo) -> String {
         switch fieldInfo.type {
-        case .number:
-            return T(value) ?? initial
+        case .line:
+            return arg
         default:
             send("Поле с этим типом невозможно установить.")
         }
         return initial
     }
 
+    private func adjusted<T: FixedWidthInteger>(_ initial: T, with arg: String, constrainedTo fieldInfo: FieldInfo) -> T {
+        switch fieldInfo.type {
+        case .number:
+            return T(arg) ?? initial
+        default:
+            send("Поле с этим типом невозможно установить.")
+        }
+        return initial
+    }
+
+    
+    
     private func format(fieldDefinitions: FieldDefinitions) -> String {
         var result = ""
         

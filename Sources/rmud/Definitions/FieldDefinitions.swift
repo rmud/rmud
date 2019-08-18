@@ -12,6 +12,25 @@ class FieldDefinitions {
         self.enumerations = enumerations
     }
 
+    func fieldInfo(byAbbreviatedFieldName name: String) -> FieldInfo? {
+        let lowercased = name.lowercased()
+        
+        // Prefer exact match
+        if let fieldInfo = fieldsByLowercasedName[lowercased] {
+            return fieldInfo
+        }
+        
+        // No luck, try abbreviations
+        for (_, fieldInfo) in fieldsByLowercasedName {
+            // Both names are already lowercased, so do a case sensitive compare
+            if lowercased.isAbbreviation(of: fieldInfo.lowercasedName, caseInsensitive: false) {
+                return fieldInfo
+            }
+        }
+        return nil
+
+    }
+    
     func entityIdFieldLowercasedName() -> String? {
         for (lowercasedName, fieldInfo) in fieldsByLowercasedName {
             if fieldInfo.flags.contains(.entityId) {
