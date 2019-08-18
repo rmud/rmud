@@ -83,10 +83,6 @@ class RoomPrototype {
                 let roomExit = roomExit()
                 roomExit.flags = ExitFlags(rawValue: flags)
             }
-            if let flags = entity["\(name).признаки", i]?.uint32 {
-                let roomExit = roomExit()
-                roomExit.flags = ExitFlags(rawValue: flags)
-            }
             if let key = entity["\(name).ключ", i]?.int {
                 roomExit().lockKeyVnum = key
             }
