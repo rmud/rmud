@@ -158,11 +158,11 @@ extension Creature {
     
     private static var showSubcommands: [ShowSubcommand] = [
         // FIXME: сделать все в единственном числе? без аргумента показывать полный список
-        ShowSubcommand("areas",     "области",    "области",    Level.lesserGod, .areas ),
+        ShowSubcommand("areas",     "область",    "область",    Level.lesserGod, .areas ),
         ShowSubcommand("player",    "персонаж",   "персонажа",  Level.lesserGod, .player ),
         ShowSubcommand("stats",     "статистика", "статистику", Level.lesserGod, .statistics ),
         ShowSubcommand("snooping",  "шпионаж",    "шпионаж",    Level.middleGod, .snoop ),
-        ShowSubcommand("spells",    "заклинания", "заклинания", Level.lesserGod, .spells ),
+        ShowSubcommand("spells",    "заклинание", "заклинание", Level.lesserGod, .spells ),
         ShowSubcommand("overmax",   "превышение", "превышение", Level.greaterGod, .overmax ),
         ShowSubcommand("linkdead",  "связь",      "связь",      Level.lesserGod, .linkdead ),
         ShowSubcommand("moons",     "луны",       "луны",       Level.middleGod, .moons ),
@@ -192,21 +192,12 @@ extension Creature {
         
         switch showMode {
         case .areas:
-            if value.isEmpty {
-                let areas = areaManager.areasByStartingVnum.sorted { $0.key < $1.key }
-                for (_, area) in areas {
-                    let fromRoom = String(area.vnumRange.lowerBound).leftExpandingTo(minimumLength: 5)
-                    let toRoom = String(area.vnumRange.upperBound).rightExpandingTo(minimumLength: 5)
-                    let roomCount = String(area.rooms.count).rightExpandingTo(minimumLength: 4)
-                    let areaName = area.lowercasedName.rightExpandingTo(minimumLength: 30)
-                    let age = String(area.age).leftExpandingTo(minimumLength: 2)
-                    let resetInterval = String(area.resetInterval).rightExpandingTo(minimumLength: 2)
-                    let resetCondition = area.resetCondition.nominative
-                    send("\(fromRoom)-\(toRoom) (:\(roomCount)) \(areaName) Возраст: \(age)/\(resetInterval)   Сброс: \(resetCondition)")
-                }
-            } else {
-                // FIXME
+            let areaName = value == "." ? (inRoom?.area?.lowercasedName ?? value) : value
+            guard !areaName.isEmpty else {
+                listAreas()
+                return
             }
+            showArea(name: areaName)
         case .player:
             break
         case .statistics:
@@ -304,6 +295,29 @@ extension Creature {
             table.add(row: [String(vnum), compressed, mp.nameGenitive, mp.nameDative, mp.nameAccusative, mp.nameInstrumental, mp.namePrepositional], colors: [nBlu(), isAnimate ? nGrn() : nYel()])
         }
         send(table.description)
+    }
+    
+    private func listAreas() {
+        let areas = areaManager.areasByStartingVnum.sorted { $0.key < $1.key }
+        for (_, area) in areas {
+            let fromRoom = String(area.vnumRange.lowerBound).leftExpandingTo(minimumLength: 5)
+            let toRoom = String(area.vnumRange.upperBound).rightExpandingTo(minimumLength: 5)
+            let roomCount = String(area.rooms.count).rightExpandingTo(minimumLength: 4)
+            let areaName = area.lowercasedName.rightExpandingTo(minimumLength: 30)
+            let age = String(area.age).leftExpandingTo(minimumLength: 2)
+            let resetInterval = String(area.resetInterval).rightExpandingTo(minimumLength: 2)
+            let resetCondition = area.resetCondition.nominative
+            send("\(fromRoom)-\(toRoom) (:\(roomCount)) \(areaName) Возраст: \(age)/\(resetInterval)   Сброс: \(resetCondition)")
+        }
+    }
+    
+    private func showArea(name: String) {
+        guard let area = areaManager.findArea(byAbbreviatedName: name) else {
+            send("Области с названием \"\(name)\" не существует.")
+            return
+        }
+        let areaPrototypeString = area.prototype.save(for: .ansiOutput(creature: self), with: db.definitions)
+        send(areaPrototypeString.trimmingCharacters(in: .newlines))
     }
     
     private func listRooms() {
