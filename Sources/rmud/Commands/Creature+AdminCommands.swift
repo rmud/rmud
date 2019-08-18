@@ -426,7 +426,7 @@ extension Creature {
         case "название": p.name = adjusted(p.name, with: value, constrainedTo: fieldInfo)
         case "комментарий": p.comment = adjusted(p.comment, with: value, constrainedTo: fieldInfo)
         case "местность": p.terrain = adjusted(p.terrain, with: value, constrainedTo: fieldInfo)
-        // описание
+        case "описание": p.description = adjusted(p.description, with: value, constrainedTo: fieldInfo)
         // дополнительно.ключ
         // дополнительно.текст
         // проход.направление
