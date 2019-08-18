@@ -189,7 +189,7 @@ enum Value {
             case .ansiOutput(let creature): return "\(creature.nBlu())\(value)\(creature.nNrm())"
             }
         case .enumeration(let value):
-            let result = enumSpec?()?.namesByValue[value]?.uppercased() ?? String(value)
+            let result = enumSpec?()?.lowercasedNamesByValue[value]?.uppercased() ?? String(value)
             switch style {
             case .areaFile: return result
             case .ansiOutput(let creature): return "\(creature.nGrn())\(result)\(creature.nNrm())"
@@ -198,7 +198,7 @@ enum Value {
             let result = (0..<64).compactMap { (bitIndex: Int64) -> String? in
                 if 0 != value & (1 << bitIndex) {
                     let oneBasedBitIndex = bitIndex + 1
-                    return enumSpec?()?.namesByValue[oneBasedBitIndex]?.uppercased() ?? String(oneBasedBitIndex)
+                    return enumSpec?()?.lowercasedNamesByValue[oneBasedBitIndex]?.uppercased() ?? String(oneBasedBitIndex)
                 }
                 return nil
             }.joined(separator: " ")
@@ -208,7 +208,7 @@ enum Value {
             }
         case .list(let values):
             let result = values.sorted(by: <).map{
-                enumSpec?()?.namesByValue[$0]?.uppercased() ?? String($0)
+                enumSpec?()?.lowercasedNamesByValue[$0]?.uppercased() ?? String($0)
             }.joined(separator: " ")
             switch style {
             case .areaFile: return result
@@ -216,7 +216,7 @@ enum Value {
             }
         case .dictionary(let keysAndValues):
             let result = keysAndValues.map { key, value in
-                let key = enumSpec?()?.namesByValue[key]?.uppercased() ?? String(key)
+                let key = enumSpec?()?.lowercasedNamesByValue[key]?.uppercased() ?? String(key)
                 if let value = value {
                     return "\(key)=\(value)"
                 } else {

@@ -9,13 +9,31 @@ class Enumerations {
             let namesByValueLower = namesByValue.mapValues{ $0.lowercased() }
 
             self.aliases = aliases
-            self.namesByValue = namesByValueLower
-            self.valuesByName = Dictionary(namesByValueLower.map{ ($1, $0) }, uniquingKeysWith: { value, _ in value })
+            self.lowercasedNamesByValue = namesByValueLower
+            self.valuesByLowercasedName = Dictionary(namesByValueLower.map{ ($1, $0) }, uniquingKeysWith: { value, _ in value })
+        }
+        
+        func value(byAbbreviatedName name: String) -> Int64? {
+            let lowercased = name.lowercased()
+            
+            // Prefer exact match
+            if let value = valuesByLowercasedName[lowercased] {
+                return value
+            }
+            
+            // No luck, try abbreviations
+            for (name, value) in valuesByLowercasedName.sorted(by: { $0.key < $1.key }) {
+                // Both names are already lowercased, so do a case sensitive compare
+                if lowercased.isAbbreviation(of: name, caseInsensitive: false) {
+                    return value
+                }
+            }
+            return nil
         }
 
         let aliases: [String]
-        let valuesByName: ValuesByName
-        let namesByValue: NamesByValue
+        let valuesByLowercasedName: ValuesByName
+        let lowercasedNamesByValue: NamesByValue
     }
 
     var enumSpecsByAlias: [String: EnumSpec] = [:]

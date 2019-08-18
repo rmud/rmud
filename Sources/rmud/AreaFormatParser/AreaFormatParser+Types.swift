@@ -32,7 +32,7 @@ extension AreaFormatParser {
         
         let value: Value
         if let number = scanner.scanInt64() {
-            let namesByValue = definitions.enumerations.enumSpecsByAlias[currentLowercasedFieldName]?.namesByValue ?? [:]
+            let namesByValue = definitions.enumerations.enumSpecsByAlias[currentLowercasedFieldName]?.lowercasedNamesByValue ?? [:]
             guard namesByValue[number] != nil else {
                 throw AreaParseError(kind: .invalidEnumerationNumericValue(value: number, allowedValues: Array(namesByValue.values.sorted())), scanner: scanner)
             }
@@ -42,7 +42,7 @@ extension AreaFormatParser {
             }
         } else if let word = scanWord() {
             let result = word.lowercased()
-            let valuesByName = definitions.enumerations.enumSpecsByAlias[currentLowercasedFieldName]?.valuesByName ?? [:]
+            let valuesByName = definitions.enumerations.enumSpecsByAlias[currentLowercasedFieldName]?.valuesByLowercasedName ?? [:]
             guard let number = valuesByName[result] else {
                 throw AreaParseError(kind: .invalidEnumerationStringValue(value: result, allowedValues: Array(valuesByName.keys.sorted())), scanner: scanner)
             }
@@ -65,7 +65,7 @@ extension AreaFormatParser {
             assert(scanner.charactersToBeSkipped == FastCharacterSet.whitespaces)
         #endif
         
-        let valuesByName = definitions.enumerations.enumSpecsByAlias[currentLowercasedFieldName]?.valuesByName
+        let valuesByName = definitions.enumerations.enumSpecsByAlias[currentLowercasedFieldName]?.valuesByLowercasedName
         
         var result: Int64
         if let previousValue = currentEntity.value(named: currentFieldNameWithIndex, touch: false),
@@ -114,7 +114,7 @@ extension AreaFormatParser {
             assert(scanner.charactersToBeSkipped == FastCharacterSet.whitespaces)
         #endif
         
-        let valuesByName = definitions.enumerations.enumSpecsByAlias[currentLowercasedFieldName]?.valuesByName
+        let valuesByName = definitions.enumerations.enumSpecsByAlias[currentLowercasedFieldName]?.valuesByLowercasedName
         
         var result: Set<Int64>
         if let previousValue = currentEntity.value(named: currentFieldNameWithIndex, touch: false),
@@ -159,7 +159,7 @@ extension AreaFormatParser {
             assert(scanner.charactersToBeSkipped == FastCharacterSet.whitespaces)
         #endif
         
-        let valuesByName = definitions.enumerations.enumSpecsByAlias[currentLowercasedFieldName]?.valuesByName
+        let valuesByName = definitions.enumerations.enumSpecsByAlias[currentLowercasedFieldName]?.valuesByLowercasedName
         
         var result: [Int64: Int64?]
         if let previousValue = currentEntity.value(named: currentFieldNameWithIndex, touch: false),

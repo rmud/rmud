@@ -21,7 +21,7 @@ class FieldDefinitions {
         }
         
         // No luck, try abbreviations
-        for (_, fieldInfo) in fieldsByLowercasedName {
+        for (_, fieldInfo) in fieldsByLowercasedName.sorted(by: { $0.key < $1.key }) {
             // Both names are already lowercased, so do a case sensitive compare
             if lowercased.isAbbreviation(of: fieldInfo.lowercasedName, caseInsensitive: false) {
                 return fieldInfo

@@ -423,6 +423,8 @@ extension Creature {
         
         switch fieldInfo.lowercasedName {
         case "название": p.name = adjusted(p.name, with: value, constrainedTo: fieldInfo)
+        case "комментарий": p.comment = adjusted(p.comment, with: value, constrainedTo: fieldInfo)
+        case "местность": p.terrain = adjusted(p.terrain, with: value, constrainedTo: fieldInfo)
         case "деньги":   p.coinsToLoad = adjusted(p.coinsToLoad, with: value, constrainedTo: fieldInfo)
         default: send("Это поле не может быть установлено.")
         }
@@ -438,6 +440,19 @@ extension Creature {
         return initial
     }
 
+    private func adjusted(_ initial: [String], with arg: String, constrainedTo fieldInfo: FieldInfo) -> [String] {
+        switch fieldInfo.type {
+        case .longText:
+            if arg.starts(with: "+") {
+                return initial + [String(arg.droppingPrefix())]
+            }
+            return arg.wrapping(totalWidth: 70).components(separatedBy: .newlines)
+        default:
+            send("Поле с этим типом невозможно установить.")
+        }
+        return initial
+    }
+
     private func adjusted<T: FixedWidthInteger>(_ initial: T, with arg: String, constrainedTo fieldInfo: FieldInfo) -> T {
         switch fieldInfo.type {
         case .number:
@@ -447,9 +462,23 @@ extension Creature {
         }
         return initial
     }
+    
+    private func adjusted<T: RawRepresentable>(_ initial: T, with arg: String, constrainedTo fieldInfo: FieldInfo) -> T where T.RawValue: FixedWidthInteger {
+        switch fieldInfo.type {
+        case .enumeration:
+            let enumSpec = db.definitions.enumerations.enumSpecsByAlias[fieldInfo.lowercasedName]
+            guard let number = enumSpec?.value(byAbbreviatedName: arg) else {
+                send("Неизвестный элемент перечисления: \"\(arg)\"")
+                return initial
+            }
+            let rawValue = T.RawValue(exactly: number) ?? initial.rawValue
+            return T.init(rawValue: rawValue) ?? initial
+        default:
+            send("Поле с этим типом невозможно установить.")
+        }
+        return initial
+    }
 
-    
-    
     private func format(fieldDefinitions: FieldDefinitions) -> String {
         var result = ""
         

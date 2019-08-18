@@ -421,7 +421,7 @@ class Definitions {
         
         // Uppercase aliases and turn them into strings:
         let array = e.enumSpecs.map {
-            return ($0.aliases.map{ $0.uppercased() }.joined(separator: " "), $0.valuesByName)
+            return ($0.aliases.map{ $0.uppercased() }.joined(separator: " "), $0.valuesByLowercasedName)
         }
         let sorted = array.sorted { $0.0 < $1.0 }
         
