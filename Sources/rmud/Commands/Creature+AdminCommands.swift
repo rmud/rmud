@@ -415,42 +415,27 @@ extension Creature {
             return
         }
         let lowercasedFieldName = fieldName.lowercased()
-        guard let field = db.definitions.roomFields.fieldsByLowercasedName[lowercasedFieldName] else {
+        guard let definition = db.definitions.roomFields.fieldsByLowercasedName[lowercasedFieldName] else {
             send("Поля комнаты с таким названием не существует.")
             return
         }
-        let roomString = room.prototype.save(for: .areaFile, with: db.definitions)
-        send(roomString)
-        let parser = AreaFormatParser(db: db, definitions: db.definitions)
-        do {
-            try parser.parse(data: [UInt8](roomString.data(using: .utf8) ?? Data()))
-        } catch {
-            send("Ошибка парсера: \(error)")
-            return
-        }
-        //db.area
 
         let prototype = room.prototype
-//        switch field.type {
-//        case .line:
-//            //entity[lowercasedFieldName] = .
-//        }
-//        guard let area = room.area,
-//                let entity = db.areaEntitiesByLowercasedName[area.lowercasedName]?.roomEntitiesByVnum[vnum] else {
-//            send("Ошибка при поиске прототипа.")
-//            return
-//        }
-        
-//        let fieldNameWithIndex: String
-//        if let name = structureName(fromFieldName: lowercasedFieldName),
-//                let index = entity.lastStructureIndex[name] {
-//            fieldNameWithIndex = appendIndex(toName: lowercasedFieldName, index: index)
-//        } else {
-//            fieldNameWithIndex = lowercasedFieldName
-//        }
-        send("Не реализовано.")
-//        roomEntity[fieldNameWithIndex]
-//        print("\(roomEntity)")
+        if lowercasedFieldName == "деньги" {
+            prototype.coinsToLoad = set(value, initial: prototype.coinsToLoad, constrainedTo: definition)
+        } else {
+            send("Это поле не может быть установлено.")
+        }
+    }
+    
+    private func set<T: FixedWidthInteger>(_ value: String, initial: T, constrainedTo fieldInfo: FieldInfo) -> T {
+        switch fieldInfo.type {
+        case .number:
+            return T(value) ?? initial
+        default:
+            send("Поле с этим типом невозможно установить.")
+        }
+        return initial
     }
 
     private func format(fieldDefinitions: FieldDefinitions) -> String {

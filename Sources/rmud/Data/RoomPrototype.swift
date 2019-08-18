@@ -303,6 +303,10 @@ class RoomPrototype {
             let itemsToLoad = itemsToLoadCountByVnum.mapValues { $0 != 1 ? $0 : nil } // use short form
             result += "  ПРЕДМЕТЫ \(Value(dictionary: itemsToLoad).formatted(for: style))\n"
         }
+
+        if coinsToLoad != 0 {
+            result += "  ДЕНЬГИ \(Value(number: coinsToLoad).formatted(for: style))\n"
+        }
         
         for eventOverride in eventOverrides {
             result += structureIfNotEmpty("КПЕРЕХВАТ") { content in
