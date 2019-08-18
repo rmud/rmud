@@ -192,12 +192,11 @@ extension Creature {
         
         switch showMode {
         case .areas:
-            let areaName = value == "." ? (inRoom?.area?.lowercasedName ?? value) : value
-            guard !areaName.isEmpty else {
+            guard !value.isEmpty else {
                 listAreas()
                 return
             }
-            showArea(name: areaName)
+            showArea(name: areaName(fromArgument: value))
         case .player:
             break
         case .statistics:
@@ -221,7 +220,7 @@ extension Creature {
                 listRooms()
                 return
             }
-            guard let vnum = Int(value) else {
+            guard let vnum = roomVnum(fromArgument: value) else {
                 send("Некорректный номер комнаты.")
                 return
             }
@@ -387,7 +386,7 @@ extension Creature {
             return
         }
         if context.isSubCommand1(oneOf: ["комнате", "комната", "room"]) {
-            guard let vnum = Int(context.argument2) else {
+            guard let vnum = roomVnum(fromArgument: context.argument2) else {
                 send("Некорректный номер комнаты.")
                 return
             }
@@ -416,11 +415,12 @@ extension Creature {
             return
         }
         let lowercasedFieldName = fieldName.lowercased()
-        guard nil != db.definitions.roomFields.fieldsByLowercasedName[lowercasedFieldName] else {
+        guard let field = db.definitions.roomFields.fieldsByLowercasedName[lowercasedFieldName] else {
             send("Поля комнаты с таким названием не существует.")
             return
         }
         let roomString = room.prototype.save(for: .areaFile, with: db.definitions)
+        send(roomString)
         let parser = AreaFormatParser(db: db, definitions: db.definitions)
         do {
             try parser.parse(data: [UInt8](roomString.data(using: .utf8) ?? Data()))
@@ -428,6 +428,13 @@ extension Creature {
             send("Ошибка парсера: \(error)")
             return
         }
+        //db.area
+
+        let prototype = room.prototype
+//        switch field.type {
+//        case .line:
+//            //entity[lowercasedFieldName] = .
+//        }
 //        guard let area = room.area,
 //                let entity = db.areaEntitiesByLowercasedName[area.lowercasedName]?.roomEntitiesByVnum[vnum] else {
 //            send("Ошибка при поиске прототипа.")
@@ -529,6 +536,14 @@ extension Creature {
 // MARK: - Utility methods
 
 extension Creature {
+    func areaName(fromArgument arg: String) -> String {
+        return arg == "." ? (inRoom?.area?.lowercasedName ?? arg) : arg
+    }
+    
+    func roomVnum(fromArgument arg: String) -> Int? {
+        return arg == "." ? (inRoom?.vnum ?? nil) : Int(arg)
+    }
+
     func sendPoofOut() {
         if let player = player,
                 !player.poofout.isEmpty,
