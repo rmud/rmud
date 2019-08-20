@@ -134,7 +134,6 @@ extension Creature {
         
         if let player = player {
             player.exploredRooms.insert(room.vnum)
-            player.rerenderMap()
         }
     }
     

@@ -1,11 +1,11 @@
 import Foundation
 
 extension Player {
-    func rerenderMap() {
-        guard let areaMap = creature.inRoom?.area?.map else { return }
+    func renderMap() -> RenderedAreaMap? {
+        guard let areaMap = creature.inRoom?.area?.map else { return nil }
         let isHolylight = preferenceFlags.contains(.holylight)
         let configuration = RenderedAreaMap.RenderConfiguration(exploredRooms: .some(exploredRooms), showUnexploredRooms: isHolylight)
-        renderedMap = RenderedAreaMap(areaMap: areaMap, renderConfiguration: configuration)
+        return RenderedAreaMap(areaMap: areaMap, renderConfiguration: configuration)
     }
     
     func stopWatching() -> Bool {

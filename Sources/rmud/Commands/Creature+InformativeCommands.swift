@@ -2,7 +2,7 @@ import Foundation
 
 extension Creature {
     func doMap(context: CommandContext) {
-        guard let renderedMap = player?.renderedMap, let room = inRoom else {
+        guard let renderedMap = player?.renderMap(), let room = inRoom else {
             send("Карта этой области отсутствует.")
             return
         }
@@ -495,7 +495,6 @@ extension Creature {
             toggleOnOff(.holylight, value,
                         "Теперь Вы всевидящи.",
                         "Вы более не всевидящи.")
-            player?.rerenderMap()
 
         } else {
             send("Неверное название режима.")

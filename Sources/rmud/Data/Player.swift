@@ -133,7 +133,6 @@ class Player {
     }
     
     var exploredRooms = Set<Int>()
-    var renderedMap: RenderedAreaMap?
     
     init(creature: Creature, account: Account) {
         self.creature = creature
