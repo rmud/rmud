@@ -382,10 +382,22 @@ extension Creature {
 extension Creature {
     func doSet(context: CommandContext) {
         guard !context.argument1.isEmpty else {
-            send("установить <комнате|монстру|предмету> <номер> [поле значение]")
+            send("установить <области|комнате|монстру|предмету> <номер> [поле значение]")
             return
         }
-        if context.isSubCommand1(oneOf: ["комнате", "комната", "room"]) {
+        if context.isSubCommand1(oneOf: ["области", "область", "area"]) {
+            guard let field = context.scanWord() else {
+                send("Вы можете установить следующие поля области:")
+                showAreaFields()
+                return
+            }
+            let value = context.restOfString()
+            guard !value.isEmpty else {
+                send("Укажите значение.")
+                return
+            }
+            setAreaPrototypeField(areaName: context.argument2, fieldName: field, value: value)
+        } else if context.isSubCommand1(oneOf: ["комнате", "комната", "room"]) {
             guard let vnum = roomVnum(fromArgument: context.argument2) else {
                 send("Некорректный номер комнаты.")
                 return
@@ -404,6 +416,23 @@ extension Creature {
         }
     }
     
+   
+    private func showAreaFields() {
+        let text = format(fieldDefinitions: db.definitions.areaFields)
+        send(text)
+    }
+    
+    private func setAreaPrototypeField(areaName: String, fieldName: String, value: String) {
+        guard let area = areaManager.findArea(byAbbreviatedName: areaName) else {
+            send("Область с таким названием не найдена.")
+            return
+        }
+        
+        let p = area.prototype
+        
+        
+    }
+
     private func showRoomFields() {
         let text = format(fieldDefinitions: db.definitions.roomFields)
         send(text)
@@ -438,6 +467,10 @@ extension Creature {
         // проход.замок_состояние
         // проход.замок_повреждение
         // проход.расстояние
+        case "юг.описание":
+            let exit = p.exits[.south] ?? RoomPrototype.ExitPrototype()
+            exit.description = adjusted(exit.description, with: value, constrainedTo: fieldInfo)
+            p.exits[.south] = exit
         // проход.описание
         // ксвойства
         // легенда.название

@@ -11,7 +11,7 @@ class RoomPrototype {
         var lockCondition: LockCondition?
         var lockDamage: UInt8?
         var distance: UInt8?
-        var description: String?
+        var description = ""
         
         var hasOnlyRoom: Bool {
             guard toVnum != nil else { return false }
@@ -22,7 +22,7 @@ class RoomPrototype {
                 lockCondition == nil &&
                 lockDamage == nil &&
                 distance == nil &&
-                description == nil
+                description.isEmpty
                 else {
                     return false
             }
@@ -267,8 +267,8 @@ class RoomPrototype {
                     if let distance = exitPrototype.distance {
                         content += "    РАССТОЯНИЕ \(Value(number: distance).formatted(for: style))\n"
                     }
-                    if let description = exitPrototype.description {
-                        content += "    ОПИСАНИЕ \(Value(line: description).formatted(for: style))\n"
+                    if !exitPrototype.description.isEmpty {
+                        content += "    ОПИСАНИЕ \(Value(line: exitPrototype.description).formatted(for: style))\n"
                     }
                 }
             }

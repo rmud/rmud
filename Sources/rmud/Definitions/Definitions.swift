@@ -64,12 +64,14 @@ class Definitions {
         try d.insert(name: "описание", type: .line, flags: .required)
         try d.insert(name: "сброс.условие", type: .enumeration, flags: [.required, .structureStart] )
         try d.insert(name: "сброс.период", type: .number, flags: .required )
-        try d.insert(name: "комнаты.первая", type: .number, flags: [.required, .structureStart] )
-        try d.insert(name: "комнаты.последняя", type: .number, flags: .required )
+        try d.insert(name: "комнаты.первая", type: .number, flags: [.required, .structureStart])
+        try d.insert(name: "комнаты.последняя", type: .number, flags: .required)
         
         // Optional fields
         try d.insert(name: "комнаты.основная", type: .number)
         try d.insert(name: "комментарий", type: .longText)
+        try d.insert(name: "регион.название", type: .line, flags: [.required, .structureStart])
+        try d.insert(name: "регион.комнаты", type: .list)
     }
     
     func registerItemFields() throws {

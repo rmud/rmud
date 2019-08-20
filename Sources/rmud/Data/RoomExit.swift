@@ -17,7 +17,7 @@ class RoomExit {
         flags = prototype.flags
         lock = LockInfo(prototype: prototype)
         distance = prototype.distance ?? 1
-        description = prototype.description ?? ""
+        description = prototype.description
     }
     
     func toRoom(includingImaginaryExits: Bool = false) -> Room? { // Where direction leads
