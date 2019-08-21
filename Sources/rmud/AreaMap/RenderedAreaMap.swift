@@ -11,6 +11,8 @@ class RenderedAreaMap {
     struct RenderConfiguration {
         let exploredRooms: ExploredRooms
         let showUnexploredRooms: Bool
+        let highlightedRooms: Set<Int>
+        let markedRooms: Set<Int>
     }
     
     struct RoomLegendWithMetadata {
@@ -148,14 +150,23 @@ class RenderedAreaMap {
             line += map[y][from.x + topLeftPadding.x..<toInclusive.x - bottomRightPadding.x]
             line += [ColoredCharacter](repeating: T.fillCharacter, count: bottomRightPadding.x)
 
-            if let playerRoomCenter = playerRoomCenter, playerRoomCenter.plane == plane && playerRoomCenter.y == y {
-                let leftBracketPosition = playerRoomCenter.x - T.roomWidth / 2
-                let rightBracketPosition = playerRoomCenter.x + T.roomWidth / 2
-                if leftBracketPosition >= from.x && rightBracketPosition < toInclusive.x {
-                    line[leftBracketPosition - from.x] = ColoredCharacter("[", Ansi.bGrn)
-                }
-                if rightBracketPosition >= from.x && rightBracketPosition < toInclusive.x {
-                    line[rightBracketPosition - from.x] = ColoredCharacter("]", Ansi.bGrn)
+            if let playerRoomCenter = playerRoomCenter,
+                    playerRoomCenter.plane == plane && playerRoomCenter.y == y {
+                if configuration.highlightedRooms.isEmpty {
+                    // If no specific rooms were requested to be highlighted, highlight player's room
+                    let leftBracketPosition = playerRoomCenter.x - T.roomWidth / 2
+                    let rightBracketPosition = playerRoomCenter.x + T.roomWidth / 2
+                    if leftBracketPosition >= from.x && rightBracketPosition < toInclusive.x {
+                        line[leftBracketPosition - from.x] = ColoredCharacter("[", Ansi.bGrn)
+                    }
+                    if rightBracketPosition >= from.x && rightBracketPosition < toInclusive.x {
+                        line[rightBracketPosition - from.x] = ColoredCharacter("]", Ansi.bGrn)
+                    }
+                } else {
+                    if configuration.markedRooms.isEmpty {
+                        // Otherwise, highlight requested rooms, and use player's marker inside of the room
+                        line[playerRoomCenter.x] = ColoredCharacter("*", Ansi.bGrn)
+                    }
                 }
             }
 
@@ -181,6 +192,7 @@ class RenderedAreaMap {
         drawMapElements(elementTypes: .explored)
         
         autogenerateAndDrawRemainingLegendSymbols()
+        drawMarkedRooms()
     }
     
     private func drawMapElements(elementTypes: ElementType) {
@@ -203,7 +215,15 @@ class RenderedAreaMap {
                 }
                 
                 renderedRoomCentersByRoom[room] = AreaMapPosition(x + T.roomWidth / 2, y, plane)
-                mapsByPlane[plane]![y].replaceSubrange(x..<(x + T.roomWidth), with: [ColoredCharacter]("( )", isExploredRoom ? Ansi.nNrm : Ansi.bGra))
+                let roomColor: String
+                if configuration.highlightedRooms.contains(room.vnum) {
+                    roomColor = Ansi.bMag
+                } else if isExploredRoom {
+                    roomColor = Ansi.nNrm
+                } else {
+                    roomColor = Ansi.bGra
+                }
+                mapsByPlane[plane]![y].replaceSubrange(x..<(x + T.roomWidth), with: [ColoredCharacter]("( )", roomColor))
                 if let destination = room.exitDestination(.north) {
                     mapsByPlane[plane]![y - 1].replaceSubrange(x..<(x + T.roomWidth),
                                                                with: renderedPassage(.vertical, exitDestination: destination, isExploredRoom: isExploredRoom))
@@ -290,6 +310,14 @@ class RenderedAreaMap {
             mapsByPlane[rc.plane]![rc.y][rc.x] = ColoredCharacter(legend.symbol, isExploredRoom ? Ansi.nYel : Ansi.bGra)
 
             return RoomLegendWithMetadata(finalLegend: legend, room: room)
+        }
+    }
+    
+    private func drawMarkedRooms() {
+        for roomVnum in configuration.markedRooms {
+            guard let room = db.roomsByVnum[roomVnum] else { continue }
+            guard let rc = renderedRoomCentersByRoom[room] else { continue }
+            mapsByPlane[rc.plane]![rc.y][rc.x] = ColoredCharacter("*", Ansi.bCyn)
         }
     }
     

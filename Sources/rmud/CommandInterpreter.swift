@@ -42,7 +42,7 @@ fileprivate let commandInfo: [Command] = [
             flags: .informational, minPosition: .sleeping),
     Command(["карта", "map"], group: .information, Creature.doMap,
             minPosition: .resting,
-            arg1: .word),
+            arg1: .restOfString),
     Command(["смотреть", "look"], group: .information, Creature.doLook,
             minPosition: .resting,
             arg1: [.creature, .item, .word], cases1: [.accusative], where1: [.equipment, .inventory, .room]),

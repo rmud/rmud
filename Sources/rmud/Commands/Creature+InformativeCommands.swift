@@ -2,11 +2,6 @@ import Foundation
 
 extension Creature {
     func doMap(context: CommandContext) {
-        guard let renderedMap = player?.renderMap(), let room = inRoom else {
-            send("Карта этой области отсутствует.")
-            return
-        }
-
         let sendMap: (_ mapString: String)->() = { mapString in
             guard !mapString.isEmpty else {
                 self.send("На этом уровне карта отсутствует.")
@@ -16,7 +11,9 @@ extension Creature {
         }
         
         let sendLegends: (_ roomLegends: [RenderedAreaMap.RoomLegendWithMetadata])->() = { legendsWithMetadata in
-            self.send("Легенда:")
+            if !legendsWithMetadata.isEmpty {
+                self.send("Легенда:")
+            }
             let isHolylight = self.preferenceFlags?.contains(.holylight) ?? false
 
             legendsWithMetadata.forEach { legendWithMetadata in
@@ -30,8 +27,69 @@ extension Creature {
             }
         }
         
-        let what = context.argument1
-        if what.isEqual(toOneOf: ["вся", "все", "all"], caseInsensitive: true) {
+        enum ShowPlane {
+            case current
+            case specific(Int)
+            case all
+        }
+        var showPlane: ShowPlane = .current
+
+        var highlightRooms: Set<Int> = []
+        var markRooms: Set<Int> = []
+
+        let args = context.restOfString().components(separatedBy: .whitespaces).filter { !$0.isEmpty }
+        for arg in args {
+            if arg.isEqual(toOneOf: ["все", "все", "all"], caseInsensitive: true) {
+                showPlane = .all
+            } else if let plane = Int(arg) {
+                showPlane = .specific(plane)
+            } else {
+                // Maybe it's a filter
+                let elements = arg.split(separator: ":", maxSplits: 1, omittingEmptySubsequences: false)
+                guard let fieldNameSubstring = elements[safe: 0], let valueSubstring = elements[safe: 1] else {
+                    send("Некорректный фильтр: \(arg)")
+                    return
+                }
+                let fieldName = String(fieldNameSubstring)
+                let value = String(valueSubstring)
+                if level > Level.lesserGod {
+                    if fieldName.isAbbreviation(of: "ксвойства", caseInsensitive: true) {
+                        if let enumSpec = db.definitions.enumerations.enumSpecsByAlias["ксвойства"],
+                                let v64 = enumSpec.value(byAbbreviatedName: value),
+                                let bitIndex = UInt32(exactly: v64 - 1) {
+                            for room in inRoom?.area?.rooms ?? [] {
+                                if room.flags.contains(RoomFlags(rawValue: 1 << bitIndex)) {
+                                    highlightRooms.insert(room.vnum)
+                                }
+                            }
+                        } else {
+                            send("Неизвестное значение: \(arg)")
+                            return
+                        }
+                    } else if (fieldName.isAbbreviation(of: "монстры", caseInsensitive: true)) {
+                        let vnums = value.split(separator: ",", omittingEmptySubsequences: true).compactMap { Int($0) }
+                        for room in inRoom?.area?.rooms ?? [] {
+                            for creature in room.creatures {
+                                guard let mobile = creature.mobile else { continue }
+                                guard vnums.isEmpty || vnums.contains(mobile.vnum) else { continue }
+                                guard let room = creature.inRoom else { continue }
+                                markRooms.insert(room.vnum)
+                            }
+                        }
+                    } else {
+                        send("Неизвестное поле: \(fieldName)")
+                    }
+                }
+            }
+        }
+
+        guard let renderedMap = player?.renderMap(highlightingRooms: highlightRooms, markingRooms: markRooms), let room = inRoom else {
+            send("Карта этой области отсутствует.")
+            return
+        }
+        
+        switch showPlane {
+        case .all:
             sendLegends(renderedMap.roomLegends)
             let planes = renderedMap.planes.sorted(by: >)
             for plane in planes {
@@ -40,23 +98,21 @@ extension Creature {
                 sendMap(map.renderedAsString(withColor: true))
             }
             return
-        }
-        
-        if let plane = Int(what) {
+        case .specific(let plane):
             sendLegends(renderedMap.roomLegends)
             send("Уровень \(plane):")
             let map = renderedMap.fragment(wholePlane: plane, playerRoom: room)
             sendMap(map.renderedAsString(withColor: true))
             return
+        case .current:
+            if let plane = renderedMap.plane(forRoom: room) {
+                sendLegends(renderedMap.roomLegends)
+                let map = renderedMap.fragment(wholePlane: plane, playerRoom: room)
+                sendMap(map.renderedAsString(withColor: true))
+                return
+            }
+            // Unable to determine current plane
         }
-
-        if let plane = renderedMap.plane(forRoom: room) {
-            sendLegends(renderedMap.roomLegends)
-            let map = renderedMap.fragment(wholePlane: plane, playerRoom: room)
-            sendMap(map.renderedAsString(withColor: true))
-            return
-        }
-
         log("Room \(room.vnum) not found on map.")
         logToMud("Комната \(room.vnum) не найдена на карте.", verbosity: .brief, minLevel: Level.lesserGod)
     }

@@ -1,10 +1,14 @@
 import Foundation
 
 extension Player {
-    func renderMap() -> RenderedAreaMap? {
+    func renderMap(highlightingRooms: Set<Int> = [], markingRooms: Set<Int> = []) -> RenderedAreaMap? {
         guard let areaMap = creature.inRoom?.area?.map else { return nil }
         let isHolylight = preferenceFlags.contains(.holylight)
-        let configuration = RenderedAreaMap.RenderConfiguration(exploredRooms: .some(exploredRooms), showUnexploredRooms: isHolylight)
+        let configuration = RenderedAreaMap.RenderConfiguration(
+            exploredRooms: .some(exploredRooms),
+            showUnexploredRooms: isHolylight,
+            highlightedRooms: highlightingRooms,
+            markedRooms: markingRooms)
         return RenderedAreaMap(areaMap: areaMap, renderConfiguration: configuration)
     }
     
