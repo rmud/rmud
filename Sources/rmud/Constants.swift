@@ -8,8 +8,7 @@ import Foundation
 let optUsec = 100000     // 10 passes per second
 let passesPerSec = 1000000 / optUsec
 
-private let timeQuantum = passesPerSec / 10
-let pulseViolence = 33 * timeQuantum
+let pulseViolence = 3 * passesPerSec
 
 let playerNameAllowedLettersLowercased = CharacterSet(charactersIn: "абвгдеёжзийклмнопрстуфхцчшщъыьэюя")
 let playerMaxNameLength = 20 // Player's name length
