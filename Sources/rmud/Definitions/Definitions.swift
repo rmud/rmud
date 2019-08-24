@@ -70,8 +70,8 @@ class Definitions {
         // Optional fields
         try d.insert(name: "комнаты.основная", type: .number)
         try d.insert(name: "комментарий", type: .longText)
-        try d.insert(name: "регион.название", type: .line, flags: [.required, .structureStart])
-        try d.insert(name: "регион.комнаты", type: .list)
+        try d.insert(name: "путь.название", type: .line, flags: [.required, .structureStart])
+        try d.insert(name: "путь.комнаты", type: .list)
     }
     
     func registerItemFields() throws {
@@ -335,6 +335,7 @@ class Definitions {
         try d.insert(name: "посмертно", type: .dictionary)
         try d.insert(name: "предел", type: .number)
         try d.insert(name: "процедура", type: .list)
+        try d.insert(name: "путь", type: .line)
         try d.insert(name: "размер", type: .constrainedNumber(0...127))
         try d.insert(name: "разум", type: .constrainedNumber(3...36))
         try d.insert(name: "рост", type: .constrainedNumber(0...255))

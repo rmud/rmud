@@ -35,6 +35,7 @@ class MobilePrototype {
     var grip: UInt8? // Interferes with rescuing and fleeing, 0..100
     var corpsePoisonLevel: UInt8? // Uneatable mobs with poison in blood
     var movementType: MovementType?
+    var path = ""
     var defaultPosition: Position?
     var maximumCountInWorld: UInt8?
     var loadChancePercentage: UInt8?
@@ -146,6 +147,7 @@ class MobilePrototype {
         grip = entity["хватка"]?.uint8
         corpsePoisonLevel = entity["яд"]?.uint8
         movementType = entity["перемещение"]?.uint8.flatMap { MovementType(rawValue: $0) }
+        path = entity["путь"]?.string ?? ""
         defaultPosition = entity["положение"]?.uint8.flatMap { Position(rawValue: $0) }
         maximumCountInWorld = entity["предел"]?.uint8
         loadChancePercentage = entity["шанс"]?.uint8
@@ -549,6 +551,9 @@ class MobilePrototype {
         if let movementType = movementType {
             let enumSpec = definitions.enumerations.enumSpecsByAlias["перемещение"]
             result += "  ПЕРЕМЕЩЕНИЕ \(Value(enumeration: movementType).formatted(for: style, enumSpec: enumSpec))\n"
+        }
+        if !path.isEmpty {
+            result += "  ПУТЬ \(Value(line: path).formatted(for: style))\n"
         }
         if let defaultPosition = defaultPosition {
             let enumSpec = definitions.enumerations.enumSpecsByAlias["положение"]

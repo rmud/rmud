@@ -10,7 +10,7 @@ public class AreaPrototype {
     var resetCondition: AreaResetCondition?
     var resetInterval: Int?
     var originVnum: Int?
-    var regions: [String: Set<Int>] = [:]
+    var paths: [String: Set<Int>] = [:]
     
     var roomPrototypesByVnum = [Int: RoomPrototype]()
     var mobilePrototypesByVnum = [Int: MobilePrototype]()
@@ -44,12 +44,12 @@ public class AreaPrototype {
         //age = 0
         originVnum = entity["комнаты.основная", 0]?.int
         
-        for i in entity.structureIndexes("регион") {
-            guard let name = entity["регион.название", i]?.string else {
+        for i in entity.structureIndexes("путь") {
+            guard let name = entity["путь.название", i]?.string else {
                 continue
             }
-            regions[name] = Set(
-                entity["регион.комнаты", i]?.list?
+            paths[name] = Set(
+                entity["путь.комнаты", i]?.list?
                     .compactMap { Int(exactly: $0) } ?? []
             )
         }
@@ -84,9 +84,9 @@ public class AreaPrototype {
                 content += "    ПЕРИОД \(Value(number: resetInterval).formatted(for: style))\n"
             }
         }
-        if !regions.isEmpty {
-            for (name, rooms) in regions {
-                result += structureIfNotEmpty("РЕГИОНЫ") { content in
+        if !paths.isEmpty {
+            for (name, rooms) in paths {
+                result += structureIfNotEmpty("ПУТИ") { content in
                     content += "    НАЗВАНИЕ \(Value(line: name).formatted(for: style))\n"
                     if !rooms.isEmpty {
                         content += "    КОМНАТЫ \(Value(list: rooms).formatted(for: style))\n"

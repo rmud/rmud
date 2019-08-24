@@ -43,42 +43,11 @@ extension Creature {
                 showPlane = .all
             } else if let plane = Int(arg) {
                 showPlane = .specific(plane)
-            } else {
+            } else if level > Level.lesserGod {
                 // Maybe it's a filter
-                let elements = arg.split(separator: ":", maxSplits: 1, omittingEmptySubsequences: false)
-                guard let fieldNameSubstring = elements[safe: 0], let valueSubstring = elements[safe: 1] else {
-                    send("Некорректный фильтр: \(arg)")
-                    return
-                }
-                let fieldName = String(fieldNameSubstring)
-                let value = String(valueSubstring)
-                if level > Level.lesserGod {
-                    if fieldName.isAbbreviation(of: "ксвойства", caseInsensitive: true) {
-                        if let enumSpec = db.definitions.enumerations.enumSpecsByAlias["ксвойства"],
-                                let v64 = enumSpec.value(byAbbreviatedName: value),
-                                let bitIndex = UInt32(exactly: v64 - 1) {
-                            for room in inRoom?.area?.rooms ?? [] {
-                                if room.flags.contains(RoomFlags(rawValue: 1 << bitIndex)) {
-                                    highlightRooms.insert(room.vnum)
-                                }
-                            }
-                        } else {
-                            send("Неизвестное значение: \(arg)")
-                            return
-                        }
-                    } else if (fieldName.isAbbreviation(of: "монстры", caseInsensitive: true)) {
-                        let vnums = value.split(separator: ",", omittingEmptySubsequences: true).compactMap { Int($0) }
-                        for room in inRoom?.area?.rooms ?? [] {
-                            for creature in room.creatures {
-                                guard let mobile = creature.mobile else { continue }
-                                guard vnums.isEmpty || vnums.contains(mobile.vnum) else { continue }
-                                guard let room = creature.inRoom else { continue }
-                                markRooms.insert(room.vnum)
-                            }
-                        }
-                    } else {
-                        send("Неизвестное поле: \(fieldName)")
-                    }
+                if let (highlightRoomsNew, markRoomsNew) = processFilter(arg) {
+                    highlightRooms.formUnion(highlightRoomsNew)
+                    markRooms.formUnion(markRoomsNew)
                 }
             }
         }
@@ -115,6 +84,58 @@ extension Creature {
         }
         log("Room \(room.vnum) not found on map.")
         logToMud("Комната \(room.vnum) не найдена на карте.", verbosity: .brief, minLevel: Level.lesserGod)
+    }
+    
+    private func processFilter(_ arg: String) -> (highlightRooms: Set<Int>, markRooms: Set<Int>)? {
+        let elements = arg.split(separator: ":", maxSplits: 1, omittingEmptySubsequences: false)
+        guard let fieldNameSubstring = elements[safe: 0], let valueSubstring = elements[safe: 1] else {
+            send("Некорректный фильтр: \(arg)")
+            return nil
+        }
+        
+        var highlightRooms: Set<Int> = []
+        var markRooms: Set<Int> = []
+
+        let fieldName = String(fieldNameSubstring)
+        let value = String(valueSubstring)
+        if fieldName.isAbbreviation(of: "ксвойства", caseInsensitive: true) {
+            if let enumSpec = db.definitions.enumerations.enumSpecsByAlias["ксвойства"],
+                let v64 = enumSpec.value(byAbbreviatedName: value),
+                let bitIndex = UInt32(exactly: v64 - 1) {
+                for room in inRoom?.area?.rooms ?? [] {
+                    if room.flags.contains(RoomFlags(rawValue: 1 << bitIndex)) {
+                        highlightRooms.insert(room.vnum)
+                    }
+                }
+            } else {
+                send("Неизвестное значение: \(arg)")
+                return nil
+            }
+        } else if fieldName.isAbbreviation(of: "монстры", caseInsensitive: true) {
+            let vnums = value.split(separator: ",", omittingEmptySubsequences: true).compactMap { Int($0) }
+            for room in inRoom?.area?.rooms ?? [] {
+                for creature in room.creatures {
+                    guard let mobile = creature.mobile else { continue }
+                    guard vnums.isEmpty || vnums.contains(mobile.vnum) else { continue }
+                    guard let room = creature.inRoom else { continue }
+                    markRooms.insert(room.vnum)
+                }
+            }
+        } else if fieldName.isAbbreviation(of: "путь", caseInsensitive: true) {
+            guard !value.isEmpty else {
+                send("Укажите название пути.")
+                return nil
+            }
+            guard let path = inRoom?.area?.prototype.paths[value.lowercased()] else {
+                send("Путь с таким названием не найден.")
+                return nil
+            }
+            path.forEach { highlightRooms.insert($0) }
+        } else {
+            send("Неизвестное поле: \(fieldName)")
+            return nil
+        }
+        return (highlightRooms, markRooms)
     }
 }
 
