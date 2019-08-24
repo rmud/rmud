@@ -19,7 +19,7 @@ class Mobile {
     var grip: UInt8 = 0 // Interferes with rescuing and fleeing, 0..100
     var corpsePoisonLevel: UInt8 = 0 // Uneatable mobs with poison in blood
     var movementType: MovementType = .walk
-    var path = ""
+    var pathName = ""
     var defaultPosition: Position = .standing
     //var maximumCountInWorld: UInt8 = 0
     //var loadChancePercentage: UInt8 = 0
@@ -79,7 +79,7 @@ class Mobile {
         if let movementType = prototype.movementType {
             self.movementType = movementType
         }
-        self.path = prototype.path
+        self.pathName = prototype.path
         if let defaultPosition = prototype.defaultPosition {
             self.defaultPosition = defaultPosition
         }

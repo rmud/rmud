@@ -1,6 +1,10 @@
 import Foundation
 
 extension Mobile {
+    func mobileActivity() {
+        moveAlongPath()
+    }
+    
     func checkForTargets() {
 //        guard creature.position == .standing || creature.position == defaultPosition else { return }
 //
@@ -32,5 +36,21 @@ extension Mobile {
 //        }
     
 //        creature.mob_revenge_check(ch)
+    }
+    
+    private func moveAlongPath() {
+        guard !pathName.isEmpty else { return }
+        guard let room = creature.inRoom else { return }
+        guard let path = room.area?.prototype.paths[pathName] else { return }
+        let possibleDirections = Direction.allDirections.filter { direction in
+            guard let exit = room.exits[direction] else { return false }
+            guard let toVnum = exit.toVnum else { return false }
+            guard path.contains(toVnum) else { return false }
+            guard let toRoom = db.roomsByVnum[toVnum] else { return false }
+            guard toRoom.area == room.area else { return false }
+            return true
+        }
+        guard let direction = possibleDirections.randomElement() else { return }
+        let _ = creature.performMove(direction: direction, mode: .normal)
     }
 }

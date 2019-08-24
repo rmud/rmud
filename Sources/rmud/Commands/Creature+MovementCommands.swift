@@ -34,7 +34,7 @@ extension Creature {
         let _ = performMove(direction: finalDirection, mode: .normal)
     }
     
-    private func performMove(direction: Direction, mode: MovementMode) -> MovementResult {
+    func performMove(direction: Direction, mode: MovementMode) -> MovementResult {
         let (movementResult, warnRooms) = mode == .normal ?
             moveWithMountOrRiderAndFollowers(who: self, leader: self, direction: direction) :
             moveWithMountOrRiderOnly(who: self, leader: self, direction: direction, mode: mode)

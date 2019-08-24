@@ -58,6 +58,7 @@ extension Room {
                         logWarning("Unable to instantiate mobile \(vnum) from prototype")
                         continue
                     }
+                    db.creaturesInGame.append(creature)
                     creature.mobile?.homeArea = area
                     creature.mobile?.homeRoom = vnum
                     

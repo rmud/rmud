@@ -4,6 +4,12 @@ import Foundation
 // Other pulses are being initiated from it.
 // It's called each game pulse.
 func heartbeat() throws {
+    if (gameTime.gamePulse + UInt64(pulseMobileOffset)) % UInt64(pulseMobile) == 0 {
+        for creature in db.creaturesInGame {
+            creature.mobile?.mobileActivity()
+        }
+    }
+    
     if !players.quitting.isEmpty {
         players.quitting.forEach {
             $0.runtimeFlags.remove(.suppressPrompt)
