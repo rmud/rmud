@@ -31,9 +31,16 @@ extension Creature {
         }
         
         let finalDirection = checkSpins(direction: direction)
-        let _ = performMove(direction: finalDirection, mode: .normal)
+        performMove(direction: finalDirection)
+        
+        handlePostponedMovement()
     }
-    
+
+    func performMove(direction: Direction) {
+        movementPath.append(direction)
+    }
+
+    /*
     func performMove(direction: Direction, mode: MovementMode) -> MovementResult {
         let (movementResult, warnRooms) = mode == .normal ?
             moveWithMountOrRiderAndFollowers(who: self, leader: self, direction: direction) :
@@ -41,6 +48,7 @@ extension Creature {
         warnRooms.forEach { $0.warnMobiles() }
         return movementResult
     }
+    */
     
     private func checkSpins(direction: Direction) -> Direction {
         let noHassle = preferenceFlags?.contains(.noHassle) ?? false
@@ -55,7 +63,7 @@ extension Creature {
         }
         return direction
     }
-    
+   
     private func pickRandomDirection(fallback: Direction, constrainedTo: Set<Direction> = Direction.allDirections) -> Direction {
         var chosen: Direction?
         for (index, direction) in constrainedTo.enumerated() {
@@ -67,6 +75,7 @@ extension Creature {
         return chosen ?? fallback
     }
     
+    /*
     // Try to move the character and his mount or rider if any
     private func moveWithMountOrRiderOnly(who: Creature, leader: Creature, direction: Direction, mode: MovementMode) -> (result: MovementResult, warnRooms: [Room]) {
         guard let needMovement = movementPointsNeededToMove(in: direction, mode: mode) else {
@@ -589,6 +598,7 @@ extension Creature {
         }
         return false
     }
+    */
 }
 
 // MARK: - doFollow

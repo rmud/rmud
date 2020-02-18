@@ -1,4 +1,4 @@
-RMUD (c) 1997-2019 Andrey Fidrya, Yaroslav Berezovsky, Danil Lavrentyuk
+RMUD (c) 1997-2020 Andrey Fidrya, Yaroslav Berezovsky, Danil Lavrentyuk
 
 RMUD is based on CircleMUD which is based on DikuMUD.
 
@@ -10,6 +10,9 @@ with CircleMUD code is licensed under Apache 2.0 License with
 Runtime Library Exception which can be found below.
 
 CircleMUD and DikuMUD licenses can be found in LICENSE-CircleMUD file.
+
+RMUD uses swift-algorithm-club library, it's license can
+be found in LICENSE-swift-algorithm-club.
 
 If you use RMUD, please comply with all applicable licenses.
 

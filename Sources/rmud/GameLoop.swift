@@ -15,6 +15,8 @@ func gameLoop() {
     var now = timeval()
     var missedPulses = 0
 
+    let scheduler = Scheduler.sharedInstance
+    
     gettimeofday(&lastTime, nil)
     
     var loopOnce: (()->())?
@@ -156,6 +158,8 @@ func gameLoop() {
                     d.creature?.interpretCommand(command)
                 }
             }
+            
+            scheduler.runEvents()
             
             // Send prompts to players who are currently not on prompt:
             for d in networking.descriptors {

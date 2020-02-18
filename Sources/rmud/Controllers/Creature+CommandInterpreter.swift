@@ -2,6 +2,14 @@ import Foundation
 
 extension Creature {
     func interpretCommand(_ command: String) {
+        // Cancel direction commands if any non-direction command is typed or even ENTER is pressed
+        var wasDirectionCommand = false
+        defer {
+            if !wasDirectionCommand && !movementPath.isEmpty {
+                movementPath.removeAll()
+            }
+        }
+        
         let trimmed = command.trimmingCharacters(in: .whitespaces)
         
         // Just drop to next line for hitting CR
@@ -27,6 +35,8 @@ extension Creature {
                 self.send("Пожалуйста, укажите аргумент.")
             }
         }
+
+        
         
         var found = false
         let fullDirections = preferenceFlags?.contains(.fullDirections) ?? false
@@ -34,7 +44,9 @@ extension Creature {
             
             found = true
             stop = true
-            
+
+            wasDirectionCommand = command.group == .movement && command.flags.contains(.directionCommand)
+
             var context = CommandContext(command: command, scanner: scanner)
             context.subcommand = command.subcommand
             guard fetchArgument(from: scanner,

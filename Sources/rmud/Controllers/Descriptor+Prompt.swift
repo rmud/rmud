@@ -54,7 +54,12 @@ extension Descriptor {
                 promptElements.append("Выходы:\(autoExits)")
             }
         }
-        
+
+        if creature.preferenceFlags?.contains(.displayMovementInPrompt) ?? false, !creature.movementPath.isEmpty {
+            let path = creature.movementPath.map { $0.singleLetter }.joined()
+            promptElements.append("\(nCyn())\(path)\(nNrm())")
+        }
+
         return promptElements.joined(separator: " ") + "> "
     }
     
