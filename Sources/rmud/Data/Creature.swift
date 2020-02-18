@@ -229,11 +229,13 @@ class Creature {
     }
 
     // Movement points
+    var arrivedAtGamePulse: UInt64 = 0
     var movement = 0
     var realMaximumMovement = 50
     func affectedMaximumMovement() -> Int {
         return affected(baseValue: realMaximumMovement, by: .custom(.movement), clampedTo: 1...1000000)
     }
+    var movementPath: [Direction] = []
     
     var gold = 0 // Coins
     var experience = 0 // Don't assign directly, use gainExperience() to apply game rules

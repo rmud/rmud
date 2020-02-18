@@ -17,6 +17,7 @@ fileprivate let commandInfo: [Command] = [
             flags: [.highPriority, .noFight, .directionCommand]),
     Command(["опуститься", "вниз", "down"], group: .movement, subcommand: .down, Creature.doMove,
             flags: [.highPriority, .noFight, .directionCommand]),
+    
     Command(["следовать", "follow"], group: .movement, Creature.doFollow,
             arg1: .creature, cases1: .instrumental, where1: .room),
 

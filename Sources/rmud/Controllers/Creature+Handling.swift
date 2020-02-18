@@ -135,6 +135,8 @@ extension Creature {
         if let player = player {
             player.exploredRooms.insert(room.vnum)
         }
+        
+        arrivedAtGamePulse = gameTime.gamePulse
     }
     
     func teleportTo(room: Room) {

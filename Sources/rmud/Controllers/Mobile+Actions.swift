@@ -51,6 +51,6 @@ extension Mobile {
             return true
         }
         guard let direction = possibleDirections.randomElement() else { return }
-        let _ = creature.performMove(direction: direction, mode: .normal)
+        creature.performMove(direction: direction)
     }
 }

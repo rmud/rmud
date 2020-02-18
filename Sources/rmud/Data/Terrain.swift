@@ -29,24 +29,28 @@ enum Terrain: UInt8 {
         }
     }
     
-    var movementLoss: Int {
+    var timeNeededSec: Int {
         switch self {
-        case .inside:         return 1
-        case .city:           return 1
-        case .field:          return 2
-        case .forest:         return 3
-        case .hills:          return 4
-        case .mountain:       return 6
-        case .waterSwimmable: return 4
-        case .waterNoSwim:    return 1
-        case .underwater:     return 5
-        case .air:            return 1
-        case .longRoad:       return 4
-        case .swamp:          return 5
-        case .spareForest:    return 2
-        case .jungle:         return 4
-        case .tree:           return 3
+        case .inside:         return 1  // 1
+        case .city:           return 2  // 1
+        case .field:          return 4  // 2
+        case .forest:         return 6  // 3
+        case .hills:          return 8  // 4
+        case .mountain:       return 12 // 6
+        case .waterSwimmable: return 8  // 4
+        case .waterNoSwim:    return 2  // 1
+        case .underwater:     return 10 // 5
+        case .air:            return 2  // 1
+        case .longRoad:       return 8  // 4
+        case .swamp:          return 10 // 5
+        case .spareForest:    return 4  // 2
+        case .jungle:         return 8  // 4
+        case .tree:           return 6  // 3
         }
+    }
+    
+    var gamePulsesNeeded: UInt64 {
+        return UInt64(timeNeededSec) * 10
     }
     
     static func registerDefinitions(in e: Enumerations) {
