@@ -23,7 +23,7 @@ class Scheduler {
     
     let gameTime: GameTime
     
-    private var events = Heap<Event>(sort: <)
+    private var events = RedBlackTree<Event>()
     
     init(gameTime: GameTime = GameTime.sharedInstance) {
         self.gameTime = gameTime
@@ -35,15 +35,15 @@ class Scheduler {
         let event = Event(
             gamePulse: gamePulse,
             targetAction: TargetActionWrapper(target: target, action: action))
-        events.insert(event)
+        events.insert(key: event)
     }
     
     func runEvents() {
         let gamePulse = gameTime.gamePulse
-        while let event = events.peek() {
+        while let event = events.minValue() {
             log("check: \(event.gamePulse) <= \(gamePulse)")
             guard event.gamePulse <= gamePulse else { return }
-            let event = events.remove()!
+            events.delete(key: event)
             log("triggered: \(event.gamePulse)")
             event.targetAction.performAction()
         }
