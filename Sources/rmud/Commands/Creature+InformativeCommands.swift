@@ -175,7 +175,7 @@ extension Creature {
             }
 
             guard let targetPlayer = target.player else { return false }
-            guard !targetPlayer.isMortalAndLinkDead || holylight else { return false }
+            guard !targetPlayer.isLinkDead || holylight else { return false }
             guard canSee(target) else { return false }
             
             if target.level >= Level.hero {
@@ -558,11 +558,6 @@ extension Creature {
                         "Теперь Вы будете видеть виртуальные номера объектов.",
                         "Теперь Вы не будете видеть виртуальные номера объектов.")
             
-        } else if level >= settings.noHassleMinLevel && option(name, matches: "неуязвимость", "nohassle") {
-            toggleOnOff(.noHassle, value,
-                        "Теперь Вы неуязвимы.",
-                        "Теперь Вы уязвимы.")
-
         } else if level >= settings.noHassleMinLevel && option(name, matches: "неуязвимость", "nohassle") {
             toggleOnOff(.noHassle, value,
                         "Теперь Вы неуязвимы.",
