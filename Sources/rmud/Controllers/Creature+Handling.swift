@@ -84,8 +84,6 @@ extension Creature {
         if !isFighting && !player.isNoQuit && !isCharmed() &&
                 !position.isDyingOrDead && !isAffected(by: .poison) &&
                 level < Level.hero {
-            player.adminInvisibilityLevel = Level.hero
-            player.preferenceFlags.insert(.noHassle)
             if let master = following, !isSameGroup(with: master) {
                 stopFollowing()
             }
@@ -94,15 +92,12 @@ extension Creature {
         return false
     }
     
-    func restoreFromLinkDeadState() -> Bool {
-        guard let player = player else { return false }
-        guard player.isMortalAndLinkDead else { return false }
-
-        player.adminInvisibilityLevel = 0
-        player.preferenceFlags.remove(.noHassle)
-        
-        return true
-    }
+//    func restoreFromLinkDeadState() -> Bool {
+//        guard let player = player else { return false }
+//        guard player.isMortalAndLinkDead else { return false }
+//
+//        return true
+//    }
     
     func returnToOriginalCreature() {
         // FIXME: port do_return

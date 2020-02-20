@@ -1,6 +1,11 @@
 import Foundation
 
 extension Creature {
+    func isNoHassle() -> Bool {
+        guard level >= settings.noHassleMinLevel else { return false }
+        return preferenceFlags?.contains(.noHassle) ?? false
+    }
+    
     func isHeld() -> Bool {
         return isAffected(by: .hold) && !isAffected(by: .freeAction)
     }

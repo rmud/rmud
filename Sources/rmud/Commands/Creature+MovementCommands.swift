@@ -51,8 +51,7 @@ extension Creature {
     */
     
     private func checkSpins(direction: Direction) -> Direction {
-        let noHassle = preferenceFlags?.contains(.noHassle) ?? false
-        if !noHassle && canGo(direction) {
+        if !isNoHassle() && canGo(direction) {
             guard let room = inRoom else { return direction }
         
             if room.flags.contains(.spin) {

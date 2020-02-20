@@ -59,7 +59,10 @@ class Player {
     //
     // Admin's level of invisibility. Completely overrides game rules such as
     // glowing items exposing creatures, so do not use for gameplay purposes.
-    var adminInvisibilityLevel: UInt8 = 0
+    var realAdminInvisibilityLevel: UInt8 = 0
+    var adminInvisibilityLevel: UInt8 {
+        return creature.level >= Level.hero ? realAdminInvisibilityLevel : 0
+    }
     //
     // Same mob kill EXP gain limitation arrays
     typealias KillInfo = (vnum: Int, killCount: UInt16)
@@ -127,9 +130,10 @@ class Player {
     //    
     //    var permition: UInt64 = 0 // уид игрока, которому позволено одно "опасное" заклинания в нан адрес
 
-    var isMortalAndLinkDead: Bool {
-        // FIXME: do not abuse nohassle and invis level
-        return creature.level < Level.hero && adminInvisibilityLevel > 0 && preferenceFlags.contains(.noHassle)
+    var isLinkDead: Bool {
+        // Do not abuse nohassle and invis level
+        // return creature.level < Level.hero && adminInvisibilityLevel > 0 && preferenceFlags.contains(.noHassle)
+        return creature.descriptor == nil
     }
     
     var exploredRooms = Set<Int>()
@@ -209,7 +213,7 @@ class Player {
         }
         
         noShoutTicsLeft = playerFile[s, "ПРОСТУДА"] ?? 0
-        adminInvisibilityLevel = playerFile[s, "НЕВИДИМОСТЬ"] ?? 0
+        realAdminInvisibilityLevel = playerFile[s, "НЕВИДИМОСТЬ"] ?? 0
         loadRoom = playerFile[s, "КОМНАТА"] ?? vnumMortalStartRoom
         preferenceFlags = playerFile[s, "РЕЖИМ"] ?? []
         mapWidth = playerFile[s, "КАРТА_ШИРИНА"] ?? defaultMapWidth
