@@ -77,7 +77,7 @@ class RoomPrototype {
                 roomExit().toVnum = room
             }
             if let type = entity["\(name).тип", i]?.uint8 {
-                roomExit().type = ExitType(rawValue: type) ?? .none
+                roomExit().type = ExitType(rawValue: type) ?? ExitType.none
             }
             if let flags = entity["\(name).признаки", i]?.uint32 {
                 let roomExit = roomExit()
