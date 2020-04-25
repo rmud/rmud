@@ -70,7 +70,7 @@ func logToMud(_ text: String, verbosity: MudlogVerbosity, minLevel: UInt8, maxLe
     
     for descriptor in networking.descriptors {
         guard descriptor.state == .playing else { continue }
-        guard let creature = descriptor.original ?? descriptor.creature else { continue }
+        guard let creature = descriptor.creature else { continue }
         guard let player = creature.player else { continue }
         // FIXME: is this needed?
         guard !player.flags.contains(.writing) else { continue }

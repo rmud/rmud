@@ -31,9 +31,7 @@ func heartbeat() throws {
 // Called once per minute!
 private func checkDescriptorIdling() {
     for d in networking.descriptors {
-        guard d.state != .playing &&
-                d.state != .close &&
-                d.state != .playingDisconnecting else {
+        guard d.state != .playing && d.state != .close else {
             continue
         }
         d.idleTicsAtPrompt += 1

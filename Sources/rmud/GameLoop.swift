@@ -164,9 +164,9 @@ func gameLoop() {
             // Send prompts to players who are currently not on prompt:
             for d in networking.descriptors {
                 if !d.isAtPrompt && d.state == .playing {
+                    guard let creature = d.creature else { continue }
                     guard !(d.creature?.runtimeFlags.contains(.suppressPrompt) ?? false) else { continue }
-                    let prompt = d.makePrompt()
-                    //d.previousPrompt = prompt
+                    let prompt = creature.makePrompt()
 
                     d.sendPrompt(prompt)
                 }

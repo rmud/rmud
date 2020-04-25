@@ -8,7 +8,7 @@ class Creature {
     }
     
     var uid: UInt64 = 0
-    var descriptor: Descriptor?
+    var descriptors: Set<Descriptor> = []
     
     var nameNominative = ""
     var nameGenitive = ""
@@ -27,14 +27,7 @@ class Creature {
     var isPlayer: Bool { return player != nil }
     var isMobile: Bool { return mobile != nil }
     
-    var controllingPlayer: Player? {
-        if let player = player {
-            return player
-        } else if let descriptor = descriptor, let original = descriptor.original {
-            return original.player
-        }
-        return nil
-    }
+    var controllingPlayer: Player? { return player }
     
     // If it's a player, his flags
     // If it's a mobile, flags of it's controlling player (if any)

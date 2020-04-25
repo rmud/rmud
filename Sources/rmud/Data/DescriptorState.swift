@@ -42,6 +42,5 @@ enum DescriptorState {
     case ban                    // Disconnect after any input
     case close                  // Disconnecting
     
-    case playingDisconnecting   // In-game disconnection // FIXME: remove this state, use a flag instead
     case playing                // Playing - Nominal state
 }

@@ -133,7 +133,7 @@ class Player {
     var isLinkDead: Bool {
         // Do not abuse nohassle and invis level
         // return creature.level < Level.hero && adminInvisibilityLevel > 0 && preferenceFlags.contains(.noHassle)
-        return creature.descriptor == nil
+        return creature.descriptors.isEmpty
     }
     
     var exploredRooms = Set<Int>()

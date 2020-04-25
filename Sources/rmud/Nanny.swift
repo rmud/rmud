@@ -456,9 +456,6 @@ func nanny(_ d: Descriptor, line: String) {
         logFatal("Unimplemented state: \(d.state)")
     case .close:
         break
-    case .playingDisconnecting:
-        // Do nothing
-        break
     case .playing:
         assertionFailure()
     }
@@ -580,9 +577,6 @@ func sendStatePrompt(_ d: Descriptor) {
         break
     case .close:
         break
-    case .playingDisconnecting:
-        // Send nothing
-        break
     case .playing:
         assertionFailure()
     }
@@ -697,11 +691,11 @@ private func stateAccountPassword(_ d: Descriptor, _ arg: String) {
     let badPws = account.badPasswordSinceLastLogin
     if badPws != 0 {
         d.send("\u{0007}" +
-            "\(d.bRed())За время с последнего входа в игру " +
+            "\(Ansi.bRed)За время с последнего входа в игру " +
             "произошл\(badPws.ending("а", "и", "о")) \(badPws) " +
             "неудачн\(badPws.ending("ая", "ые", "ых")) " +
             "попыт\(badPws.ending("ка", "ки", "ок")) войти в игру этой " +
-            "учетной записью!\(d.nNrm())\n")
+            "учетной записью!\(Ansi.nNrm)\n")
 
         account.badPasswordSinceLastLogin = 0
         account.scheduleForSaving()
@@ -747,43 +741,43 @@ private func stateCreatureMenu(_ d: Descriptor, _ arg: String) {
     switch arg {
     case "1":
         let creature = d.creature!
-
-        let loadRoomVnum = creature.player!.loadRoom
-        let loadRoom: Room
-        if let room = db.roomsByVnum[loadRoomVnum] {
-            loadRoom = room
-        } else {
-            logError("Game entry room \(loadRoomVnum) does not exist")
-            guard let mortalStartRoom = db.roomsByVnum[vnumMortalStartRoom] else {
-                logError("Mortal start room \(vnumMortalStartRoom) does not exist")
-                logToMud("\(creature.nameNominative) не может войти в игру: отсутствует стартовая комната.",
-                    verbosity: .brief, minLevel: Level.lesserGod)
-                d.send("Невозможно войти в игру.")
-                return;
+        creature.descriptors.insert(d)
+        
+        if creature.inRoom == nil {
+            let loadRoomVnum = creature.player!.loadRoom
+            let loadRoom: Room
+            if let room = db.roomsByVnum[loadRoomVnum] {
+                loadRoom = room
+            } else {
+                logError("Game entry room \(loadRoomVnum) does not exist")
+                guard let mortalStartRoom = db.roomsByVnum[vnumMortalStartRoom] else {
+                    logError("Mortal start room \(vnumMortalStartRoom) does not exist")
+                    logToMud("\(creature.nameNominative) не может войти в игру: отсутствует стартовая комната.",
+                        verbosity: .brief, minLevel: Level.lesserGod)
+                    d.send("Невозможно войти в игру.")
+                    return;
+                }
+                loadRoom = mortalStartRoom
             }
-            loadRoom = mortalStartRoom
-        }
 
-        creature.descriptor = d
-        creature.reset()
+            creature.reset()
         
-        creature.player?.lastIp = d.ip
-        creature.player?.lastHostname = d.hostname
-        
-        d.send("\nПусть Ваш визит будет увлекательным!")
-        
-        //if let timeUntilReboot = timeUntilReboot {
-        //    act("Через # минут#(у,ы,) будет произведена перезагрузка игры.", "!Мч", creature, timeUntilReboot)
-        //}
-        creature.teleportTo(room: loadRoom)
-        
-        creature.hitPoints = creature.affectedMaximumHitPoints()
-        creature.movement = creature.affectedMaximumMovement()
-        
-        db.creaturesInGame.append(creature)
-        
+            creature.player?.lastIp = d.ip
+            creature.player?.lastHostname = d.hostname
+
+            d.send("\nПусть Ваш визит будет увлекательным!")
+
+            //if let timeUntilReboot = timeUntilReboot {
+            //    act("Через # минут#(у,ы,) будет произведена перезагрузка игры.", "!Мч", creature, timeUntilReboot)
+            //}
+            creature.teleportTo(room: loadRoom)
+            
+            creature.hitPoints = creature.affectedMaximumHitPoints()
+            creature.movement = creature.affectedMaximumMovement()
+            
+            db.creaturesInGame.append(creature)
+        }
         d.state = .playing
-        
         creature.lookAtRoom(ignoreBrief: false)
         
     case "2":
@@ -1053,118 +1047,5 @@ private func chooseCreature(arg: String, account: Account) -> Creature? {
         }
     }
     return nil
-}
-
-private func reconnectToExistingCreature(_ d: Descriptor) -> ReconnectMode {
-    let nameNominative = d.creature!.nameNominative
-    var targetCreature: Creature?
-    var mode: ReconnectMode = .noExistingCharactersFound
-
-    // First, disconnect all other descriptors with the same character
-    for otherD in networking.descriptors {
-        guard otherD !== d else { continue }
-        
-        if let otherOriginal = otherD.original, otherOriginal.nameNominative.isEqual(to: nameNominative, caseInsensitive: true) {
-            // FIXME: immortals should return instead of being disconnected
-            // when switched into person reconnects.
-            otherD.send("Владелец воссоединился, соединение разорвано.")
-            if targetCreature == nil {
-                targetCreature = otherD.original
-                mode = .unswitch
-            }
-            if let otherCreature = otherD.creature {
-                otherCreature.descriptor = nil
-            }
-            otherD.creature = nil
-            otherD.original = nil
-            otherD.state = .close
-        } else if let otherCreature = otherD.creature, otherCreature.nameNominative.isEqual(to: nameNominative, caseInsensitive: true) {
-            if targetCreature == nil && otherD.state == .playing {
-                targetCreature = otherD.creature
-                mode = .usurp
-            }
-            otherD.send("Обнаружен повторный вход, соединение разорвано.")
-            otherCreature.descriptor = nil
-            otherD.creature = nil
-            otherD.original = nil
-            otherD.state = .close
-        }
-    }
-    
-    // Now, go through the character list, deleting all characters that
-    // are not already marked for deletion from the above step (i.e., in the
-    // STATE_HANGUP state), and have not already been selected as a target for
-    // switching into. In addition, if we haven't already found a target,
-    // choose one if one is available while still deleting the other
-    // duplicates, though theoretically none should be able to exist.}
-    for otherCreature in db.creaturesInGame {
-        if !otherCreature.nameNominative.isEqual(to: nameNominative, caseInsensitive: true) || otherCreature.descriptor != nil ||
-            otherCreature === targetCreature {
-                continue
-        }
-        
-        // We don't already have a target and found a candidate for switching
-        if targetCreature == nil {
-            targetCreature = otherCreature
-            mode = .reconnect
-            continue
-        }
-        
-        // We've found a duplicate. It's a bug so isolate him before extracting
-        logError("reconnectToExistingCreature: duplicate found: \(nameNominative)")
-        // FIXME:
-        // if (ch->in_room)
-        //   char_from_room(ch);
-        // char_to_room(ch, &(rooms[1]));
-        // // Это ошибочное состояние, так что здесь не делаю отложенное удаление...
-        // extract_char(ch, EM_MAX_STAY, true);
-    }
-    
-    // No target for switching into was found, allow login to continue
-    if targetCreature == nil {
-        return .noExistingCharactersFound
-    }
-    
-    // Okay, we've found a target, now connect d to target
-    d.creature = targetCreature
-    d.creature?.descriptor = d
-    d.original = nil
-    d.creature?.idleTics = 0
-    d.creature?.player?.flags.remove([.mailing, .writing])
-    d.state = .playing
-    //char_from_ld(d->character); TODO
-    d.creature?.player?.lastIp = d.ip
-    d.creature?.player?.lastHostname = d.hostname
-    
-    let minLogLevel = max(
-        (settings.ipsToHideInLog.contains(d.ip) || settings.ipsToHideInLog.contains(d.hostname)) ?
-            Level.implementor : Level.middleGod,
-        UInt8(d.creature?.player?.adminInvisibilityLevel ?? 0))
-    
-    switch mode {
-    case .noExistingCharactersFound:
-        fatalError()
-    case .reconnect:
-        d.send("Воссоединяемся.")
-        //lact("1*и воссоединил1(ся,ась,ось,ись).|" // TODO
-        //    "1*n reconnected.", "Км", d->character);
-        log("\(d.creature!.nameNominative) [\(d.ip), \(d.hostname)] is reconnecting")
-        logToMud("\(d.creature!.nameNominative) [\(d.ip), \(d.hostname)] воссоединяется.",
-            verbosity: .normal, minLevel: minLogLevel)
-    case .usurp:
-        d.send("Воссоединяемся.");
-        //lact("1*и воссоединил1(ся,ась,ось,ись).|" // TODO
-        //    "1*n reconnected.", "Км", d->character);
-        log("\(d.creature!.nameNominative) [\(d.ip), \(d.hostname)] is taking over old connection")
-        logToMud("\(d.creature!.nameNominative) [\(d.ip), \(d.hostname)] соединяется повторно.",
-            verbosity: .normal, minLevel: minLogLevel)
-    case .unswitch:
-        d.send("Воссоединяемся к основному телу.")
-        log("\(d.creature!.nameNominative) [\(d.ip), \(d.hostname)] is reconnecting to main body")
-        logToMud("\(d.creature!.nameNominative) [\(d.ip), \(d.hostname)] воссоединяется к основному телу.",
-            verbosity: .normal, minLevel: minLogLevel)
-    }
-    
-    return mode
 }
 
