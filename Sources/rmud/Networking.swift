@@ -68,7 +68,7 @@ class Networking {
     
     func closeClosedDescriptors() {
         for d in descriptors {
-            if d.state == .close || d.state == .playingDisconnecting {
+            if d.state == .close {
                 d.closeSocket()
             }
         }

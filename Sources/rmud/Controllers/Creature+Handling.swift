@@ -10,15 +10,6 @@ extension Creature {
     
     /// Extract a creature completely from the world
     func extract(mode: ExtractMode) {
-        if isPlayer && descriptor == nil {
-            // If snooping, return immediately
-            for descriptor in networking.descriptors {
-                if descriptor.original == self {
-                    descriptor.creature?.returnToOriginalCreature()
-                }
-            }
-        }
-        
         if self.inRoom == nil {
             logError("extract(mode:): creature \(nameNominative) is not in any rooms")
             guard let fallbackRoom = areaManager.areasInResetOrder.first?.rooms.first else {
@@ -43,19 +34,6 @@ extension Creature {
 
         dismount() // она сама проверяет riding и ridden_by
 
-        // Forget snooping, if applicable
-        if let descriptor = descriptor {
-            if let snooping = descriptor.snooping {
-                snooping.snoopedBy = nil
-                descriptor.snooping = nil
-            }
-            if let snoopedBy = descriptor.snoopedBy {
-                snoopedBy.send("Ваша жертва покинула игру.")
-                snoopedBy.snooping = nil
-                descriptor.snoopedBy = nil
-            }
-        }
-
         // Get rid of equipment and inventory
         switch mode {
         case .leaveItemsOnGround:
@@ -69,13 +47,11 @@ extension Creature {
         
         db.creaturesInGame = db.creaturesInGame.filter { $0 != self }
         
-        if let descriptor = descriptor, descriptor.original != nil {
-            returnToOriginalCreature()
-        }
-        
-        if isPlayer, let descriptor = descriptor {
-            descriptor.state = .creatureMenu
-            sendStatePrompt(descriptor)
+        if isPlayer {
+            descriptors.forEach { descriptor in
+                descriptor.state = .creatureMenu
+                sendStatePrompt(descriptor)
+            }
         }
     }
     
@@ -104,7 +80,9 @@ extension Creature {
     }
 
     func send(_ text: String, terminator: String = "\n") {
-        descriptor?.send(text, terminator: terminator)
+        descriptors.forEach { descriptor in
+            descriptor.send(text, terminator: terminator)
+        }
     }
     
     func removeFromRoom() {
@@ -890,7 +868,7 @@ extension Creature {
             }
             
             if let player = creature.player {
-                if creature.descriptor != nil {
+                if !creature.descriptors.isEmpty {
                     if player.adminInvisibilityLevel > 0 {
                         formatString += " (н#1)"
                     }

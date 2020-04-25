@@ -161,19 +161,10 @@ extension Creature {
         }
         
         let holylight = preferenceFlags?.contains(.holylight) ?? false
-        
-        let whoList: [Player] = networking.descriptors.filter { descriptor in
+                    
+        let chosenDescriptors = networking.descriptors.filter { descriptor in
             guard descriptor.state == .playing else { return false }
-
-            let target: Creature
-            if let original = descriptor.original {
-                target = original
-            } else if let creature = descriptor.creature {
-                target = creature
-            } else {
-                return false
-            }
-
+            guard let target = descriptor.creature else { return false }
             guard let targetPlayer = target.player else { return false }
             guard !targetPlayer.isLinkDead || holylight else { return false }
             guard canSee(target) else { return false }
@@ -185,9 +176,13 @@ extension Creature {
             }
 
             return true
-        }.compactMap { descriptor in
-            return descriptor.original ?? descriptor.creature
-        }.sorted { lhs, rhs in
+        }
+        let chosenCreatures = Set<Creature>(
+            chosenDescriptors.compactMap { descriptor in
+                return descriptor.creature
+            }
+        )
+        let chosenPlayers = chosenCreatures.sorted { lhs, rhs in
             if lhs.level >= Level.hero {
                 return rhs.level < Level.hero || lhs.level > rhs.level || (lhs.level == rhs.level && lhs.nameNominative < rhs.nameNominative)
             } else {
@@ -200,7 +195,7 @@ extension Creature {
         var immortalsCount = 0
         var mortalsCount = 0
         var output = ""
-        for targetPlayer in whoList {
+        for targetPlayer in chosenPlayers {
             let targetCreature = targetPlayer.creature
             
             guard !showTitledOnly || !targetPlayer.customTitle.isEmpty else {
@@ -631,7 +626,7 @@ extension Creature {
         send("постой          Оплачивать постой через банк: \(rentBank).")
         send("продолжать      Продолжать бой (не убегать) при потере соединения: \(keepFighting).")
         send("численность     Сообщать численность группы и количество \"свободных мест\": \(quantity).")
-        if let player = controllingPlayer {
+        if let player = player {
             send("простой         Разрывать соединение, если прстой привысил: \(player.maxIdle) минут\(player.maxIdle.ending("у", "ы", "")).")
         }
         send("тренировка      Не получать опыт за смерть монстра: \(training).")

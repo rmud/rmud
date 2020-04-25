@@ -18,9 +18,6 @@ class Descriptor {
     var handle: Handle
     var account: Account?
     var creature: Creature?
-    var original: Creature? // Original char if switched
-    var snooping: Descriptor? // Who is this char snooping
-    var snoopedBy: Descriptor? //// And who is snooping this char
 
     var ip = ""
     var hostname = ""
@@ -42,7 +39,6 @@ class Descriptor {
     var workaroundZmudCp1251ZBug = false
     var iacOutBroken = false // Output & input charset preferences
     var iacInBroken = false
-    var hasColor = true
     let telnetMgr = TelnetMgr()
     // true if output buffer is currently in compressed zlib stream mode
     var zlibStrmOpen = false
@@ -393,22 +389,14 @@ class Descriptor {
             webSocket.close()
         }
         
-        if let snooping = snooping {
-            snooping.snoopedBy = nil
-        }
-        
-        if let snoopedBy = snoopedBy {
-            snoopedBy.send("Ваша цель потеряла связь.")
-            snoopedBy.snooping = nil
-        }
-
         let accountEmail = account?.email ?? "no email"
 
         if let creature = creature {
             
             switch state {
-            case .playing, .playingDisconnecting:
-                if let player = creature.player {
+            case .playing, .close:
+                creature.descriptors.remove(self)
+                if creature.inRoom != nil, let player = creature.player, creature.descriptors.isEmpty {
                     act("1*и потерял1(,а,о,и) связь.", .toRoom, .excludingCreature(creature))
                     // FIXME
                     //save_char_safe(d->character, RENT_CRASH);
@@ -416,7 +404,6 @@ class Descriptor {
                     let ipLogLevel = (settings.ipsToHideInLog.contains(ip) || settings.ipsToHideInLog.contains(hostname)) ? Level.implementor : Level.middleGod
                     logToMud("\(creature.nameNominative) [\(accountEmail), \(ip), \(hostname)] теряет связь.", verbosity: .normal, minLevel: max(ipLogLevel, player.adminInvisibilityLevel))
                 }
-                creature.descriptor = nil
                 let _ = creature.putToLinkDeadState()
             default:
                 let name = !creature.nameNominative.isEmpty ? creature.nameNominative : "Соединение без персонажа"
@@ -700,6 +687,16 @@ class Descriptor {
             }
         }
         return true
+    }
+}
+
+extension Descriptor: Hashable {
+    static func == (lhs: Descriptor, rhs: Descriptor) -> Bool {
+        return ObjectIdentifier(lhs) == ObjectIdentifier(rhs)
+    }
+    
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(ObjectIdentifier(self))
     }
 }
 

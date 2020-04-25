@@ -205,7 +205,7 @@ extension Creature {
     }
     
     func look(atCreature target: Creature) {
-        guard descriptor != nil else { return }
+        guard !descriptors.isEmpty else { return }
         
         let description = target.description.joined()
         if !description.isEmpty {

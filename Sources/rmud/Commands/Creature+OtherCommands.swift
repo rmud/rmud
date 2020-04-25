@@ -90,26 +90,10 @@ extension Creature {
     }
     
     func doQuit(context: CommandContext) {
-        guard let descriptor = descriptor else { return }
+        guard !descriptors.isEmpty else { return }
 
         guard let player = player else {
-            // It's a mobile controlled by player
-            let original = descriptor.original!
-            send("Вы вернулись в свое основное тело.")
-            
-            if original.level < Level.implementor {
-                logIntervention("\(original.nameNominative) возвращается в свое основное тело.");
-            }
-            
-            if let originalDescriptor = original.descriptor {
-                originalDescriptor.creature = nil
-                originalDescriptor.state = .playingDisconnecting
-            }
-
-            descriptor.creature = original
-            descriptor.original = nil
-            descriptor.creature?.descriptor = descriptor
-            self.descriptor = nil
+            send("Вы не можете покинуть игру.")
             return
         }
         
@@ -139,10 +123,8 @@ extension Creature {
         
         
         for descriptor in networking.descriptors {
-            if descriptor !== self.descriptor && descriptor.creature != nil &&
-                descriptor.creature == self {
-                // TODO: проверить, что это корректно. Вдруг другие дескрипторы висят с этим персонажем в меню?
-                descriptor.state = .playingDisconnecting
+            if descriptor.creature == self {
+                descriptor.state = .close
             }
         }
         

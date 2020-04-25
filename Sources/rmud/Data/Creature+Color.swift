@@ -1,35 +1,31 @@
 import Foundation
 
 extension Creature {
-    func colorPick(_ descriptorColorChooser: (Descriptor)->String) -> String {
-        guard let descriptor = descriptor,
-                descriptor.hasColor else {
-            return Ansi.nul
-        }
+    func colorPick(_ fallbackColor: String) -> String {
         if berserkRounds > 0 {
-            return descriptor.bRed()
+            return Ansi.bRed
         }
-        return descriptorColorChooser(descriptor)
+        return fallbackColor
     }
 
     // Normal colors:
-    func nNrm() -> String { return colorPick { $0.nNrm() } }
-    func nRed() -> String { return colorPick { $0.nRed() } }
-    func nGrn() -> String { return colorPick { $0.nGrn() } }
-    func nYel() -> String { return colorPick { $0.nYel() } }
-    func nBlu() -> String { return colorPick { $0.nBlu() } }
-    func nMag() -> String { return colorPick { $0.nMag() } }
-    func nCyn() -> String { return colorPick { $0.nCyn() } }
-    func nWht() -> String { return colorPick { $0.nRed() } }
+    func nNrm() -> String { return colorPick(Ansi.nNrm) }
+    func nRed() -> String { return colorPick(Ansi.nRed) }
+    func nGrn() -> String { return colorPick(Ansi.nGrn) }
+    func nYel() -> String { return colorPick(Ansi.nYel) }
+    func nBlu() -> String { return colorPick(Ansi.nBlu) }
+    func nMag() -> String { return colorPick(Ansi.nMag) }
+    func nCyn() -> String { return colorPick(Ansi.nCyn) }
+    func nWht() -> String { return colorPick(Ansi.nRed) }
 
     // Bold colors:
-    func bGra() -> String { return colorPick { $0.bGra() } }
-    func bRed() -> String { return colorPick { $0.bRed() } }
-    func bGrn() -> String { return colorPick { $0.bGrn() } }
-    func bYel() -> String { return colorPick { $0.bYel() } }
-    func bBlu() -> String { return colorPick { $0.bBlu() } }
-    func bMag() -> String { return colorPick { $0.bMag() } }
-    func bCyn() -> String { return colorPick { $0.bCyn() } }
-    func bWht() -> String { return colorPick { $0.bWht() } }
+    func bGra() -> String { return colorPick(Ansi.bGra) }
+    func bRed() -> String { return colorPick(Ansi.bRed) }
+    func bGrn() -> String { return colorPick(Ansi.bGrn) }
+    func bYel() -> String { return colorPick(Ansi.bYel) }
+    func bBlu() -> String { return colorPick(Ansi.bBlu) }
+    func bMag() -> String { return colorPick(Ansi.bMag) }
+    func bCyn() -> String { return colorPick(Ansi.bCyn) }
+    func bWht() -> String { return colorPick(Ansi.bWht) }
 }
 
