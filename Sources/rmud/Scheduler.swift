@@ -1,6 +1,7 @@
 import Foundation
 
 private protocol TargetAction {
+    var targetObjectIdentifier: ObjectIdentifier { get }
     func performAction()
 }
 
@@ -18,6 +19,10 @@ class Scheduler {
         let handlerType: HandlerType
         let target: T
         let action: (T) -> () -> ()
+
+        var targetObjectIdentifier: ObjectIdentifier {
+            return ObjectIdentifier(target)
+        }
         
         func performAction() {
             action(target)()
@@ -35,9 +40,8 @@ class Scheduler {
         self.gameTime = gameTime
     }
     
-    func schedule<T: AnyObject>(afterGamePulses: UInt64, handlerType:  HandlerType, target: T, action: @escaping (T) -> () -> ()) {
+    func schedule<T: AnyObject>(afterGamePulses: UInt64, handlerType: HandlerType, target: T, action: @escaping (T) -> () -> ()) {
         let gamePulse = gameTime.gamePulse + afterGamePulses
-        log("schedule at: \(gamePulse)")
         let targetAction = TargetActionWrapper(handlerType: handlerType, target: target, action: action)
         let event = Event(
             gamePulse: gamePulse,
@@ -52,10 +56,20 @@ class Scheduler {
     func runEvents() {
         let gamePulse = gameTime.gamePulse
         while let event = eventsByTime.minValue() {
-            log("check: \(event.gamePulse) <= \(gamePulse)")
             guard event.gamePulse <= gamePulse else { return }
+            
             eventsByTime.delete(key: event)
-            log("triggered: \(event.gamePulse)")
+            
+            let targetId = event.targetAction.targetObjectIdentifier
+            var events = eventsByTarget[targetId] ?? []
+            events.remove(event)
+            if !events.isEmpty {
+                eventsByTarget[targetId] = events
+            } else {
+                eventsByTarget.removeValue(forKey: targetId)
+            }
+            eventsByTarget.removeValue(forKey: targetId)
+            
             event.targetAction.performAction()
         }
     }
