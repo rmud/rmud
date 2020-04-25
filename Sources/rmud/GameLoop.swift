@@ -136,13 +136,13 @@ func gameLoop() {
                         continue
                     }
                     command = d.commandsFromWebSocket.removeFirst()
+                    let textToSend: String
                     if !command.isEmpty {
-                        let commandEcho = d.isEchoOn ? command : "<скрыто>"
-                            //String(command.map { _ in Character("*") })
-                        d.sendAmendingPrompt(commandEcho)
+                        textToSend = d.isEchoOn ? command : "<скрыто>"
                     } else {
-                        d.sendAmendingPrompt("<ввод>")
+                        textToSend = "<ввод>"
                     }
+                    d.sendAmendingPromptToAllDescriptors(textToSend)
                 }
                 
                 d.isAtPrompt = false // user pressed CR and moved to newline
