@@ -33,10 +33,13 @@ extension Creature {
         let finalDirection = checkSpins(direction: direction)
         performMove(direction: finalDirection)
         
-        handlePostponedMovement()
+        handlePostponedMovement(interactive: true)
     }
 
     func performMove(direction: Direction) {
+        if movementPath.isEmpty {
+            movementPathInitialRoom = inRoom?.vnum
+        }
         movementPath.append(direction)
     }
 

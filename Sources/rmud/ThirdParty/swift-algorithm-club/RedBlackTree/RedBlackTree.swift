@@ -268,14 +268,19 @@ extension RedBlackTree {
    * 2. Fix red-black properties
    * Runntime: O(log n)
    */
-  public func insert(key: T) {
+  @discardableResult
+  public func insert(key: T) -> RBNode {
+    let node = RBNode(key: key)
+    
     if root.isNullLeaf {
-      root = RBNode(key: key)
+      root = node
     } else {
-      insert(input: RBNode(key: key), node: root)
+      insert(input: node, node: root)
     }
     
     size += 1
+    
+    return node
   }
   
   /*

@@ -235,6 +235,7 @@ class Creature {
     func affectedMaximumMovement() -> Int {
         return affected(baseValue: realMaximumMovement, by: .custom(.movement), clampedTo: 1...1000000)
     }
+    var movementPathInitialRoom: Int?
     var movementPath: [Direction] = []
     
     var gold = 0 // Coins

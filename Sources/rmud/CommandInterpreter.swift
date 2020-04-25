@@ -128,7 +128,9 @@ fileprivate let commandInfo: [Command] = [
 
     // Combat
     Command(["сравнить", "consider"], group: .combat, notImplemented),
-    Command(["убить", "kill"], group: .combat, notImplemented),
+    Command(["убить", "kill"], group: .combat, Creature.doKill,
+             flags: [.noFight, .highPriority], minPosition: .standing,
+            arg1: .creature),
     Command(["бежать", "flee"], group: .combat, notImplemented),
     Command(["отступить", "retreat"], group: .combat, notImplemented),
     Command(["помочь", "assist"], group: .combat, notImplemented),
