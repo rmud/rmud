@@ -423,12 +423,12 @@ extension Creature {
     }
     
     private func setAreaPrototypeField(areaName: String, fieldName: String, value: String) {
-        guard let area = areaManager.findArea(byAbbreviatedName: areaName) else {
-            send("Область с таким названием не найдена.")
-            return
-        }
+        //guard let area = areaManager.findArea(byAbbreviatedName: areaName) else {
+        //    send("Область с таким названием не найдена.")
+        //    return
+        //}
         
-        let p = area.prototype
+        //let p = area.prototype
         
         
     }

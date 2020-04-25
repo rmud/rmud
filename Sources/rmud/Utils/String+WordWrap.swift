@@ -3,7 +3,7 @@ import Foundation
 extension String {
     public func wrapping(withIndent indent: String = "", aroundTextColumn column: [[ColoredCharacter]], totalWidth: Int, rightMargin: Int = 0, bottomMargin: Int = 0) -> [[ColoredCharacter]] {
         
-        var columnLines: [[ColoredCharacter]] = column + Array(repeating: [], count: bottomMargin)
+        let columnLines: [[ColoredCharacter]] = column + Array(repeating: [], count: bottomMargin)
         let columnWidth = (columnLines.map{ $0.count }.max() ?? -rightMargin) + rightMargin
         
         let totalWidth = max(totalWidth, columnWidth)
@@ -29,7 +29,6 @@ extension String {
         struct CurrentWord {
             var content: [ColoredCharacter] = []
             mutating func eat(_ length: Int) -> [ColoredCharacter] {
-                let index = length
                 defer { content = Array(content.dropFirst(length)) }
                 return Array(content.prefix(length))
             }
