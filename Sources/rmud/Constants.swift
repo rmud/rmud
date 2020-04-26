@@ -119,6 +119,8 @@ let fillWordsLowercased: [String] = [
     "from", "with", "in", "on", "at", "to", "for", "a", "an", "the"
 ]
 
+let maximumMortalLevel: UInt8 = 30
+
 let baseLevelExperience: [Int] = [
     0,
     0, /* 1 */
@@ -151,7 +153,7 @@ let baseLevelExperience: [Int] = [
     460000,
     620000,
     800000,
-    1000000, /* 31 */                                                                               
+    1000000, /* 31 */                
 ]
 
 let bodypartInfoByEquipmentPosition: [EquipmentPosition: BodypartInfo] = [

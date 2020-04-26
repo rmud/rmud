@@ -56,7 +56,7 @@ class Creature {
     func adjustLevel() {
         guard isPlayer else { return }
         
-        while level < Level.hero - 1 && experience >= classId.info.experience(forLevel: level + 1) {
+        while level <= maximumMortalLevel && experience >= classId.info.experience(forLevel: level + 1) {
             advanceLevel()
             act("&1Вы получили уровень!&2", .toSleeping, .toCreature(self), .text(bWht()), .text(nNrm()))
         }
@@ -69,7 +69,7 @@ class Creature {
     private func advanceLevel() {
         guard let player = player else { return }
         
-        if level >= 1 && level < Level.hero - 1 {
+        if level >= 1 && level <= maximumMortalLevel {
             if let gain = player.hitPointGains[validating: Int(level)] {
                 realMaximumHitPoints += Int(gain)
             } else {
@@ -87,13 +87,13 @@ class Creature {
         level += 1
         
         log("\(nameNominative) advances to level \(level)")
-        logToMud("\(nameNominative) получает уровень \(level).", verbosity: .brief, minLevel: max(Level.hero, player.adminInvisibilityLevel))
+        logToMud("\(nameNominative) получает уровень \(level).", verbosity: .brief)
 
         if level == 3 && !player.flags.contains(.rolled) {
             rollRealAbilities()
             player.flags.insert(.rolled)
             log("New satistics: strength \(realStrength), dexterity \(realDexterity), constitution (\(realConstitution), intelligence: \(realIntelligence), wisdom: \(realWisdom), charisma: \(realCharisma)")
-            logToMud("Статистики: сила \(realStrength), ловкость \(realDexterity), телосложение (\(realConstitution), разум: \(realIntelligence), мудрость: \(realWisdom), обаяние: \(realCharisma)", verbosity: .brief, minLevel: max(Level.middleGod, player.adminInvisibilityLevel))
+            logToMud("Статистики: сила \(realStrength), ловкость \(realDexterity), телосложение (\(realConstitution), разум: \(realIntelligence), мудрость: \(realWisdom), обаяние: \(realCharisma)", verbosity: .brief)
         }
         
         //save_char_safe(ch, RENT_CRASH);
@@ -115,7 +115,7 @@ class Creature {
         } else {
             hitpointsLoss = classId.info.maxHitPerLevel
             log("\(nameNominative) hasn't got hitpoint gains logged")
-            logToMud("У персонажа \(nameNominative) не запомнены значения жизни для уровней", verbosity: .brief, minLevel: Level.hero)
+            logToMud("У персонажа \(nameNominative) не запомнены значения жизни для уровней", verbosity: .brief)
         }
         
         // FIXME
@@ -135,7 +135,7 @@ class Creature {
         }
         
         log("\(nameNominative) descends to level \(level)")
-        logToMud("Персонаж \(nameNominative) спускается на уровень \(level).", verbosity: .brief, minLevel: max(Level.hero, player.adminInvisibilityLevel))
+        logToMud("Персонаж \(nameNominative) спускается на уровень \(level).", verbosity: .brief)
         
         //save_char_safe(ch, RENT_CRASH);
         player.scheduleForSaving()
@@ -236,7 +236,7 @@ class Creature {
 
     func gainExperience(_ gain: Int, mode: GainExperienceMode) {
         guard isPlayer else { return }
-        guard level < Level.hero else { return }
+        guard level <= maximumMortalLevel else { return }
 
         // Wiscom affects experience gain: 28 - 130%, 8 - 90%
         var gain = ((100 + (affectedWisdom() - 13) * 2) * gain) / 100
@@ -722,7 +722,6 @@ class Creature {
         skipRounds = 0
         
         if let player = player {
-            player.flags.remove([.mailing, .writing, .group])
             player.trackRdir = 0
             player.trackDblCrs = 0
             player.lastTell = nil

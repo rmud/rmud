@@ -57,7 +57,7 @@ class Dns {
         
         log("Resolving: [\(host)]")
         logToMud("Запрос на расшифровку адреса [\(host)].",
-            verbosity: .complete, minLevel: Level.lesserGod)
+            verbosity: .complete)
 
         var tm = time(nil)
         let resolved = gethostbyaddr(&peer.sin_addr,
@@ -68,20 +68,20 @@ class Dns {
         if tm >= 2 {
             log("WARNING: resolving of [\(host)] took \(tm) second\(tm.ending("", "s", "s"))")
             logToMud("ВНИМАНИЕ: расшифровка адреса [\(host)] заняла \(tm) секунд\(tm.ending("у", "ы", "")).",
-                verbosity: .normal, minLevel: Level.lesserGod)
+                verbosity: .normal)
         }
 
         guard let hostEntry = resolved?.pointee else {
             log("Unable to resolve [\(host)]")
             logToMud("ВНИМАНИЕ: не удалось расшифровать адрес [\(host)].",
-                verbosity: .complete, minLevel: Level.lesserGod)
+                verbosity: .complete)
             return (host: host, name: host)
         }
         
         let resolvedName = String(cString: hostEntry.h_name)
         log("Host [\(host)] resolved to [\(resolvedName)]")
         logToMud("Адрес [\(host)] расшифрован в [\(resolvedName)].",
-            verbosity: .complete, minLevel: Level.lesserGod)
+            verbosity: .complete)
         dnsCache[host] = DnsEntry(name: resolvedName, timeout: Dns.defaultTimeout)
         return (host: host, name: resolvedName)
     }

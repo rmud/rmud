@@ -6,8 +6,8 @@ extension Creature {
 
         var promptElements: [String] = []
 
-        if let player = player, player.adminInvisibilityLevel > 0 && level >= Level.hero {
-            promptElements.append("н\(player.adminInvisibilityLevel)")
+        if isGodMode() {
+            promptElements.append("!")
         }
 
         if (preferenceFlags?.contains(.displayHitPointsInPrompt) ?? false) && berserkRounds == 0 {
@@ -24,7 +24,7 @@ extension Creature {
         }
 
         if let player = player, player.preferenceFlags.contains(.displayXpInPrompt) &&
-                level < Level.hero {
+                level <= maximumMortalLevel {
             let experienceToLevel = classId.info.experience(forLevel: level + 1) - experience
             promptElements.append("\(experienceToLevel)о")
         }

@@ -93,7 +93,7 @@ extension Creature {
     }
 
     func canTake(item: Item, isSilent: Bool) -> Bool {
-        if level > Level.hero { return true }
+        if isGodMode() { return true }
 
         if item.extraFlags.contains(.privateItem) && uid == item.ownerUid {
             if !isSilent {
@@ -201,10 +201,7 @@ extension Creature {
     }
 
     func isAlignmentMismatched(with item: Item) -> Bool {
-        if level >= Level.lesserGod ||
-            (player?.flags.contains(.nozap) ?? false) {
-            return false
-        }
+        if isGodMode() { return false }
         
         let alignment = affectedAlignment()
         let restrictFlags = item.restrictFlags
@@ -219,8 +216,8 @@ extension Creature {
     }
     
     func isUncomfortableRace(item: Item) -> Bool {
-        guard level < Level.hero else { return false }
-        
+        if isGodMode() { return false }
+
         let restrictFlags = item.restrictFlags
         
         switch race {
@@ -249,7 +246,7 @@ extension Creature {
     }
     
     func isUncomfortableClass(item: Item) -> Bool {
-        guard level < Level.hero else { return false }
+        if isGodMode() { return false }
 
         let restrictFlags = item.restrictFlags
 

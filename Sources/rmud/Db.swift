@@ -52,7 +52,7 @@ class Db {
 
         log("Building player command index")
         BenchmarkTimer.measure {
-            commandInterpreter.buildCommandIndex()
+            commandInterpreter.buildCommandIndex(roles: .admin)
         }
 
         log("Registering area format definitions")

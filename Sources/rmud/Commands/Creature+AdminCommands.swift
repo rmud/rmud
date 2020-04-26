@@ -101,9 +101,7 @@ extension Creature {
                 act("ВНИМАНИЕ! Превышен максимум экземпляров для @1р!", .toCreature(self), .item(item))
                 isOvermax = true
             }
-            if level < Level.implementor {
-                logIntervention("\(nameNominative) создает\(isOvermax ? ", ПРЕВЫСИВ ПРЕДЕЛ,":"") \(item.nameAccusative) в комнате \"\(inRoom?.name ?? "без имени")\".")
-            }
+            logIntervention("\(nameNominative) создает\(isOvermax ? ", ПРЕВЫСИВ ПРЕДЕЛ,":"") \(item.nameAccusative) в комнате \"\(inRoom?.name ?? "без имени")\".")
             if item.wearFlags.contains(.take) {
                 item.give(to: self)
             } else {
@@ -144,33 +142,33 @@ extension Creature {
         let nameEnglish: String
         let nameNominative: String
         let nameAccusative: String
-        let level: UInt8
+        let roles: Roles
         let mode: ShowMode
         
-        init (_ nameEnglish: String, _ nameNominative: String, _ nameAccusative: String, _ level: UInt8, _ mode: ShowMode) {
+        init (_ nameEnglish: String, _ nameNominative: String, _ nameAccusative: String, _ roles: Roles, _ mode: ShowMode) {
             self.nameEnglish = nameEnglish
             self.nameNominative = nameNominative
             self.nameAccusative = nameAccusative
-            self.level = level
+            self.roles = roles
             self.mode = mode
         }
     }
     
     private static var showSubcommands: [ShowSubcommand] = [
         // FIXME: сделать все в единственном числе? без аргумента показывать полный список
-        ShowSubcommand("areas",     "область",    "область",    Level.lesserGod, .areas ),
-        ShowSubcommand("room",      "комната",    "комнату",    Level.lesserGod, .room),
-        ShowSubcommand("mobile",    "монстр",     "монстра",    Level.lesserGod, .mobile),
-        ShowSubcommand("item",      "предмет",    "предмет",    Level.lesserGod, .item),
-        ShowSubcommand("player",    "персонаж",   "персонажа",  Level.lesserGod, .player ),
-        ShowSubcommand("stats",     "статистика", "статистику", Level.lesserGod, .statistics ),
-        ShowSubcommand("snooping",  "шпионаж",    "шпионаж",    Level.middleGod, .snoop ),
-        ShowSubcommand("spells",    "заклинание", "заклинание", Level.lesserGod, .spells ),
-        ShowSubcommand("overmax",   "превышение", "превышение", Level.greaterGod, .overmax ),
-        ShowSubcommand("linkdead",  "связь",      "связь",      Level.lesserGod, .linkdead ),
-        ShowSubcommand("moons",     "луны",       "луны",       Level.middleGod, .moons ),
-        ShowSubcommand("multiplay", "мультиплей", "мультиплей", Level.lesserGod, .multiplay ),
-        ShowSubcommand("cases",     "падежи",     "падежи",     Level.lesserGod, .cases)
+        ShowSubcommand("areas",     "область",    "область",    .admin, .areas ),
+        ShowSubcommand("room",      "комната",    "комнату",    .admin, .room),
+        ShowSubcommand("mobile",    "монстр",     "монстра",    .admin, .mobile),
+        ShowSubcommand("item",      "предмет",    "предмет",    .admin, .item),
+        ShowSubcommand("player",    "персонаж",   "персонажа",  .admin, .player ),
+        ShowSubcommand("stats",     "статистика", "статистику", .admin, .statistics ),
+        ShowSubcommand("snooping",  "шпионаж",    "шпионаж",    .admin, .snoop ),
+        ShowSubcommand("spells",    "заклинание", "заклинание", .admin, .spells ),
+        ShowSubcommand("overmax",   "превышение", "превышение", .admin, .overmax ),
+        ShowSubcommand("linkdead",  "связь",      "связь",      .admin, .linkdead ),
+        ShowSubcommand("moons",     "луны",       "луны",       .admin, .moons ),
+        ShowSubcommand("multiplay", "мультиплей", "мультиплей", .admin, .multiplay ),
+        ShowSubcommand("cases",     "падежи",     "падежи",     .admin, .cases)
     ]
     
     func doShow(context: CommandContext) {
@@ -248,11 +246,15 @@ extension Creature {
         }
     }
 
+    private func isSubcommandAccessible(_ subcommand: ShowSubcommand, roles: Roles) -> Bool {
+        return subcommand.roles.isEmpty || !subcommand.roles.intersection(roles).isEmpty
+    }
+    
     private func showModesHelp() {
         var output = ""
         var modes: [String] = []
         for subcommand in Creature.showSubcommands {
-            guard subcommand.level <= level else { continue }
+            guard isSubcommandAccessible(subcommand, roles: player?.roles ?? []) else { continue }
             modes.append(subcommand.nameAccusative)
         }
         if !modes.isEmpty {
@@ -270,7 +272,7 @@ extension Creature {
     
     private func getShowMode(_ modeString: String) -> ShowMode? {
         for subcommand in Creature.showSubcommands {
-            guard subcommand.level <= level else { continue }
+            guard !subcommand.roles.intersection(player?.roles ?? []).isEmpty else { continue }
             guard modeString.isAbbreviation(ofOneOf: [subcommand.nameEnglish, subcommand.nameNominative, subcommand.nameAccusative], caseInsensitive: true) else { continue }
             return subcommand.mode
         }

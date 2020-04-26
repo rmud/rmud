@@ -39,11 +39,11 @@ extension Creature {
 
         let args = context.restOfString().components(separatedBy: .whitespaces).filter { !$0.isEmpty }
         for arg in args {
-            if arg.isEqual(toOneOf: ["все", "все", "all"], caseInsensitive: true) {
+            if arg.isEqual(toOneOf: ["все", "всё", "all"], caseInsensitive: true) {
                 showPlane = .all
             } else if let plane = Int(arg) {
                 showPlane = .specific(plane)
-            } else if level > Level.lesserGod {
+            } else if isGodMode() {
                 // Maybe it's a filter
                 if let (highlightRoomsNew, markRoomsNew) = processFilter(arg) {
                     highlightRooms.formUnion(highlightRoomsNew)
@@ -83,7 +83,7 @@ extension Creature {
             // Unable to determine current plane
         }
         log("Room \(room.vnum) not found on map.")
-        logToMud("Комната \(room.vnum) не найдена на карте.", verbosity: .brief, minLevel: Level.lesserGod)
+        logToMud("Комната \(room.vnum) не найдена на карте.", verbosity: .brief)
     }
     
     private func processFilter(_ arg: String) -> (highlightRooms: Set<Int>, markRooms: Set<Int>)? {
@@ -141,23 +141,14 @@ extension Creature {
 
 extension Creature {
     func doWho(context: CommandContext) {
-        var showImmortals = false
-        var showMortals = false
         var showTitledOnly = false
         var namesToSearchLowercased: [String] = []
         
         while let word = context.scanWord(ignoringFillWords: false) {
             switch word.lowercased() {
-            case "боги": showImmortals = true
-            case "смертные": showMortals = true
             case "титулованные": showTitledOnly = true
             default: namesToSearchLowercased.append(word)
             }
-        }
-        if !showImmortals && !showMortals {
-            // If neither were specified, show both
-            showImmortals = true
-            showMortals = true
         }
         
         let holylight = preferenceFlags?.contains(.holylight) ?? false
@@ -169,12 +160,6 @@ extension Creature {
             guard !targetPlayer.isLinkDead || holylight else { return false }
             guard canSee(target) else { return false }
             
-            if target.level >= Level.hero {
-                guard showImmortals else { return false }
-            } else {
-                guard showMortals else { return false }
-            }
-
             return true
         }
         let chosenCreatures = Set<Creature>(
@@ -183,17 +168,12 @@ extension Creature {
             }
         )
         let chosenPlayers = chosenCreatures.sorted { lhs, rhs in
-            if lhs.level >= Level.hero {
-                return rhs.level < Level.hero || lhs.level > rhs.level || (lhs.level == rhs.level && lhs.nameNominative < rhs.nameNominative)
-            } else {
-                return rhs.level < Level.hero && lhs.nameNominative < rhs.nameNominative
-            }
+            return lhs.nameNominative < rhs.nameNominative
         }.compactMap { creature in
             return creature.player
         }
         
-        var immortalsCount = 0
-        var mortalsCount = 0
+        var playersCount = 0
         var output = ""
         for targetPlayer in chosenPlayers {
             let targetCreature = targetPlayer.creature
@@ -221,43 +201,19 @@ extension Creature {
                 return "[\(levelString) \(classAbbreviation)]"
             }
             
-            let isImmortal = targetCreature.level >= Level.hero
-            if isImmortal {
-                immortalsCount += 1
-                if immortalsCount == 1 {
-                    output +=
-                        "\(nCyn())Бессмертные\n" +
-                                 "-----------\(nNrm())\n"
-                }
-                if targetPlayer.preferenceFlags.contains(.autostat) {
-                    prefix = autostatPrefix()
-                } else {
-                    prefix = Level.whoLevelPrefix(level: targetCreature.level, gender: targetCreature.gender)
-                }
+            if playersCount == 0 {
+                output +=
+                    "\(nCyn())Игроки\n" +
+                             "------\(nNrm())\n"
+            }
+            playersCount += 1
+            if targetPlayer.preferenceFlags.contains(.autostat) {
+                prefix = autostatPrefix()
             } else {
-                mortalsCount += 1
-                if mortalsCount == 1 {
-                    if immortalsCount > 0 {
-                        output += "\r\n"
-                    }
-                    output +=
-                        "\(nCyn())Смертные\n" +
-                                 "--------\(nNrm())\n"
-                }
-                if targetPlayer.preferenceFlags.contains(.autostat) {
-                    prefix = autostatPrefix()
-                } else {
-                    prefix = ""
-                }
+                prefix = ""
             }
             
             var format = "&1&2&3" // color on, prefix, title
-            if holylight && targetPlayer.adminInvisibilityLevel > 0 {
-                format.append(" (н#1)")
-            }
-            if targetPlayer.flags.contains(anyOf: [.mailing, .writing]) {
-                format.append(" (пиш2(е,е,е,у)т)")
-            }
 
             if targetPlayer.preferenceFlags.contains(.deaf) {
                 format.append(" (глух2(,а,о,и))")
@@ -270,10 +226,10 @@ extension Creature {
 
             let titleToShow = targetPlayer.titleWithFallbackToRace(order: .nameThenRace)
             let flags: ActFlags = .toSleeping
+            let isImmortal = !(player?.roles ?? []).isEmpty
             let args: [ActArgument] = [
                 .toCreature(self),
                 .excludingCreature(targetCreature),
-                .number(Int(targetPlayer.adminInvisibilityLevel)), // #1
                 .text(isImmortal ? bWht() : bCyn()), // &1
                 .text(!prefix.isEmpty ? prefix.appending(" ") : ""), // &2
                 .text(titleToShow), // &3
@@ -285,7 +241,7 @@ extension Creature {
             }
         }
 
-        if immortalsCount == 0 && mortalsCount == 0 {
+        if playersCount == 0 {
             if !namesToSearchLowercased.isEmpty {
                 send("Персонажей с такими именами в игре нет.")
             } else {
@@ -293,22 +249,15 @@ extension Creature {
             }
         } else {
             var format = "\n&1" // &1 for color on
-            if immortalsCount > 0 {
-                format.append("#1 бессмертн#1(ый,ых,ых)")
-            }
-            if immortalsCount > 0 && mortalsCount > 0 {
-                format.append(" и ")
-            }
-            if mortalsCount > 0 {
-                format.append("#2 смертн#2(ый,ых,ых)")
+            if playersCount > 0 {
+                format.append("#1 игрок#1(,а,ов)")
             }
             format.append(".&2") // color off
             
             act(format,
                 .toSleeping,
                 .toCreature(self),
-                .number(immortalsCount), // #1
-                .number(mortalsCount), // #2
+                .number(playersCount), // #2
                 .text(nCyn()), // &1
                 .text(nNrm()) // &2
             ) { target, actOutput in
@@ -320,11 +269,10 @@ extension Creature {
             send(output)
             
             // FIXME: why here?
-            let playersCount = immortalsCount + mortalsCount
             if playersCount > networking.topPlayersCountSinceBoot {
                 networking.topPlayersCountSinceBoot = playersCount
                 //log("Top players count since boot: \(playersCount)")
-                logToMud("Игра достигла пиковой нагрузки: \(playersCount) персонаж\(playersCount.ending("", "а", "ей"))", verbosity: .normal, minLevel: Level.lesserGod)
+                logToMud("Игра достигла пиковой нагрузки: \(playersCount) персонаж\(playersCount.ending("", "а", "ей"))", verbosity: .normal)
             }
         }
     }
@@ -391,7 +339,7 @@ extension Creature {
             }
         }
 
-        if isPlayer && level < Level.hero {
+        if isPlayer && level <= maximumMortalLevel {
             var format = "Вы набрали #1 очк#1(о,а,ов) опыта."
             let experienceNeeded = classId.info.experience(forLevel: level + 1) - experience
             if experienceNeeded > 0 {
@@ -417,6 +365,8 @@ extension Creature {
 
 extension Creature {
     func doOption(context: CommandContext) {
+        guard let player = player else { return }
+
         guard !context.argument1.isEmpty else {
             showOptions()
             return
@@ -426,13 +376,13 @@ extension Creature {
         let value = context.argument2
 
         if name.isEqual(toOneOf: ["сброс", "reset"], caseInsensitive: false) {
-            player?.preferenceFlags = PlayerPreferenceFlags.defaultFlags
-            player?.mapWidth = defaultMapWidth
-            player?.mapHeight = defaultMapHeight
-            player?.pageWidth = defaultPageWidth
-            player?.pageLength = defaultPageLength
+            player.preferenceFlags = PlayerPreferenceFlags.defaultFlags
+            player.mapWidth = defaultMapWidth
+            player.mapHeight = defaultMapHeight
+            player.pageWidth = defaultPageWidth
+            player.pageLength = defaultPageLength
             wimpLevel = 0
-            player?.maxIdle = defaultMaxIdle
+            player.maxIdle = defaultMaxIdle
             send("Все настройки сброшены в состояние по умолчанию.")
         } else if option(name, matches: "краткий", "brief") {
             toggleOnOff(.brief, value,
@@ -464,14 +414,14 @@ extension Creature {
                         "Группировка одинаковых предметов включена.",
                         "Группировка одинаковых предметов отключена.")
 
-        } else if option(name, matches: "карта", "map") && level >= Level.minimumMapLevel {
+        } else if option(name, matches: "карта", "map") {
             if var mapSize = UInt8(value) {
                 mapSize = clamping(mapSize, to: validMapSizeRange)
                 // Allow only non-even map sizes
                 mapSize += (1 - mapSize % 2)
-                player?.mapWidth = mapSize
-                player?.mapHeight = mapSize
-                player?.preferenceFlags.insert(.map)
+                player.mapWidth = mapSize
+                player.mapHeight = mapSize
+                player.preferenceFlags.insert(.map)
                 send("Мини-карта области включена, размер \(mapSize)х\(mapSize) клет\(mapSize.ending("ка","ки","ок")).")
             } else {
                 toggleOnOff(.map, value,
@@ -548,17 +498,17 @@ extension Creature {
         } else if option(name, matches: "статус", "status") {
             toggleStatus(value)
         
-        } else if level >= settings.autostatMinLevel && option(name, matches: "статистика", "statistics") {
+        } else if player.roles.contains(.admin) && option(name, matches: "статистика", "statistics") {
             toggleOnOff(.autostat, value,
                         "Теперь Вы будете видеть виртуальные номера объектов.",
                         "Теперь Вы не будете видеть виртуальные номера объектов.")
             
-        } else if level >= settings.noHassleMinLevel && option(name, matches: "неуязвимость", "nohassle") {
-            toggleOnOff(.noHassle, value,
+        } else if player.roles.contains(.admin) && option(name, matches: "неуязвимость", "nohassle") {
+            toggleOnOff(.godMode, value,
                         "Теперь Вы неуязвимы.",
                         "Теперь Вы уязвимы.")
 
-        } else if level >= settings.holylightMinLevel && option(name, matches: "всевидение", "holylight") {
+        } else if player.roles.contains(.admin) && option(name, matches: "всевидение", "holylight") {
             toggleOnOff(.holylight, value,
                         "Теперь Вы всевидящи.",
                         "Вы более не всевидящи.")
@@ -568,7 +518,7 @@ extension Creature {
             return
         }
         
-        player?.scheduleForSaving()
+        player.scheduleForSaving()
     }
     
     private func showOptions() {
@@ -584,6 +534,7 @@ extension Creature {
         let movement = onOff(preferenceFlags.contains(.hideTeamMovement))
         let stackMobiles = onOff(preferenceFlags.contains(.stackMobiles))
         let stackItems = onOff(preferenceFlags.contains(.stackItems))
+        let map = onOff(preferenceFlags.contains(.map))
         let automapper = onOff(preferenceFlags.contains(.automapper))
         //send("цвет            Цвет: \(color).")
         send("краткий         Не показывать описания комнат: \(brief).")
@@ -592,10 +543,7 @@ extension Creature {
         send("передвижение    Пропускать сообщения о групповом передвижении: \(movement).")
         send("монстры         Группировка одинаковых монстров: \(stackMobiles).")
         send("предметы        Группировать предметы: \(stackItems).")
-        if level >= Level.minimumMapLevel {
-            let map = onOff(preferenceFlags.contains(.map))
-            send("карта           Отображать карту области: \(map).")
-        }
+        send("карта           Отображать карту области: \(map).")
         send("картография     Поддержка средств составления карты: \(automapper).")
         send("")
         
@@ -645,23 +593,17 @@ extension Creature {
         if preferenceFlags.contains(.displag) { modes += "П" }
         send("статус          Состав строки статуса: \(!modes.isEmpty ? modes : "ничего").")
         
-        if level > Level.hero {
+        if player?.roles.contains(.admin) ?? false {
             send("")
 
-            if level >= settings.autostatMinLevel {
-                let autostat = onOff(preferenceFlags.contains(.autostat))
-                send("статистика      Отображать виртуальные номера объектов: \(autostat)")
-            }
+            let autostat = onOff(preferenceFlags.contains(.autostat))
+            send("статистика      Отображать виртуальные номера объектов: \(autostat)")
             
-            if level >= settings.noHassleMinLevel {
-                let noHassle = onOff(preferenceFlags.contains(.noHassle))
-                send("неуязвимость    Неуязвимость: \(noHassle)")
-            }
+            let godMode = onOff(preferenceFlags.contains(.godMode))
+            send("неуязвимость    Неуязвимость: \(godMode)")
             
-            if level >= settings.holylightMinLevel {
-                let holylight = onOff(preferenceFlags.contains(.holylight))
-                send("всевидение      Всевидение: \(holylight)")
-            }
+            let holylight = onOff(preferenceFlags.contains(.holylight))
+            send("всевидение      Всевидение: \(holylight)")
         }
     }
 

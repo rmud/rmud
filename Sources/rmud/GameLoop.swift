@@ -181,7 +181,7 @@ func gameLoop() {
                 log("WARNING: missed pulses count is negative (\(missedPulses)).")
                 logToMud("ВНИМАНИЕ: ЧИСЛО ПРОПУЩЕННЫХ ПУЛЬСОВ ОТРИЦАТЕЛЬНОЕ (\(missedPulses)), " +
                     "ВРЕМЯ ИДЕТ В ОБРАТНОМ НАПРАВЛЕНИИ!",
-                    verbosity: .normal, minLevel: Level.lesserGod)
+                    verbosity: .normal)
                 missedPulses = 0
             } else if missedPulses >= passesPerSec {
                 let missedSeconds = missedPulses / passesPerSec
@@ -190,7 +190,7 @@ func gameLoop() {
                 let ending2 = missedSeconds.ending("а", "ы", "")
                 log("WARNING: missed \(missedSeconds) second\(endingEng) of game pulses.")
                 logToMud("ВНИМАНИЕ: пропущен\(ending1) \(missedSeconds) секунд\(ending2) игровых пульсов.",
-                    verbosity: .normal, minLevel: Level.lesserGod)
+                    verbosity: .normal)
                 missedPulses = 0 // We missed too many pulses, forget it
             }
 
@@ -283,19 +283,15 @@ private func checkMaximumPlayers() -> Bool {
 private func prepareDescriptorAndLogConnection(ip: String, hostname: String, handle: Descriptor.Handle) {
     let newd = Descriptor(ip: ip, hostname: hostname, handle: handle)
     
-    // Log new connections - probably unnecessary, but you may want it.
-    // Note that your immortals may wonder if they see a connection from
-    // your site, but you are wizinvis upon login.
-    let minLevel = (settings.ipsToHideInLog.contains(ip) || settings.ipsToHideInLog.contains(hostname)) ? Level.implementor : Level.middleGod
     switch handle {
     case .webSocket:
         log("New websocket connection from [\(newd.ip), \(newd.hostname)]")
         logToMud("Новое websocket соединение [\(newd.ip), \(newd.hostname)].",
-            verbosity: .complete, minLevel: minLevel)
+            verbosity: .complete)
     default:
         log("New connection from [\(newd.ip), \(newd.hostname)]")
         logToMud("Новое соединение [\(newd.ip), \(newd.hostname)].",
-            verbosity: .complete, minLevel: minLevel)
+            verbosity: .complete)
     }
     
     // Initialize descriptor data

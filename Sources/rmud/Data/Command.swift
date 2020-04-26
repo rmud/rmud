@@ -9,7 +9,7 @@ struct Command {
     var flags: CommandFlags
     
     var minimumPosition: Position
-    var minimumLevel: UInt8
+    var roles: Roles
     var skill: Skill?
 
     var arg1What: CommandArgumentFlags.What
@@ -29,7 +29,7 @@ struct Command {
         flags: CommandFlags = [],
          
         minPosition: Position = .standing,
-        minLevel: UInt8 = 0,
+        roles: Roles = [],
         skill: Skill? = nil,
          
         arg1 arg1What: CommandArgumentFlags.What = [],
@@ -44,7 +44,7 @@ struct Command {
         self.subcommand = subcommand
         self.flags = flags
         self.minimumPosition = minPosition
-        self.minimumLevel = minLevel
+        self.roles = roles
         self.skill = skill
         self.arg1What = arg1What
         self.arg1Where = arg1Where

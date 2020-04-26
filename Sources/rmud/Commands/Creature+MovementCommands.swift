@@ -54,7 +54,7 @@ extension Creature {
     */
     
     private func checkSpins(direction: Direction) -> Direction {
-        if !isNoHassle() && canGo(direction) {
+        if !isGodMode() && canGo(direction) {
             guard let room = inRoom else { return direction }
         
             if room.flags.contains(.spin) {

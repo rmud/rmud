@@ -18,11 +18,6 @@ extension Creature {
             teleportTo(room: fallbackRoom)
             inRoom = self.inRoom!
         }
-
-        if let player = player, player.flags.contains(.group) &&
-            (!isFollowing || following!.isMobile || !following!.player!.flags.contains(.group)) {
-            let _ = selectNewLeader(allowAnyone: true)
-        }
         
         while let follower = followers.first {
             follower.stopFollowing()
@@ -57,12 +52,9 @@ extension Creature {
     
     func putToLinkDeadState() -> Bool {
         guard let player = player else { return false }
+        guard !isGodMode() else { return false }
         if !isFighting && !player.isNoQuit && !isCharmed() &&
-                !position.isDyingOrDead && !isAffected(by: .poison) &&
-                level < Level.hero {
-            if let master = following, !isSameGroup(with: master) {
-                stopFollowing()
-            }
+                !position.isDyingOrDead && !isAffected(by: .poison) {
             return true
         }
         return false
@@ -127,13 +119,6 @@ extension Creature {
         
         if isCharmed() {
             // FIXME
-        } else if let player = player, player.flags.contains(.group) {
-            act("Вы прекратили следовать за 2т и покинули 2ер группу.",
-                .toSleeping, .toCreature(self), .excludingCreature(master))
-            act("1*и прекратил1(,а,о,и) следовать за Вами и покинул1(,а,о,и) Вашу группу.",
-                .toSleeping, .excludingCreature(self), .toCreature(master))
-            act("1+и прекратил1(,а,о,и) следовать за 2+т и покинул1(,а,о,и) 2ер группу.",
-                .toRoom, .excludingCreature(self), .excludingCreature(master))
         } else {
             act("Вы прекратили следовать за 2т.",
                 .toSleeping, .toCreature(self), .excludingCreature(master))
@@ -142,27 +127,8 @@ extension Creature {
             act("1+и прекратил1(,а,о,и) следовать за 2+т.",
                 .toRoom, .excludingCreature(self), .excludingCreature(master))
         }
-
-        if let player = master.player, player.flags.contains(.group) &&
-            (master.following == nil || master.following!.isMobile || !master.following!.player!.flags.contains(.group)) {
-            // проверяем, остались ли кроме этого еще последователи-групписы
-            var hasGroupedFollowers = false
-            for follower in master.followers {
-                if let player = follower.player, player.flags.contains(.group) && follower != self {
-                    hasGroupedFollowers = true
-                    break
-                }
-            }
-            if !hasGroupedFollowers {
-                player.flags.remove(.group)
-            }
-        }
         
         removeFollower()
-        
-        if let player = player {
-            player.flags.remove(.group)
-        }
     }
     
     // Start following leader
@@ -185,45 +151,7 @@ extension Creature {
             master.followers = master.followers.filter { $0 != self }
         }
         following = nil
-    }
-    
-    // Set group to follow leader instead of self
-    func passLeadership(to newLeader: Creature, isLeaving: Bool) {
-        if newLeader.following != self {
-            logError("passLeadership: new leader is not following the old one")
-            return
-        }
-        
-        newLeader.removeFollower()
-        if isFollowing {
-            stopFollowing()
-        }
-        if !isLeaving {
-            // если он не "уходит насовсем" (например, умер)
-            follow(leader: newLeader, silent: true)
-            if let player = player {
-                player.flags.insert(.group)
-            }
-        }
-        
-        followers = followers.filter { follower in
-            guard let followerPlayer = follower.player, followerPlayer.flags.contains(.group) else {
-                // Keep this follower
-                return true
-            }
-            // Switch to new leader
-            follower.follow(leader: newLeader, silent: true)
-            act("Вы прекратили следовать за 2*т и начали следовать за 3*т.",
-                .toSleeping, .toCreature(follower), .excludingCreature(self), .excludingCreature(newLeader))
-            act("1*и прекратил1(,а,о,и) следовать за Вами и начал1(,а,о,и) следовать за 3*т.",
-                .toSleeping, .excludingCreature(follower), .toCreature(self), .excludingCreature(newLeader))
-            act("1*и прекратил1(,а,о,и) следовать за 2*т и начал1(,а,о,и) следовать за Вами.",
-                .toSleeping, .excludingCreature(follower), .excludingCreature(self), .toCreature(newLeader))
-            //          act("1+и прекратил1(,а,о,и) следовать за 2*и и начал1(,а,о,и) следовать за 3*т.",
-            //              "Кммм", follower, ch, leader);
-            return false
-        }
-    }
+    }    
     
     func dismount() {
         if let riding = riding {
@@ -706,17 +634,6 @@ extension Creature {
                 }
                 return false
             }
-            let isVisibleIfAdmin: (_ creature: Creature)->Bool = { creature in
-                guard let player = creature.player else {
-                    // Skip mobiles, they're visible
-                    return true
-                    
-                }
-                if player.adminInvisibilityLevel <= self.level {
-                    return true
-                }
-                return false
-            }
             let isRiddenBySomeoneExceptMe: (_ creature: Creature)->Bool = { creature in
                 if let creatureRiddenBy = creature.riddenBy,
                         creatureRiddenBy.inRoom == creature.inRoom,
@@ -728,7 +645,7 @@ extension Creature {
             return (
                 canSeeCreatureAndItsNotHiding(creature) ||
                 self.riding == creature ||
-                (creature.hasDetectableItems() && isVisibleIfAdmin(creature)) ||
+                creature.hasDetectableItems() ||
                 creatureIsRidingAndCanSeeWhomItsRiding(creature)
             ) && !isRiddenBySomeoneExceptMe(creature)
         }
@@ -867,16 +784,13 @@ extension Creature {
                 }
             }
             
-            if let player = creature.player {
+            if creature.isPlayer {
                 if !creature.descriptors.isEmpty {
-                    if player.adminInvisibilityLevel > 0 {
-                        formatString += " (н#1)"
+                    if isGodMode() {
+                        formatString += " (неуязвим)"
                     }
                 } else {
                     formatString += " (потерял2(,а,о,и) связь)"
-                }
-                if player.flags.contains(.writing) {
-                    formatString += " (пиш2(е,е,е,у)т)"
                 }
             }
             if let mobile = creature.mobile, mobile.flags.contains(.tethered) {
@@ -904,8 +818,6 @@ extension Creature {
             }
         }
         
-        let adminInvisibilityLevel = creature.isPlayer ? Int(creature.player!.adminInvisibilityLevel) : 0
-        
         var actArguments: [ActArgument] = [.toCreature(self),
                                            .excludingCreature(creature)]
         if let creatureRiding = creature.riding {
@@ -915,7 +827,6 @@ extension Creature {
             actArguments.append(.excludingCreature(creatureFighting))
         }
         actArguments.append(.text(autostatString))
-        actArguments.append(.number(adminInvisibilityLevel))
         var result = ""
         act(formatString, .toSleeping, actArguments) { target, output in
             assert(result.isEmpty) // should be only one target

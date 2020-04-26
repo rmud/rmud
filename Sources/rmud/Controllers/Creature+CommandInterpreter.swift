@@ -40,7 +40,7 @@ extension Creature {
         
         var found = false
         let fullDirections = preferenceFlags?.contains(.fullDirections) ?? false
-        commandInterpreter.enumerateCommands(minimumLevel: level, commandPrefix: commandPrefix, fullDirections: fullDirections) { command, stop in
+        commandInterpreter.enumerateCommands(roles: player?.roles ?? [], commandPrefix: commandPrefix, fullDirections: fullDirections) { command, stop in
             
             found = true
             stop = true

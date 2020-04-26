@@ -409,33 +409,24 @@ class Descriptor {
             switch state {
             case .playing, .close:
                 creature.descriptors.remove(self)
-                if creature.inRoom != nil, let player = creature.player, creature.descriptors.isEmpty {
+                if creature.inRoom != nil, creature.isPlayer, creature.descriptors.isEmpty {
                     act("1*и потерял1(,а,о,и) связь.", .toRoom, .excludingCreature(creature))
                     // FIXME
                     //save_char_safe(d->character, RENT_CRASH);
                     log("\(creature.nameNominative) [\(accountEmail), \(ip), \(hostname)] has lost the connection")
-                    let ipLogLevel = (settings.ipsToHideInLog.contains(ip) || settings.ipsToHideInLog.contains(hostname)) ? Level.implementor : Level.middleGod
-                    logToMud("\(creature.nameNominative) [\(accountEmail), \(ip), \(hostname)] теряет связь.", verbosity: .normal, minLevel: max(ipLogLevel, player.adminInvisibilityLevel))
+                    logToMud("\(creature.nameNominative) [\(accountEmail), \(ip), \(hostname)] теряет связь.", verbosity: .normal)
                 }
                 let _ = creature.putToLinkDeadState()
             default:
                 let name = !creature.nameNominative.isEmpty ? creature.nameNominative : "Соединение без персонажа"
                 let nameEnglish = !creature.nameNominative.isEmpty ? creature.nameNominative : "Connection without creature"
-                let invisibilityLevel = creature.player?.adminInvisibilityLevel ?? 0
-                if creature.level >= Level.lesserGod && invisibilityLevel < creature.level {
-                    log("\(nameEnglish) [\(accountEmail), \(ip), \(hostname)] is disconnecting")
-                    // FIXME: check if this is correct
-                    logToMud("\(name) [\(accountEmail), \(ip), \(hostname)] отсоединяется.", verbosity: .complete, minLevel: creature.level)
-                    logToMud("\(name) отсоединяется.", verbosity: .complete, minLevel: max(Level.lesserGod, invisibilityLevel), maxLevel: creature.level - 1)
-                } else {
-                    log("\(nameEnglish) [\(accountEmail), \(ip), \(hostname)] is disconnecting")
-                    logToMud("\(name) [\(accountEmail), \(ip), \(hostname)] отсоединяется.", verbosity: .complete, minLevel: max(Level.lesserGod, invisibilityLevel))
-                }
+                log("\(nameEnglish) [\(accountEmail), \(ip), \(hostname)] is disconnecting")
+                logToMud("\(name) [\(accountEmail), \(ip), \(hostname)] отсоединяется.", verbosity: .complete)
                 self.creature = nil
             }
         } else {
             log("Connection without creature [\(accountEmail), \(ip), \(hostname)] has disconnected")
-            logToMud("Соединение без персонажа [\(accountEmail), \(ip), \(hostname)] разрывается.", verbosity: .complete, minLevel: Level.lesserGod)
+            logToMud("Соединение без персонажа [\(accountEmail), \(ip), \(hostname)] разрывается.", verbosity: .complete)
         }
         
         // FIXME: how can it happen that original.descriptor is not nil?

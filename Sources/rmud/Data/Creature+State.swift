@@ -1,9 +1,8 @@
 import Foundation
 
 extension Creature {
-    func isNoHassle() -> Bool {
-        guard level >= settings.noHassleMinLevel else { return false }
-        return preferenceFlags?.contains(.noHassle) ?? false
+    func isGodMode() -> Bool {
+        return preferenceFlags?.contains(.godMode) ?? false
     }
     
     func isHeld() -> Bool {
@@ -47,12 +46,12 @@ extension Creature {
     var isLagged: Bool { return lagRemain > 0 }
 
     func lagSet(_ lagLength: Int) {
-        guard lagLength > 0 && level < Level.hero else { return }
+        guard lagLength > 0 && !isGodMode() else { return }
         laggedTillGamePulse = max(gameTime.gamePulse + UInt64(lagLength), laggedTillGamePulse)
     }
     
     func lagAdd(_ lagInc: Int) {
-        guard lagInc > 0 && level < Level.hero else { return }
+        guard lagInc > 0 && !isGodMode() else { return }
         laggedTillGamePulse = (laggedTillGamePulse > gameTime.gamePulse ?
             laggedTillGamePulse : gameTime.gamePulse) + UInt64(lagInc)
     }

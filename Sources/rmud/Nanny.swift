@@ -136,7 +136,7 @@ func nanny(_ d: Descriptor, line: String) {
                 d.send(reason)
                 log("Host [\(d.ip), \(d.hostname)] attempted to create a character with invalid name: \(name)")
                 logToMud("Попытка создать персонажа с недопустимым именем \(name) [\(d.ip), \(d.hostname)].",
-                    verbosity: .normal, minLevel: Level.middleGod)
+                    verbosity: .normal)
                 break
             }
         }
@@ -187,12 +187,11 @@ func nanny(_ d: Descriptor, line: String) {
 
     case .nameConfirmation:
         if arg.isAbbreviation(ofOneOf: ["да", "yes"], caseInsensitive: true) {
-            let minLevel = settings.ipsToHideInLog.contains(d.ip) ? Level.implementor : Level.middleGod
             let creature = d.creature!
             let name = creature.nameNominative
             log("Host [\(d.ip), \(d.hostname)] starts creating a new character: \(name)")
             logToMud("Начинается создание нового персонажа \(name) [\(d.ip), \(d.hostname)].",
-                verbosity: .complete, minLevel: minLevel)
+                verbosity: .complete)
             
             creature.gender = morpher.detectGender(name: creature.nameNominative)
             d.state = .qSex
@@ -326,15 +325,15 @@ func nanny(_ d: Descriptor, line: String) {
     case .creatureCreationCompleted:
         let creature = d.creature!
 
-        logToMud("Создан новый персонаж \(creature.nameNominative).", verbosity: .normal, minLevel: Level.lesserGod, maxLevel: Level.lesserGod)
-        logToMud("Создан новый персонаж \(creature.nameNominative) [\(d.account!.email), \(d.ip), \(d.hostname)].", verbosity: .normal, minLevel: Level.middleGod)
+        logToMud("Создан новый персонаж \(creature.nameNominative) [\(d.account!.email), \(d.ip), \(d.hostname)].", verbosity: .normal)
         log("New creature created: \(creature.nameNominative) [\(d.account!.email), \(d.ip), \(d.hostname)]")
 
         // Promote first player in game to implementor
         let player = creature.player!
         let targetLevel: UInt8
         if players.count == 0 {
-            targetLevel = Level.implementor
+            player.roles = .admin
+            targetLevel = maximumMortalLevel
             
             creature.thirst = nil
             creature.hunger = nil
@@ -427,27 +426,25 @@ func nanny(_ d: Descriptor, line: String) {
             if creature.player?.flags.contains(.frozen) ?? false {
                 d.send("Этот персонаж сейчас не может быть удален.")
                 log("Failed attempt to delete frozen creature '\(nameEnglish())' of level \(creature.level)")
-                logToMud("Неудачная попытка удалить замороженного персонажа \(name()) уровня \(creature.level).", verbosity: .normal, minLevel: Level.lesserGod)
+                logToMud("Неудачная попытка удалить замороженного персонажа \(name()) уровня \(creature.level).", verbosity: .normal)
                 d.state = .creatureMenu
                 break
             }
             
-            if creature.level < Level.implementor {
-                players.delete(creature: creature)
-                
-                d.send("Персонаж удален.")
-                log("Creature '\(nameEnglish())' of level \(creature.level) deleted")
-                logToMud("Персонаж \(name()) уровня \(creature.level) удален.", verbosity: .normal, minLevel: Level.lesserGod)
-                
-                d.state = .accountMenu
-                break
-            }
+            players.delete(creature: creature)
+            
+            d.send("Персонаж удален.")
+            log("Creature '\(nameEnglish())' of level \(creature.level) deleted")
+            logToMud("Персонаж \(name()) уровня \(creature.level) удален.", verbosity: .normal)
+            
+            d.state = .accountMenu
+            break
         }
         
         d.send("Персонаж не удален.")
         
         log("Failed attempt to delete creature '\(nameEnglish())' of level \(creature.level)")
-        logToMud("Неудачная попытка удалить персонажа \(name()) уровня \(creature.level).", verbosity: .normal, minLevel: Level.lesserGod)
+        logToMud("Неудачная попытка удалить персонажа \(name()) уровня \(creature.level).", verbosity: .normal)
 
         d.state = .creatureMenu
     //case .rmotd:
@@ -673,7 +670,7 @@ private func stateAccountPassword(_ d: Descriptor, _ arg: String) {
     guard arg == account.password else {
         log("PASSWORD: invalid password for account [\(account.email), \(d.ip), \(d.hostname)]")
         logToMud("ПАРОЛЬ: введен неверный пароль учетной записи [\(account.email), \(d.ip), \(d.hostname)].",
-            verbosity: .brief, minLevel: Level.middleGod)
+            verbosity: .brief)
 
         d.badPasswordEntryAttempts += 1
         account.badPasswordSinceLastLogin += 1
@@ -753,9 +750,9 @@ private func stateCreatureMenu(_ d: Descriptor, _ arg: String) {
                 guard let mortalStartRoom = db.roomsByVnum[vnumMortalStartRoom] else {
                     logError("Mortal start room \(vnumMortalStartRoom) does not exist")
                     logToMud("\(creature.nameNominative) не может войти в игру: отсутствует стартовая комната.",
-                        verbosity: .brief, minLevel: Level.lesserGod)
+                        verbosity: .brief)
                     d.send("Невозможно войти в игру.")
-                    return;
+                    return
                 }
                 loadRoom = mortalStartRoom
             }

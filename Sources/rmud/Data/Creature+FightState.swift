@@ -1,41 +1,6 @@
 import Foundation
 
 extension Creature {
-    // Одна "команда" - либо одна группа (same_group()),
-    // либо одино из существ очаровано и его хозяин в одной
-    // команде с другим сушеством.
-    func isSameTeam(with victim: Creature) -> Bool {
-        return areWalkingTogether(with: victim) ||
-            isMobsFriendship(with: victim) ||
-            isSameEnemy(with: victim)
-    }
-    
-    // два существа - в одной группе
-    // два монстра, если они не очарованы,
-    // всегда считаются в одной группе
-    // FIXME: а как же лошади?
-    func isSameGroup(with victim: Creature) -> Bool {
-        guard self != victim else { return true }
-        // монсры В ПРИНЦИПЕ не бывают в одной группе - пока что
-        //  if (ch->isMob() || vict->isMob()) // && !ch->master && !vict->master)
-        //    return false;
-        if let player = player, player.flags.contains(.group),
-                let victimPlayer = victim.player, victimPlayer.flags.contains(.group) {
-            return victim.following == self || following == victim || (following != nil && following == victim.following)
-        }
-    
-        return (victim == following && isCharmed()) || (self == victim.following && victim.isCharmed())
-    }
-    
-    // Это same_group() + те, кто за ними следуют (в т.ч. чармисы).
-    func areWalkingTogether(with victim: Creature) -> Bool {
-        return isSameGroup(with: victim) ||
-            // arilou: в проверках ниже вызываю walk_together(), а не same_group()
-            // чтобы обработался случай двух очарованных существ с РАЗНЫМИ хозяевами
-            (victim.following != nil && victim.following!.areWalkingTogether(with: self)) ||
-            (following != nil && following!.areWalkingTogether(with: victim))
-    }
-    
     // Два свободных монстра всегда за одно, если только
     //они не дерутся друг с другом.
     //FIXME arilou: к сожалению, из-за этого монстры-агрессоры будут считать своими

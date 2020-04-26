@@ -173,32 +173,32 @@ fileprivate let commandInfo: [Command] = [
 
     // 31+
     Command(["идти", "goto"], group: .administrative, Creature.doGoto,
-            flags: .informational, minPosition: .dead, minLevel: Level.hero,
+            flags: .informational, minPosition: .dead, roles: .admin,
             arg1: .word),
     
     // 32+
     Command(["показать", "show"], group: .administrative, Creature.doShow,
-            flags: .informational, minPosition: .dead, minLevel: Level.lesserGod,
+            flags: .informational, minPosition: .dead, roles: .admin,
             arg1: .word,
             arg2: .restOfString),
     Command(["создать", "load"], group: .administrative, Creature.doLoad,
-            flags: .informational, minPosition: .dead, minLevel: Level.lesserGod,
+            flags: .informational, minPosition: .dead, roles: .admin,
             arg1: .word,
             arg2: .word),
     
     // 33+
     Command(["установить", "set"], group: .administrative, Creature.doSet,
-            flags: .informational, minPosition: .dead, minLevel: Level.middleGod,
+            flags: .informational, minPosition: .dead, roles: .admin,
             arg1: .word,
             arg2: .word),
     
     // 34+
     Command(["область", "area"], group: .administrative, Creature.doArea,
-            flags: .informational, minPosition: .dead, minLevel: Level.greaterGod,
+            flags: .informational, minPosition: .dead, roles: .admin,
             arg1: .word,
             arg2: .restOfString),
     Command(["перечитать", "reload"], group: .administrative, Creature.doReload,
-            flags: .informational, minPosition: .dead, minLevel: Level.greaterGod,
+            flags: .informational, minPosition: .dead, roles: .admin,
             arg1: .word)
 ]
 
@@ -214,7 +214,7 @@ class CommandInterpreter {
     typealias CommandIndexEntries = [CommandIndexEntry]
     let commandGroups = OrderedDictionary<String, CommandIndexEntries>()
 
-    func enumerateCommands(minimumLevel: UInt8, commandPrefix: String, fullDirections: Bool, handler: (_ command: Command, _ stop: inout Bool) -> ()) {
+    func enumerateCommands(roles: Roles, commandPrefix: String, fullDirections: Bool, handler: (_ command: Command, _ stop: inout Bool) -> ()) {
         for priority in 0...1 {
             for command in commandInfo {
                 switch priority {
@@ -223,7 +223,10 @@ class CommandInterpreter {
                 default: break
                 }
                 
-                guard minimumLevel >= command.minimumLevel else { continue }
+                guard command.roles.isEmpty ||
+                        !command.roles.intersection(roles).isEmpty else {
+                    continue
+                }
                 
                 var foundAlias = false
                 for alias in command.aliases {
@@ -241,24 +244,24 @@ class CommandInterpreter {
         }
     }
 
-    func buildCommandIndex(minimumLevel: UInt8 = Level.implementor) {
-        enumerateCommands(minimumLevel: minimumLevel, commandPrefix: "", fullDirections: true) { command, stop in
+    func buildCommandIndex(roles: Roles) {
+        enumerateCommands(roles: roles, commandPrefix: "", fullDirections: true) { command, stop in
             guard let alias = command.aliases.first else { return }
             let commandIndexEntry = CommandIndexEntry(
                 command: command,
                 commandName: alias,
-                abbreviation: abbreviation(for: alias))
+                abbreviation: abbreviation(for: alias, roles: roles))
             var entries = commandGroups[command.group.rawValue] ?? CommandIndexEntries()
             entries.append(commandIndexEntry)
             commandGroups[command.group.rawValue] = entries
         }
     }
 
-    private func abbreviation(for commandAlias: String) -> String {
+    private func abbreviation(for commandAlias: String, roles: Roles) -> String {
         for i in 1..<commandAlias.count {
             let subcommand = commandAlias.prefix(i)
             var foundSelf = false
-            enumerateCommands(minimumLevel: Level.implementor, commandPrefix: String(subcommand), fullDirections: true) { command, stop in
+            enumerateCommands(roles: roles, commandPrefix: String(subcommand), fullDirections: true) { command, stop in
                 if let currentAlias = command.aliases.first, currentAlias == commandAlias {
                     foundSelf = true
                 }

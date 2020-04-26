@@ -46,6 +46,7 @@ class Player {
 
     var language: Language = .russian
     //
+    var roles: Roles = []
     var flags: PlayerFlags = []
     var preferenceFlags: PlayerPreferenceFlags = PlayerPreferenceFlags.defaultFlags
     var mapWidth: UInt8 = defaultMapWidth
@@ -56,13 +57,7 @@ class Player {
     var spellSeparator: Character = "\"" // spellname separator
     var loadRoom = vnumMortalStartRoom // which room to enter game in
     var bankGold = 0 // bank account
-    //
-    // Admin's level of invisibility. Completely overrides game rules such as
-    // glowing items exposing creatures, so do not use for gameplay purposes.
-    var realAdminInvisibilityLevel: UInt8 = 0
-    var adminInvisibilityLevel: UInt8 {
-        return creature.level >= Level.hero ? realAdminInvisibilityLevel : 0
-    }
+
     //
     // Same mob kill EXP gain limitation arrays
     typealias KillInfo = (vnum: Int, killCount: UInt16)
@@ -157,6 +152,7 @@ class Player {
             logFatal("\(creature.nameNominative) has unexistent account uid \(accountUid)")
         }
         self.account = account
+        self.roles = playerFile[s, "РОЛИ"] ?? []
         
         customTitle = playerFile[s, "ТИТУЛ"] ?? ""
         language = Language(rawValue: playerFile[s, "ЯЗЫК"] ?? 0) ?? .russian
@@ -213,7 +209,6 @@ class Player {
         }
         
         noShoutTicsLeft = playerFile[s, "ПРОСТУДА"] ?? 0
-        realAdminInvisibilityLevel = playerFile[s, "НЕВИДИМОСТЬ"] ?? 0
         loadRoom = playerFile[s, "КОМНАТА"] ?? vnumMortalStartRoom
         preferenceFlags = playerFile[s, "РЕЖИМ"] ?? []
         mapWidth = playerFile[s, "КАРТА_ШИРИНА"] ?? defaultMapWidth
@@ -237,6 +232,7 @@ class Player {
         let s = "ОСНОВНАЯ"
 
         configFile[s, "УЧЕТНАЯЗАПИСЬ"] = account.uid
+        configFile[s, "РОЛИ"] = roles
         
         configFile[s, "ТИТУЛ"] = customTitle
         configFile[s, "ЯЗЫК"] = language.rawValue
@@ -285,7 +281,6 @@ class Player {
         configFile[s, "УБ.ПОЗ"] = kills.count
 
         configFile[s, "ПРОСТУДА"] = noShoutTicsLeft
-        configFile[s, "НЕВИДИМОСТЬ"] = adminInvisibilityLevel
         configFile[s, "КОМНАТА"] = loadRoom
         configFile[s, "РЕЖИМ"] = preferenceFlags
         configFile[s, "КАРТА_ШИРИНА"] = mapWidth

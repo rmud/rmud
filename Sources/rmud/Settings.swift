@@ -24,14 +24,6 @@ class Settings {
 
     let maxPlayers = 300 // Max descriptors available
 
-    var ipsToHideInLog: [String] = [
-        "213.79.70.8"
-    ]
-
-    let autostatMinLevel = Level.lesserGod
-    let noHassleMinLevel = Level.hero
-    let holylightMinLevel = Level.hero
-
     let websocketJsonWritingOptions: JSONEncoder.OutputFormatting = {
         if #available(OSX 10.13, *) {
             return [.prettyPrinted, .sortedKeys]

@@ -65,17 +65,15 @@ func logIntervention(_ text: String) {
 // toplevel is used in case of sending a shorten form of a message
 // to imms, who's level is not greater than toplevel
 // this shorten messages are never written into logfile
-func logToMud(_ text: String, verbosity: MudlogVerbosity, minLevel: UInt8, maxLevel: UInt8 = Level.implementor) {
+func logToMud(_ text: String, verbosity: MudlogVerbosity, roles: Roles = [.admin]) {
     let output = "[ \(text) ]"
     
     for descriptor in networking.descriptors {
         guard descriptor.state == .playing else { continue }
         guard let creature = descriptor.creature else { continue }
         guard let player = creature.player else { continue }
-        // FIXME: is this needed?
-        guard !player.flags.contains(.writing) else { continue }
-        guard creature.level >= minLevel && creature.level <= maxLevel else { continue }
         guard player.preferenceFlags.mudlogVerbosity >= verbosity else { continue }
+        guard roles.isEmpty || !roles.intersection(player.roles).isEmpty else { continue }
         descriptor.send("\(creature.nGrn())\(output)\(creature.nNrm())")
     }
 }

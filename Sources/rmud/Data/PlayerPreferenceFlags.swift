@@ -16,7 +16,7 @@ struct PlayerPreferenceFlags: OptionSet {
     static let displayMovementInPrompt
                               = T(rawValue: 1 << 6)  // Display move points in prompt (fixme)
     static let autoexit       = T(rawValue: 1 << 7)  // Display exits in a room (fixme)
-    static let noHassle       = T(rawValue: 1 << 8)  // Doesn't want to be bothered by others
+    static let godMode        = T(rawValue: 1 << 8)  // Doesn't participate in normal gameplay
     static let hideTeamMovement       = T(rawValue: 1 << 9)  // Do not print team movement messages
     static let rentBank       = T(rawValue: 1 << 10) // Pay rent from bank account first
     static let keepFighting   = T(rawValue: 1 << 11) // Надо ли убегать при обрыве связи
@@ -29,7 +29,6 @@ struct PlayerPreferenceFlags: OptionSet {
     static let logLevelBit2   = T(rawValue: 1 << 17) // On-line System Log (high bit)
     //static let villain      = T(rawValue: 1 << 18) // ---
     static let fullDirections = T(rawValue: 1 << 19) // не использовать сокращения команд направдлений
-    static let unusedNoz      = T(rawValue: 1 << 20)
     static let autostat       = T(rawValue: 1 << 21) // Can see autostatistics
     static let dispmem        = T(rawValue: 1 << 22) // Display mem time in prompt (fixme)
     static let displayXpInPrompt

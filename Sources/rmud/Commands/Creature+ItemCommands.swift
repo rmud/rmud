@@ -47,7 +47,7 @@ extension Creature {
         act(toRoom, .toRoom, .excludingCreature(self), .item(item))
         guard event.isAllowed else { return }
 
-        if level > Level.hero && level < Level.implementor {
+        if isGodMode() {
             logIntervention("\(nameNominative) бросает \(item.nameAccusative) в комнате \"\(inRoom.name)\".")
         }
         

@@ -261,7 +261,7 @@ class Classes {
             guard let skillId = UInt16(elements[0]),
                 let skill = Skill(rawValue: skillId),
                 let level = UInt8(elements[1]),
-                0 ... Level.maximum ~= level else {
+                1 ... maximumMortalLevel ~= level else {
                     logFatal("\(filenames.classes): умения \(classId): invalid format")
             }
             classInfo.minimumLevelForSkill[skill] = level
@@ -271,13 +271,12 @@ class Classes {
     private func parseSlots(classId: Int, _ lines: [String]) {
         let classInfo = getClassInfo(byId: classId)
 
-        guard lines.count == Int(Level.maximum + 1) else {
-            logFatal("\(filenames.classes): позиции: expected \(Level.maximum + 1) lines, got \(lines.count)")
+        guard lines.count == maximumMortalLevel else {
+            logFatal("\(filenames.classes): позиции: expected \(maximumMortalLevel) lines, got \(lines.count)")
         }
         
         for (index, line) in lines.enumerated() {
-            // Note: unexistent level 0 is also initialized and configured in classes file
-            let level = index
+            let level = index + 1
             let slotCountByCircle = line.components(separatedBy: ",").map { $0.trimmingCharacters(in: .whitespaces) }
             guard slotCountByCircle.count == 9 else {
                 logFatal("\(filenames.classes): позиции: expected 9 spell circles, got \(slotCountByCircle.count)")
