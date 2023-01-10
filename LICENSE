@@ -3,16 +3,20 @@ RMUD (c) 1997-2020 Andrey Fidrya, Yaroslav Berezovsky, Danil Lavrentyuk
 RMUD is based on CircleMUD which is based on DikuMUD.
 
 Code derived from CircleMUD codebase is licensed under CircleMUD
-license which can be found in LICENSE-CircleMUD file.
+license in LICENSE-CircleMUD.
+
+Code derived from DikuMUD codebase is licensed under DikuMUD
+license in LICENSE-DikuMUD.
 
 Code unique to RMUD codebase contained in separate files not mixed
 with CircleMUD code is licensed under Apache 2.0 License with
 Runtime Library Exception which can be found below.
 
-CircleMUD and DikuMUD licenses can be found in LICENSE-CircleMUD file.
-
 RMUD uses swift-algorithm-club library, it's license can
 be found in LICENSE-swift-algorithm-club.
+
+RMUD uses NameCaseLib library, it's license can be found
+in Tools/NameCaseLib/MIT-LICENSE.
 
 If you use RMUD, please comply with all applicable licenses.
 
