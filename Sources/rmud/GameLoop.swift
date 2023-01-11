@@ -1,5 +1,5 @@
 import Foundation
-import WebSocket
+import Vapor
 
 func gameLoop() {
     var inputSet = fd_set()
@@ -252,15 +252,15 @@ private func newDescriptor(_ s: Networking.Socket) {
     prepareDescriptorAndLogConnection(ip: ip, hostname: hostname, handle: .socket(desc))
 }
 
-func newDescriptor(webSocket: WebSocket, httpRequest: HTTPRequest) {
+func newDescriptor(webSocket: WebSocket, httpRequest: Request) {
     guard checkMaximumPlayers() else {
-        webSocket.close()
+        let _ = webSocket.close()
         return
     }
 
     var ip = ""
     var hostname = ""
-    httpRequest.channel?.remoteAddress?.withSockAddr { sockaddr, size in
+    httpRequest.peerAddress?.withSockAddr { sockaddr, size in
         sockaddr.withMemoryRebound(to: sockaddr_in.self, capacity: 1) { sockaddr_in in
             (ip, hostname) = dns.dnsResolve(sockaddr_in.pointee)
         }

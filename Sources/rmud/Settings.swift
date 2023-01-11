@@ -7,9 +7,11 @@ class Settings {
     static let sharedInstance = Settings()
 
     let defaultPort: UInt16 = 3040
+    let defaultWSPort: UInt16 = 4040
 
     // Configurable on commandline:
     var mudPorts: [UInt16] = []
+    var wsPorts: [UInt16] = []
     var accountVerificationEmail = ""
     var mailServer = ""
     var mailServerPassword = ""

@@ -1,21 +1,8 @@
 import Foundation
-import WebSocket
 
 class Networking {
     typealias Socket = Int32
 
-    /// Echoes the request as a response.
-    struct EchoResponder: HTTPServerResponder {
-        /// See `HTTPServerResponder`.
-        func respond(to req: HTTPRequest, on worker: Worker) -> Future<HTTPResponse> {
-            // Create an HTTPResponse with the same body as the HTTPRequest
-            let res = HTTPResponse(body: req.body)
-            // We don't need to do any async work here, we can just
-            // se the Worker's event-loop to create a succeeded future.
-            return worker.eventLoop.newSucceededFuture(result: res)
-        }
-    }
-    
     static let sharedInstance = Networking()
 
     static let invalidSocket: Int32 = -1
@@ -149,77 +136,6 @@ class Networking {
     
     func closeSocket(_ s: Socket) {
         close(s)
-    }
-    
-    func setupHttpServer(on group: MultiThreadedEventLoopGroup) throws -> HTTPServer {
-
-        let ws = HTTPServer.webSocketUpgrader(shouldUpgrade: { req in
-            // Returning nil in this closure will reject upgrade
-            //if req.url.path == "/deny" { return nil }
-            // Return any additional headers you like, or just empty
-            return [:]
-        }, onUpgrade: { ws, req in
-            // This closure will be called with each new WebSocket client
-            // WARNING: The upgrade closures may be called on any event loop. Be careful to avoid race conditions if you must access external variables.
-            DispatchQueue.main.async {
-                newDescriptor(webSocket: ws, httpRequest: req)
-            }
-            ws.onText { ws, text in
-                DispatchQueue.main.async {
-                    if let descriptor = networking.descriptors.first(where: { d in
-                        if case .webSocket(let webSocket) = d.handle {
-                            return webSocket === ws
-                        }
-                        return false
-                    }) {
-                        do {
-                            if let data = text.data(using: .utf8),
-                                    let json = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any] {
-                                if let type = json["type"] as? String,
-                                        type == "command",
-                                        let text = json["text"] as? String {
-                                    // FIXME: omitting empty sequences here can interfere with file pasting
-                                    // in future, consider moving it to gameLoop()
-                                    let commands = text.split(omittingEmptySubsequences: true, whereSeparator: { $0 == "\n" || $0 == "\r\n" })
-                                    if !commands.isEmpty {
-                                        for command in commands {
-                                            descriptor.commandsFromWebSocket.append(String(command))
-                                        }
-                                    } else {
-                                        // Refresh the prompt
-                                        descriptor.commandsFromWebSocket.append(String())
-                                    }
-                                }
-                            }
-                        } catch {
-                            // Ignore malformed data
-                        }
-                    }
-                }
-            }
-            ws.onClose.always {
-                DispatchQueue.main.async {
-                    if let descriptor = networking.descriptors.first(where: { d in
-                        if case .webSocket(let webSocket) = d.handle {
-                            return webSocket === ws
-                        }
-                        return false
-                    }) {
-                        descriptor.closeSocket()
-                    }
-                }
-            }
-        })
-        
-        // We are fine to use `wait()` here since we are on the main thread.
-        let server = try HTTPServer.start(
-            hostname: "0.0.0.0",
-            port: 4040,
-            responder: EchoResponder(),
-            upgraders: [ws],
-            on: group
-            ).wait()
-        return server
-    }
+    }    
 }
 

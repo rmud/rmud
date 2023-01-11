@@ -1,6 +1,6 @@
 import Foundation
 import Czlib
-import WebSocket
+import Vapor
 
 class Descriptor {
     enum Handle {
@@ -399,7 +399,7 @@ class Descriptor {
         case .socket(let socket):
             networking.closeSocket(socket)
         case .webSocket(let webSocket):
-            webSocket.close()
+            let _ = webSocket.close()
         }
         
         let accountEmail = account?.email ?? "no email"
@@ -493,7 +493,7 @@ class Descriptor {
                 }
                 webSocket.eventLoop.execute {
                     // FIXME: this flushes webSocket's channel on each send
-                    webSocket.send(text: jsonData)
+                    webSocket.send(raw: [UInt8](jsonData), opcode: .text)
                 }
             }
             webSocketsOutputBuffer.elements.removeAll(keepingCapacity: true)

@@ -1,5 +1,4 @@
 import Foundation
-import WebSocket
 
 enum ProcessCommandlineResult {
     case continueGameBoot
@@ -20,6 +19,10 @@ func main() -> Int32 {
         settings.mudPorts = [settings.defaultPort]
     }
     
+    if settings.wsPorts.isEmpty {
+        settings.wsPorts = [settings.defaultWSPort]
+    }
+    
     log("RMUD starting")
     
     //let roomsFilename = filenames.areaFilename(forAreaName: "утеха", fileExtension: "rooms")
@@ -30,16 +33,12 @@ func main() -> Int32 {
 
     let portsEnding = settings.mudPorts.count > 1 ? "s" : ""
     let portsString = settings.mudPorts.map { String($0) }.joined(separator: ", ")
-    log("Parameters: port\(portsEnding) \(portsString); data dir \(filenames.dataPrefix), game dir \(filenames.livePrefix)")
-
-    // Create an EventLoopGroup with an appropriate number
-    // of threads for the system we are running on.
-    let group = MultiThreadedEventLoopGroup(numberOfThreads:  System.coreCount)
-    // Make sure to shutdown the group when the application exits.
-    defer { try! group.syncShutdownGracefully() }
+    let wsPortsEnding = settings.wsPorts.count > 1 ? "s" : ""
+    let wsPortsString = settings.wsPorts.map { String($0) }.joined(separator: ",")
+    log("Parameters: port\(portsEnding) \(portsString); ws port\(wsPortsEnding) \(wsPortsString); data dir \(filenames.dataPrefix), game dir \(filenames.livePrefix)")
 
     log("Setting up signal handlers")
-    setupSignalHandlers(on: group)
+    setupSignalHandlers()
     
     log("Opening mother sockets")
     networking.setupMotherSockets(ports: settings.mudPorts)
@@ -64,27 +63,15 @@ func main() -> Int32 {
         return 0
     }
     
-    log("Setting up websocket server")
-    do {
-        let _ /*httpServer*/ = try networking.setupHttpServer(on: group)
-    } catch {
-        log(error: error)
-        return 1
-    }
-    
+    log("Setting up web server")
+    webServer.setup()
+
     log("Entering game loop");
     
     gameLoop()
         
-    dispatchMain()
-    // Wait for the server to close (indefinitely).
-//    do {
-//        try httpServer.onClose.wait()
-//    } catch {
-//        log(error: error)
-//        return 1
-//    }
-//    return 0
+    RunLoop.current.run()
+    return 0
 }
 
 private func shutdownGame() {
@@ -104,8 +91,9 @@ private func processCommandline() -> ProcessCommandlineResult {
             log("Arguments should start with '-'")
             return .exitError
         }
-        switch argument.suffix(argument.count - 1).lowercased() {
-        case "p", "-port":
+        let argSuffix = argument.suffix(argument.count - 1).lowercased()
+        switch argSuffix {
+        case "p", "-port", "w", "-wsport":
             guard index < argumentsCount - 1 else {
                 log("Please specify a port number, for example: -p \(settings.defaultPort).");
                 return .exitError
@@ -115,7 +103,11 @@ private func processCommandline() -> ProcessCommandlineResult {
                 return .exitError
             }
             index += 1
-            settings.mudPorts.append(port)
+            if argSuffix == "p" || argSuffix == "-port" {
+                settings.mudPorts.append(port)
+            } else {
+                settings.wsPorts.append(port)
+            }
         case "m", "-mailserver":
             guard index < argumentsCount - 3 else {
                 log("Please specify email, mail server and password, for example: no-reply@rmud.org smtp.gmail.com password");
@@ -213,7 +205,7 @@ private func processCommandline() -> ProcessCommandlineResult {
     return .continueGameBoot
 }
 
-func setupSignalHandlers(on eventLoopGroup: MultiThreadedEventLoopGroup) {
+func setupSignalHandlers() {
     let signalQueue = DispatchQueue(label: "org.rmud.SignalHandlingQueue")
     let signalSource = DispatchSource.makeSignalSource(signal: SIGINT, queue: signalQueue)
     signalSource.setEventHandler {

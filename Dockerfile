@@ -38,11 +38,11 @@ ENV SWIFTENV_ROOT /usr/local
 RUN curl -L -o /tmp/swiftenv.tar.gz https://github.com/kylef/swiftenv/archive/1.4.0.tar.gz
 RUN tar -xzf /tmp/swiftenv.tar.gz -C /usr/local/ --strip 1
 ENV PATH /usr/local/shims:$PATH
-RUN swiftenv install 5.0
+RUN swiftenv install https://download.swift.org/swift-5.7.2-release/ubuntu1804/swift-5.7.2-RELEASE/swift-5.7.2-RELEASE-ubuntu18.04.tar.gz
 
 WORKDIR /app
 COPY . .
-RUN mkdir -p /build/lib && cp -R /usr/local/versions/5.0/usr/lib/swift/linux/*.so* /build/lib
+RUN mkdir -p /build/lib && cp -R /usr/local/versions/5.7.2-RELEASE/usr/lib/swift/linux/*.so* /build/lib
 RUN swift build -c release && mv `swift build -c release --show-bin-path` /build/bin
 RUN cp -R Tools /build/bin/
 

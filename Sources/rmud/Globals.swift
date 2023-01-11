@@ -19,6 +19,7 @@ let socials = Socials.sharedInstance
 let spells = Spells.sharedInstance
 let telnet = Telnet.sharedInstance
 let textFiles = TextFiles.sharedInstance
+let webServer = WebServer.sharedInstance
 
 //var mudShutdown = false
 var timeUntilReboot: Int? = nil // ticks until reboot, nil is off

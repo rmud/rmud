@@ -1,0 +1,22 @@
+{
+    "configurations": [
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug rmud",
+            "program": "${workspaceFolder:rmud}/.build/debug/rmud",
+            "args": [],
+            "cwd": "${workspaceFolder:rmud}",
+            "preLaunchTask": "swift: Build Debug rmud"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Release rmud",
+            "program": "${workspaceFolder:rmud}/.build/release/rmud",
+            "args": [],
+            "cwd": "${workspaceFolder:rmud}",
+            "preLaunchTask": "swift: Build Release rmud"
+        }
+    ]
+}
