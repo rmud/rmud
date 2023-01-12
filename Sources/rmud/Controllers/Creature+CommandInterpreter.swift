@@ -130,13 +130,35 @@ extension Creature {
         return false
     }
     
-    private func fetchCreaturesInRoom(context: inout FetchArgumentContext, into: inout [Creature], cases: GrammaticalCases, isNoMobile: Bool = false) -> Bool {
+    private func isMatchingCreature(creature: Creature, context: FetchArgumentContext, cases: GrammaticalCases, isPlayersOnly: Bool) -> Bool {
+        guard creature.isPlayer || !isPlayersOnly else { return false }
+        guard context.targetName == nil || creature.isAbbrevOfNameOrSynonym(context.targetName!, cases: cases) else { return false }
+        guard /* extra.contains(.notOnlyVisible) || */ canSee(creature) else { return false }
+        return true;
+    }
+    
+    private func fetchCreaturesInRoom(context: inout FetchArgumentContext, into: inout [Creature], cases: GrammaticalCases, isPlayersOnly: Bool = false) -> Bool {
         guard let roomCreatures = inRoom?.creatures else { return false }
         
         for creature in roomCreatures {
-            guard creature.isPlayer || !isNoMobile else { continue }
-            guard context.targetName == nil || creature.isAbbrevOfNameOrSynonym(context.targetName!, cases: cases) else { continue }
-            guard /* extra.contains(.notOnlyVisible) || */ canSee(creature) else { continue }
+            guard isMatchingCreature(creature: creature, context: context, cases: cases, isPlayersOnly: isPlayersOnly) else { continue }
+            
+            defer { context.currentIndex += 1 }
+            guard context.currentIndex >= context.targetStartIndex else { continue }
+            
+            context.objectsAdded += 1
+            into.append(creature)
+            
+            guard context.objectsAdded < context.targetAmount else { return true }
+        }
+        
+        return false
+    }
+    
+    private func fetchCreaturesInWorld(context: inout FetchArgumentContext, into: inout [Creature], cases: GrammaticalCases, skipInSameRoom: Bool, isPlayersOnly: Bool = false) -> Bool {
+        for creature in db.creaturesInGame {
+            guard isMatchingCreature(creature: creature, context: context, cases: cases, isPlayersOnly: isPlayersOnly) else { continue }
+            if skipInSameRoom && inRoom == creature.inRoom { continue }
             
             defer { context.currentIndex += 1 }
             guard context.currentIndex >= context.targetStartIndex else { continue }
@@ -203,8 +225,8 @@ extension Creature {
         }
 
         // - creatures in room
-        if what.contains(.creature), whereAt.contains(anyOf: [.room, .world]) {
-            if fetchCreaturesInRoom(context: &context, into: &intoCreatures, cases: cases, isNoMobile: what.contains(.noMobile)) {
+        if what.contains(.creature) && whereAt.contains(anyOf: [.room, .world]) {
+            if fetchCreaturesInRoom(context: &context, into: &intoCreatures, cases: cases, isPlayersOnly: what.contains(.playersOnly)) {
                 return
             }
         }
@@ -213,7 +235,11 @@ extension Creature {
         // TODO
 
         // - creatures in world
-        // TODO
+        if what.contains(.creature) && whereAt.contains(.world) {
+            if fetchCreaturesInWorld(context: &context, into: &intoCreatures, cases: cases, skipInSameRoom: true, isPlayersOnly: what.contains(.playersOnly)) {
+                return
+            }
+        }
 
         // - items in world
         // TODO

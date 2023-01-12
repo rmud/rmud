@@ -4,7 +4,7 @@ import Foundation
 
 extension Creature {
     func doGoto(context: CommandContext) {
-        guard let targetRoom = chooseTeleportTargetRoom(argument: context.argument1) else {
+        guard let targetRoom = chooseTargetRoom(argument: context.argument1, cases: .dative) else {
             return
         }
 
@@ -18,7 +18,7 @@ extension Creature {
         lookAtRoom(ignoreBrief: false)
     }
     
-    private func chooseTeleportTargetRoom(argument: String) -> Room? {
+    private func chooseTargetRoom(argument: String, cases: GrammaticalCases) -> Room? {
         guard !argument.isEmpty else {
             send("Укажите номер комнаты, имя области, имя персонажа, название монстра или предмета.")
             return nil
@@ -42,8 +42,30 @@ extension Creature {
             return room
         }
         
-        // FIXME
         
+        var creatures: [Creature] = []
+        var items: [Item] = []
+        var text = ""
+        let scanner = Scanner(string: argument)
+        
+        fetchArgument(from: scanner, what: [.creature, .item], where: .world, cases: cases, intoCreatures: &creatures, intoItems: &items, intoString: &text)
+        
+        if let creature = creatures.first {
+            return creature.inRoom
+        } else if var item = items.first {
+            while let container = item.inContainer {
+                item = container
+            }
+            if let room = item.inRoom {
+                return room
+            } else if let wornBy = item.wornBy, canSee(wornBy), let inRoom = wornBy.inRoom {
+                return inRoom
+            } else if let carriedBy = item.carriedBy, canSee(carriedBy), let inRoom = carriedBy.inRoom {
+                return inRoom
+            }
+        }
+        
+        send("Ничего с таким названием или именем не существует.")
         return nil
     }
 

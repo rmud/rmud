@@ -72,7 +72,7 @@ class SpellsFileParser {
                     switch flag {
                     case 0: spellInfo?.targetWhat.insert(.item)
                     case 1: spellInfo?.targetWhat.insert(.creature)
-                    case 3: spellInfo?.targetWhat.insert(.noMobile)
+                    case 3: spellInfo?.targetWhat.insert(.playersOnly)
                     case 4: spellInfo?.targetWhat.insert(.word)
                     case 5: spellInfo?.targetWhat.insert(.many)
                     case 6: spellInfo?.targetWhere.insert(.equipment)

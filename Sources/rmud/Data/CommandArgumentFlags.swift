@@ -11,7 +11,7 @@ struct CommandArgumentFlags {
         // FIXME: maybe belongs to Extra?
         static let beacon       = T(rawValue: 1 << 2) // монстры только с флагом МАЯК
         // FIXME: maybe belongs to Extra?
-        static let noMobile     = T(rawValue: 1 << 3) // цель не может быть монстром
+        static let playersOnly  = T(rawValue: 1 << 3) // цель не может быть монстром
         static let word         = T(rawValue: 1 << 4)
         static let restOfString = T(rawValue: 1 << 5)
         static let many         = T(rawValue: 1 << 6)
