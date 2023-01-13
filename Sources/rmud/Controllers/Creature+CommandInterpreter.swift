@@ -28,7 +28,7 @@ extension Creature {
             var startIndex = 1
             var amount = 1
             while true {
-                let startLocation = scanner.scanLocation
+                let scannerStartIndex = scanner.string.startIndex
                 if scanner.skipString("все.") || scanner.skipString("all.") {
                     amount = Int.max
                 } else if let number = scanner.scanInteger() {
@@ -38,7 +38,7 @@ extension Creature {
                         startIndex = number
                     } else {
                         // Syntax error, just treat as part of name
-                        scanner.scanLocation = startLocation
+                        scanner.currentIndex = scannerStartIndex
                         break
                     }
                 } else {
@@ -196,7 +196,7 @@ extension Creature {
         // - as rest of string
         
         // Creatures, items and words are described by single word, so try to read one from input:
-        let originalScanLocation = scanner.scanLocation // in case we need to undo word read later
+        let originalScannerIndex = scanner.currentIndex // in case we need to undo word read later
         guard let word = scanner.scanUpToCharacters(from: .whitespaces) else {
             return
         }
@@ -252,7 +252,7 @@ extension Creature {
 
         // - as rest of string
         if what.contains(.restOfString) {
-            scanner.scanLocation = originalScanLocation // undo word read
+            scanner.currentIndex = originalScannerIndex // undo word read
             intoString = scanner.textToParse.trimmingCharacters(in: .whitespaces)
             return
         }

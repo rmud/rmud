@@ -19,7 +19,7 @@ class WebSocketsBuffer {
     }
     
     final class AnsiText: Codable {
-        let type = "ansiText"
+        private(set) var type = "ansiText"
         var text: String
         
         init(text: String) {
@@ -33,7 +33,7 @@ class WebSocketsBuffer {
             case echoOn
         }
         
-        let type = "streamCommand"
+        private(set) var type = "streamCommand"
         var command: Command
         
         init(command: Command) {

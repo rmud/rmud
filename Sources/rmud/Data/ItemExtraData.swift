@@ -1,6 +1,6 @@
 import Foundation
 
-protocol ItemExtraDataType: class {
+protocol ItemExtraDataType: AnyObject {
     init()
     static var itemType: ItemType { get }
     //static var defaults: Self { get }

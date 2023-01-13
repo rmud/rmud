@@ -70,7 +70,7 @@ class WebServer {
                     }
                 }
             }
-            ws.onClose.always { _ in
+            let _ = ws.onClose.always { _ in
                 DispatchQueue.main.async {
                     if let descriptor = networking.descriptors.first(where: { d in
                         if case .webSocket(let webSocket) = d.handle {
