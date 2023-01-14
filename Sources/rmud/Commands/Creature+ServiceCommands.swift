@@ -1,4 +1,18 @@
 import Foundation
+import OrderedCollections
+
+private struct NameAndPrice: Hashable {
+    var name: String
+    var price: Int
+}
+
+extension NameAndPrice: Comparable {
+    static func <(lhs: NameAndPrice, rhs: NameAndPrice) -> Bool {
+        let nameOrdering = lhs.name.caseInsensitiveCompare(rhs.name)
+        return nameOrdering == .orderedAscending ||
+            (nameOrdering == .orderedSame && lhs.price < rhs.price)
+    }
+}
 
 extension Creature {
     private enum ServiceType {
@@ -68,7 +82,19 @@ extension Creature {
         }
     }
     
-    private func shopList(clerk: Creature, filter: String?) {
+    fileprivate func itemsByNameAndPrice(clerk: Creature) -> [(NameAndPrice, [Item])] {
+        let itemsByNameAndPrice: [NameAndPrice: [Item]] = clerk.carrying.reduce(into: [:]) {
+            (result, item) in
+            let price = clerk.mobile?.shopBuyPrice(item: item) ?? 1
+            let nameAndPrice = NameAndPrice(name: item.nameNominative, price: price)
+            var items = result[nameAndPrice] ?? []
+            items.append(item)
+            result[nameAndPrice] = items
+        }
+        return itemsByNameAndPrice.sorted(by: { $0.key < $1.key })
+    }
+    
+    fileprivate func shopList(clerk: Creature, filter: String?) {
         guard let shopkeeper = clerk.mobile?.shopkeeper,
                 let _ = shopkeeper.sellProfit else {
             act("1и сказал1(,а,о,и) Вам: \"Я ничего не продаю.\"", .toCreature(self), .excludingCreature(clerk))
@@ -80,27 +106,15 @@ extension Creature {
             return
         }
         
-//        var itemsByVnum: [Int: [Item]] = [:]
-//        for item in clerk.carrying {
-//            var items = itemsByVnum[item.vnum] ?? []
-//            items.append(item)
-//            itemsByVnum[item.vnum] = items
-//        }
-        
-        let itemsByName: [String: [Item]] = clerk.carrying.reduce(into: [:]) {
-            (result, item) in
-            var items = result[item.nameNominative] ?? []
-            items.append(item)
-            result[item.nameNominative] = items
-        }
-        let itemsBySortedName = itemsByName.sorted(by: { $0.key < $1.key })
+        let itemsByNameAndPrice = itemsByNameAndPrice(clerk: clerk)
         
         var output = ""
-        for (index, value) in itemsBySortedName.enumerated() {
-            let (name, items) = value
+        for (index, value) in itemsByNameAndPrice.enumerated() {
+            let (nameAndPrice, items) = value
+            let name = nameAndPrice.name
+            let price = nameAndPrice.price
             let item = items.first!
             let indexString = String(index + 1).leftExpandingTo(minimumLength: 3)
-            let cost = clerk.mobile?.shopBuyPrice(item: item) ?? 1
             let liquid: String
             if let vessel: ItemExtraData.Vessel = item.extraData(), !vessel.isEmpty {
                 liquid = " \(vessel.liquid.instrumentalWithPreposition)"
@@ -110,7 +124,7 @@ extension Creature {
             if index != 0 {
                 output += "\n"
             }
-            output += "\(indexString). \(name)\(liquid) (\(bGrn())\(cost)\(nNrm()) монет\(cost.ending("а", "ы", "")))"
+            output += "\(indexString). \(name)\(liquid) (\(bGrn())\(price)\(nNrm()) монет\(price.ending("а", "ы", "")))"
         }
         send(output)
     }
