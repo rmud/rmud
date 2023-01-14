@@ -32,17 +32,17 @@ extension Creature {
         if preferenceFlags?.contains(.displayCoinsInPrompt) ?? false {
             promptElements.append("\(gold)м")
         }
+
+        if preferenceFlags?.contains(.displayMovementInPrompt) ?? false, !movementPath.isEmpty {
+            let path = movementPath.map { $0.singleLetter }.joined()
+            promptElements.append("Путь:\(nCyn())\(path)\(nNrm())")
+        }
         
         if preferenceFlags?.contains(.autoexit) ?? false {
             let autoExits = statusAutoExits()
             if !autoExits.isEmpty {
                 promptElements.append("Выходы:\(autoExits)")
             }
-        }
-
-        if preferenceFlags?.contains(.displayMovementInPrompt) ?? false, !movementPath.isEmpty {
-            let path = movementPath.map { $0.singleLetter }.joined()
-            promptElements.append("\(nCyn())\(path)\(nNrm())")
         }
 
         return promptElements.joined(separator: " ") + "> "
