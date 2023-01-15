@@ -1,10 +1,15 @@
 import Foundation
 
 extension Creature {
+    enum TargetAmount {
+        case count(Int)
+        case infinite
+    }
+    
     struct FetchArgumentContext {
         var targetName: String? = nil
         var targetStartIndex = 1
-        var targetAmount = 1
+        var targetAmount: TargetAmount = .count(1)
         
         var currentIndex = 1
         var objectsAdded = 0
@@ -15,13 +20,13 @@ extension Creature {
             }
             
             if !isMany {
-                targetAmount = 1
+                targetAmount = .count(1)
             }
         }
     
-        static func extractIndexAndAmount(_ word: String) -> (name: String?, startIndex: Int, amount: Int) {
+        static func extractIndexAndAmount(_ word: String) -> (name: String?, startIndex: Int, amount: TargetAmount) {
             if word.isEqual(toOneOf: ["все", "всем", "all"], caseInsensitive: true) {
-                return (nil, 1, Int.max)
+                return (nil, 1, .infinite)
             }
             
             let scanner = Scanner(string: word)
@@ -46,7 +51,7 @@ extension Creature {
                     break
                 }
             }
-            return (scanner.textToParse.trimmingCharacters(in: .whitespaces), max(startIndex, 1), max(amount, 1))
+            return (scanner.textToParse.trimmingCharacters(in: .whitespaces), max(startIndex, 1), .count(max(amount, 1)))
         }
     }
     
@@ -125,7 +130,9 @@ extension Creature {
             context.objectsAdded += 1
             into.append(item)
             
-            guard context.objectsAdded < context.targetAmount else { return true }
+            if case .count(let maxObjects) = context.targetAmount {
+                guard context.objectsAdded < maxObjects else { return true }
+            }
         }
         return false
     }
@@ -149,7 +156,9 @@ extension Creature {
             context.objectsAdded += 1
             into.append(creature)
             
-            guard context.objectsAdded < context.targetAmount else { return true }
+            if case .count(let maxObjects) = context.targetAmount {
+                guard context.objectsAdded < maxObjects else { return true }
+            }
         }
         
         return false
@@ -165,8 +174,10 @@ extension Creature {
             
             context.objectsAdded += 1
             into.append(creature)
-            
-            guard context.objectsAdded < context.targetAmount else { return true }
+
+            if case .count(let maxObjects) = context.targetAmount {
+                guard context.objectsAdded < maxObjects else { return true }
+            }
         }
         
         return false

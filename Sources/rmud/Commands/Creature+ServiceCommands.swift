@@ -162,8 +162,8 @@ extension Creature {
             var context = FetchArgumentContext(word: name, isCountable: true, isMany: true)
             let gotAllRequestedItems = clerk.fetchItemsInInventory(context: &context, into: &itemsToSell, cases: .accusative)
 
-            if !gotAllRequestedItems {
-                let itemsToProduce = min(shopSellItemsMax, context.targetAmount) - context.currentIndex + 1
+            if !gotAllRequestedItems, case .count(let maxItems) = context.targetAmount {
+                let itemsToProduce = min(maxItems, shopSellItemCountLimit) - context.currentIndex + 1
                 let itemToClone = itemsToSell.last { item in shopkeeper.isProducing(item: item) }
                 if let itemToClone = itemToClone, let prototype = db.itemPrototypesByVnum[itemToClone.vnum] {
                     for _ in 0..<itemsToProduce {
@@ -198,6 +198,8 @@ extension Creature {
             return
         }
         
+        let stacker = StringStacker()
+        
         for item in allItems {
             guard canTake(item: item, isSilent: true) else { continue }
             guard !isAlignmentMismatched(with: item) else { continue }
@@ -217,8 +219,12 @@ extension Creature {
             }
             clerk.gold += price
             
-            act("Вы купили у 1р @1в.", .excludingCreature(clerk), .toCreature(self), .item(item))
-            act("2+и купил2(,а,о,и) у 1+р @1в.", .toRoom, .excludingCreature(clerk), .excludingCreature(self), .item(item));
+            act("Вы купили у 1р @1в.", .excludingCreature(clerk), .toCreature(self), .item(item)) { target, output in
+                stacker.collect(target: target, line: output)
+            }
+            act("2+и купил2(,а,о,и) у 1+р @1в.", .toRoom, .excludingCreature(clerk), .excludingCreature(self), .item(item)) { target, output in
+                stacker.collect(target: target, line: output)
+            }
             
             if item.hasType(.spellbook) {
                 if let decay = item.decayTimerTicsLeft, decay < 5 {
@@ -226,5 +232,7 @@ extension Creature {
                 }
             }
         }
+        
+        stacker.send()
     }
 }
