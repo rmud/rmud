@@ -34,6 +34,9 @@ let vnumKalamanInn = 1414
 let vnumHyloInn    = 14062
 let vnumHavenInn   = 26573
 
+// Shops
+let shopSellItemsMax = 100
+
 // Item vnums
 let vnumSpellDelayedBlastFireball = 13
 

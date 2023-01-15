@@ -139,7 +139,7 @@ fileprivate let commandInfo: [Command] = [
     Command(["список", "list", "меню", "menu"], group: .shopsAndStables, subcommand: .shopList, Creature.doService,
             flags: .noFight,
             arg1: .word),
-    Command(["купить", "buy"], group: .shopsAndStables, notImplemented),
+    Command(["купить", "buy"], group: .shopsAndStables, subcommand: .shopBuy, Creature.doService, flags: .noFight, arg1: .word),
     Command(["продать", "sell"], group: .shopsAndStables, notImplemented),
     Command(["чинить", "repair"], group: .shopsAndStables, notImplemented),
     Command(["оценить", "evaluate"], group: .shopsAndStables, notImplemented),

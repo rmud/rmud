@@ -1,7 +1,7 @@
 import Foundation
 
 extension Creature {
-    private struct FetchArgumentContext {
+    struct FetchArgumentContext {
         var targetName: String? = nil
         var targetStartIndex = 1
         var targetAmount = 1
@@ -115,7 +115,7 @@ extension Creature {
         return false
     }
     
-    private func fetchItemsInInventory(context: inout FetchArgumentContext, into: inout [Item], cases: GrammaticalCases) -> Bool {
+    func fetchItemsInInventory(context: inout FetchArgumentContext, into: inout [Item], cases: GrammaticalCases) -> Bool {
         for item in carrying {
             guard context.targetName == nil || item.isAbbrevOfNameOrSynonym(context.targetName!, cases: cases) else { continue }
             guard /* extra.contains(.notOnlyVisible) || */ canSee(item) else { continue }
