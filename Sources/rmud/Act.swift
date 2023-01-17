@@ -417,12 +417,12 @@ fileprivate func render(_ tokens: [Token], for target: Creature, with args: [Act
             switch token.extraData {
             case .character(let c):
                 switch c {
-                case "и": output += item.nameNominative
-                case "р": output += item.nameGenitive
-                case "д": output += item.nameDative
-                case "в": output += item.nameAccusative
-                case "т": output += item.nameInstrumental
-                case "п": output += item.namePrepositional
+                case "и": output += item.nameNominative.full
+                case "р": output += item.nameGenitive.full
+                case "д": output += item.nameDative.full
+                case "в": output += item.nameAccusative.full
+                case "т": output += item.nameInstrumental.full
+                case "п": output += item.namePrepositional.full
                 default: output += "(ошибка:формат)"
                 }
             case .stringList(let strings):

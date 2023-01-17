@@ -53,7 +53,7 @@ extension String {
         }
     }
 
-    public func hasPrefix(_ prefix: String, caseInsensitive: Bool) -> Bool {
+    public func hasPrefix<S: StringProtocol>(_ prefix: S, caseInsensitive: Bool) -> Bool {
         if caseInsensitive {
             guard !prefix.isEmpty else { return true }
             return nil != range(of: prefix,

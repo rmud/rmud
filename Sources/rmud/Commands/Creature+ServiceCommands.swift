@@ -92,7 +92,7 @@ extension Creature {
         let itemsByNameAndPrice: [NameAndPrice: [Item]] = clerk.carrying.reduce(into: [:]) {
             (result, item) in
             let price = clerk.mobile?.shopBuyPrice(item: item) ?? 1
-            let nameAndPrice = NameAndPrice(name: item.nameNominative, price: price)
+            let nameAndPrice = NameAndPrice(name: item.nameNominative.full, price: price)
             var items = result[nameAndPrice] ?? []
             items.append(item)
             result[nameAndPrice] = items

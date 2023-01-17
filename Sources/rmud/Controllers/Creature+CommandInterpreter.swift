@@ -7,7 +7,7 @@ extension Creature {
     }
     
     struct FetchArgumentContext {
-        var targetName: String? = nil
+        var targetName = MultiwordArgument()
         var targetStartIndex = 1
         var targetAmount: TargetAmount = .count(1)
         
@@ -16,7 +16,9 @@ extension Creature {
         
         init(word: String, isCountable: Bool = true, isMany: Bool = false) {
             if isCountable {
-                (targetName, targetStartIndex, targetAmount) = Self.extractIndexAndAmount(word)
+                let targetNameString: String?
+                (targetNameString, targetStartIndex, targetAmount) = Self.extractIndexAndAmount(word)
+                targetName = MultiwordArgument(dotSeparatedWords: targetNameString)
             }
             
             if !isMany {
@@ -122,7 +124,12 @@ extension Creature {
     
     func fetchItemsInInventory(context: inout FetchArgumentContext, into: inout [Item], cases: GrammaticalCases) -> Bool {
         for item in carrying {
-            guard context.targetName == nil || item.isAbbrevOfNameOrSynonym(context.targetName!, cases: cases) else { continue }
+            guard context.targetName.isEmpty ||
+                    context.targetName.words.allSatisfy({ word in
+                        item.isAbbrevOfNameOrSynonym(word, cases: cases)
+                    }) else {
+                        continue
+                    }
             guard /* extra.contains(.notOnlyVisible) || */ canSee(item) else { continue }
             defer { context.currentIndex += 1 }
             guard context.currentIndex >= context.targetStartIndex else { continue }
@@ -139,7 +146,12 @@ extension Creature {
     
     private func isMatchingCreature(creature: Creature, context: FetchArgumentContext, cases: GrammaticalCases, isPlayersOnly: Bool) -> Bool {
         guard creature.isPlayer || !isPlayersOnly else { return false }
-        guard context.targetName == nil || creature.isAbbrevOfNameOrSynonym(context.targetName!, cases: cases) else { return false }
+        guard context.targetName.isEmpty ||
+                context.targetName.words.allSatisfy({ word in
+                    creature.isAbbrevOfNameOrSynonym(word, cases: cases)
+                }) else {
+                    return false
+                }
         guard /* extra.contains(.notOnlyVisible) || */ canSee(creature) else { return false }
         return true;
     }
