@@ -61,7 +61,7 @@ func nanny(_ d: Descriptor, line: String) {
 
     case .confirmAccountCreation:
         let account = d.account!
-        if arg.isAbbreviation(ofOneOf: ["да", "yes"], caseInsensitive: true) {
+        if arg.isAbbrev(ofOneOf: ["да", "yes"]) {
             account.confirmationCode = arc4random_uniform(100000)
             sendConfirmationCodeEmail(account: d.account!)
             account.flags.insert(.confirmationEmailSent)
@@ -72,7 +72,7 @@ func nanny(_ d: Descriptor, line: String) {
                    """)
 
             d.state = .verifyConfirmationCode
-        } else if arg.isAbbreviation(ofOneOf: ["нет", "no"], caseInsensitive: true) {
+        } else if arg.isAbbrev(ofOneOf: ["нет", "no"]) {
             accounts.remove(account: account)
             d.account = nil
             d.state = .getAccountName
@@ -143,7 +143,7 @@ func nanny(_ d: Descriptor, line: String) {
         
         let creature = Creature(uid: db.createUid())
         creature.player = Player(creature: creature, account: d.account!)
-        creature.nameNominative = name
+        creature.nameNominative = MultiwordName(name)
         d.creature = creature
         
         d.state = .nameConfirmation
@@ -186,17 +186,17 @@ func nanny(_ d: Descriptor, line: String) {
 //        d.state = .password
 
     case .nameConfirmation:
-        if arg.isAbbreviation(ofOneOf: ["да", "yes"], caseInsensitive: true) {
+        if arg.isAbbrev(ofOneOf: ["да", "yes"]) {
             let creature = d.creature!
             let name = creature.nameNominative
             log("Host [\(d.ip), \(d.hostname)] starts creating a new character: \(name)")
             logToMud("Начинается создание нового персонажа \(name) [\(d.ip), \(d.hostname)].",
                 verbosity: .complete)
             
-            creature.gender = morpher.detectGender(name: creature.nameNominative)
+            creature.gender = morpher.detectGender(name: creature.nameNominative.full)
             d.state = .qSex
             break
-        } else if arg.isAbbreviation(ofOneOf: ["нет", "no"], caseInsensitive: true) {
+        } else if arg.isAbbrev(ofOneOf: ["нет", "no"]) {
             d.creature = nil
             d.state = .getNameReal
             break
@@ -206,17 +206,22 @@ func nanny(_ d: Descriptor, line: String) {
     case .qSex:
         let creature = d.creature!
         let prepareNextQuestion: () -> () = {
-            (creature.nameGenitive, creature.nameDative, creature.nameAccusative, creature.nameInstrumental, creature.namePrepositional) = morpher.generateNameCases(name: creature.nameNominative, gender: creature.gender)
+            let (nameGenitive, nameDative, nameAccusative, nameInstrumental, namePrepositional) = morpher.generateNameCases(name: creature.nameNominative.full, gender: creature.gender)
+            creature.nameGenitive = MultiwordName(nameGenitive)
+            creature.nameDative = MultiwordName(nameDative)
+            creature.nameAccusative = MultiwordName(nameAccusative)
+            creature.nameInstrumental = MultiwordName(nameInstrumental)
+            creature.namePrepositional = MultiwordName(namePrepositional)
             d.send("Введите падежи имени Вашего персонажа.")
             d.state = .getNameGenitive
         }
         if !arg.isEmpty {
-            if arg.isAbbreviation(ofOneOf: ["мужской", "male"], caseInsensitive: true) {
+            if arg.isAbbrev(ofOneOf: ["мужской", "male"]) {
                 creature.gender = .masculine
                 prepareNextQuestion()
                 break
             }
-            if arg.isAbbreviation(ofOneOf: ["женский", "female"], caseInsensitive: true) {
+            if arg.isAbbrev(ofOneOf: ["женский", "female"]) {
                 creature.gender = .feminine
                 prepareNextQuestion()
                 break
@@ -227,53 +232,53 @@ func nanny(_ d: Descriptor, line: String) {
         prepareNextQuestion()
     case .getNameGenitive:
         let creature = d.creature!
-        let name = argToPlayerName(!arg.isEmpty ? arg : creature.nameGenitive)
-        let (isValid, reason) = validateNewName(name: name, nameNominative: creature.nameNominative)
+        let name = argToPlayerName(!arg.isEmpty ? arg : creature.nameGenitive.full)
+        let (isValid, reason) = validateNewName(name: name, nameNominative: creature.nameNominative.full)
         if !isValid {
             d.send(reason)
             break
         }
-        creature.nameGenitive = name
+        creature.nameGenitive = MultiwordName(name)
         d.state = .getNameDative
     case .getNameDative:
         let creature = d.creature!
-        let name = argToPlayerName(!arg.isEmpty ? arg : creature.nameDative)
-        let (isValid, reason) = validateNewName(name: name, nameNominative: creature.nameNominative)
+        let name = argToPlayerName(!arg.isEmpty ? arg : creature.nameDative.full)
+        let (isValid, reason) = validateNewName(name: name, nameNominative: creature.nameNominative.full)
         if !isValid {
             d.send(reason)
             break
         }
-        creature.nameDative = name
+        creature.nameDative = MultiwordName(name)
         d.state = .getNameAccusative
     case .getNameAccusative:
         let creature = d.creature!
-        let name = argToPlayerName(!arg.isEmpty ? arg : creature.nameAccusative)
-        let (isValid, reason) = validateNewName(name: name, nameNominative: creature.nameNominative)
+        let name = argToPlayerName(!arg.isEmpty ? arg : creature.nameAccusative.full)
+        let (isValid, reason) = validateNewName(name: name, nameNominative: creature.nameNominative.full)
         if !isValid {
             d.send(reason)
             break
         }
-        creature.nameAccusative = name
+        creature.nameAccusative = MultiwordName(name)
         d.state = .getNameInstrumental
     case .getNameInstrumental:
         let creature = d.creature!
-        let name = argToPlayerName(!arg.isEmpty ? arg : creature.nameInstrumental)
-        let (isValid, reason) = validateNewName(name: name, nameNominative: creature.nameNominative)
+        let name = argToPlayerName(!arg.isEmpty ? arg : creature.nameInstrumental.full)
+        let (isValid, reason) = validateNewName(name: name, nameNominative: creature.nameNominative.full)
         if !isValid {
             d.send(reason)
             break
         }
-        creature.nameInstrumental = name
+        creature.nameInstrumental = MultiwordName(name)
         d.state = .getNamePrepositional
     case .getNamePrepositional:
         let creature = d.creature!
-        let name = argToPlayerName(!arg.isEmpty ? arg : creature.namePrepositional)
-        let (isValid, reason) = validateNewName(name: name, nameNominative: creature.nameNominative)
+        let name = argToPlayerName(!arg.isEmpty ? arg : creature.namePrepositional.full)
+        let (isValid, reason) = validateNewName(name: name, nameNominative: creature.nameNominative.full)
         if !isValid {
             d.send(reason)
             break
         }
-        creature.namePrepositional = name
+        creature.namePrepositional = MultiwordName(name)
         d.state = .qClass
     case .qClass:
         if arg.hasPrefix("?") {
@@ -419,8 +424,8 @@ func nanny(_ d: Descriptor, line: String) {
         d.state = .deleteCreatureConfirmation2
     case .deleteCreatureConfirmation2:
         let creature = d.creature!
-        let nameEnglish = { !creature.nameNominative.isEmpty ? creature.nameNominative : "without name" }
-        let name = { !creature.nameNominative.isEmpty ? creature.nameNominative : "без имени" }
+        let nameEnglish = { !creature.nameNominative.isEmpty ? creature.nameNominative.full : "without name" }
+        let name = { !creature.nameNominative.isEmpty ? creature.nameNominative.full : "без имени" }
 
         if arg.isEqual(toOneOf: ["да", "yes"], caseInsensitive: true) {
             if creature.player?.flags.contains(.frozen) ?? false {
@@ -874,7 +879,7 @@ private func validateNewName(name: String, nameNominative: String?) -> (isValid:
     if isNominative {
         for d in networking.descriptors {
             if d.state != .playing, let creature = d.creature {
-                let creatureName = creature.nameNominative
+                let creatureName = creature.nameNominative.full
                 if name.isEqual(to: creatureName, caseInsensitive: true) {
                     return (isValid: false, reason: "Персонаж с этим именем уже создается.")
                 }
@@ -908,7 +913,7 @@ private func isValidPassword(_ password: String, descriptor d: Descriptor) -> (i
     }
 
     if let creature = d.creature,
-        password.isEqual(to: creature.nameNominative, caseInsensitive: true) {
+       password.isEqual(to: creature.nameNominative.full, caseInsensitive: true) {
         return (isValid: false, reason: "Пароль не может совпадать с именем Вашего персонажа.")
     }
     
@@ -1033,12 +1038,12 @@ private func chooseCreature(arg: String, account: Account) -> Creature? {
         }
     } else {
         for creature in account.creatures {
-            if arg.isEqual(to: creature.nameNominative, caseInsensitive: true) {
+            if arg.isEqual(to: creature.nameNominative.full, caseInsensitive: true) {
                 return creature
             }
         }
         for creature in account.creatures {
-            if arg.isAbbreviation(of: creature.nameNominative, caseInsensitive: true) {
+            if arg.isAbbrev(of: creature.nameNominative.full) {
                 return creature
             }
         }

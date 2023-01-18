@@ -7,12 +7,12 @@ class Item {
     var vnum: Int
 
     var ownerUid: UInt64? // uid создателя или nil для нормальных вещей
-    var nameNominative = ObjectName("")
-    var nameGenitive = ObjectName("")
-    var nameDative = ObjectName("")
-    var nameAccusative = ObjectName("")
-    var nameInstrumental = ObjectName("")
-    var namePrepositional = ObjectName("")
+    var nameNominative = MultiwordName("")
+    var nameGenitive = MultiwordName("")
+    var nameDative = MultiwordName("")
+    var nameAccusative = MultiwordName("")
+    var nameInstrumental = MultiwordName("")
+    var namePrepositional = MultiwordName("")
     var synonyms: [String] = []
     var groundDescription = "" // When in room
     
@@ -89,12 +89,12 @@ class Item {
 
         vnum = prototype.vnum
         
-        nameNominative = ObjectName(prototype.nameNominative)
-        nameGenitive = ObjectName(prototype.nameGenitive)
-        nameDative = ObjectName(prototype.nameDative)
-        nameAccusative = ObjectName(prototype.nameAccusative)
-        nameInstrumental = ObjectName(prototype.nameInstrumental)
-        namePrepositional = ObjectName(prototype.namePrepositional)
+        nameNominative = MultiwordName(prototype.nameNominative)
+        nameGenitive = MultiwordName(prototype.nameGenitive)
+        nameDative = MultiwordName(prototype.nameDative)
+        nameAccusative = MultiwordName(prototype.nameAccusative)
+        nameInstrumental = MultiwordName(prototype.nameInstrumental)
+        namePrepositional = MultiwordName(prototype.namePrepositional)
         synonyms = prototype.synonyms.components(separatedBy: .whitespaces).filter { !$0.isEmpty }
         groundDescription = prototype.groundDescription
         

@@ -295,7 +295,7 @@ extension Creature {
     private func getShowMode(_ modeString: String) -> ShowMode? {
         for subcommand in Creature.showSubcommands {
             guard !subcommand.roles.intersection(player?.roles ?? []).isEmpty else { continue }
-            guard modeString.isAbbreviation(ofOneOf: [subcommand.nameEnglish, subcommand.nameNominative, subcommand.nameAccusative], caseInsensitive: true) else { continue }
+            guard modeString.isAbbrev(ofOneOf: [subcommand.nameEnglish, subcommand.nameNominative, subcommand.nameAccusative]) else { continue }
             return subcommand.mode
         }
         return nil

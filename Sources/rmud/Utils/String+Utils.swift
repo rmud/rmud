@@ -15,13 +15,23 @@ extension String {
         return self
     }
     
-    public func isAbbreviation(of string: String, caseInsensitive: Bool) -> Bool {
-        return isEmpty ? false : string.hasPrefix(self, caseInsensitive: caseInsensitive)
+    public func isAbbrev(of string: String, caseInsensitive: Bool = true) -> Bool {
+        guard !string.isEmpty else { return false }
+        
+        let isAbbreviated = !hasSuffix("!")
+        if isAbbreviated {
+            return string.hasPrefix(self, caseInsensitive: caseInsensitive)
+        } else {
+            return string.isEqual(to: self.dropLast(1), caseInsensitive: caseInsensitive)
+        }
     }
 
-    public func isAbbreviation(ofOneOf strings: [String], caseInsensitive: Bool) -> Bool {
+
+    public func isAbbrev(ofOneOf strings: [String], caseInsensitive: Bool = true) -> Bool {
         guard !isEmpty else { return false }
-        return isPrefix(ofOneOf: strings, caseInsensitive: caseInsensitive)
+        return strings.contains { string in
+            isAbbrev(of: string, caseInsensitive: caseInsensitive)
+        }
     }
     
     public func slice(from: String, to: String) -> (String.Index, String.Index, String)? {
@@ -84,7 +94,7 @@ extension String {
         return false
     }
 
-     public func isEqual(to string: String, caseInsensitive: Bool = false) -> Bool {
+    public func isEqual<S: StringProtocol>(to string: S, caseInsensitive: Bool = false) -> Bool {
         switch caseInsensitive {
         case false: return self == string
         case true: return caseInsensitiveCompare(string) == .orderedSame

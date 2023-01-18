@@ -18,7 +18,7 @@ class Players {
             }
             
             let creature = loadPlayer(name: playerName)
-            byLowercasedName[creature.nameNominative.lowercased()] = creature
+            byLowercasedName[creature.nameNominative.full.lowercased()] = creature
             creature.player!.account.creatures.insert(creature)
         }
         
@@ -36,7 +36,7 @@ class Players {
         
         let savedCount = scheduledForSaving.count
         for creature in scheduledForSaving {
-            let playerDirectory = filenames.directoryName(forPlayerName: creature.nameNominative)
+            let playerDirectory = filenames.directoryName(forPlayerName: creature.nameNominative.full)
             let directory = URL(fileURLWithPath: filenames.playersPrefix, isDirectory: true)
                 .appendingPathComponent(playerDirectory, isDirectory: true).relativePath
             do {
@@ -48,7 +48,7 @@ class Players {
             } catch {
                 logFatal("Unable to create directory '\(directory)' for '\(creature.nameNominative)': \(error.userFriendlyDescription)")
             }
-            let filename = filenames.playerFileName(forPlayerName: creature.nameNominative)
+            let filename = filenames.playerFileName(forPlayerName: creature.nameNominative.full)
             do {
                 let configFile = ConfigFile()
                 creature.save(to: configFile)
@@ -62,11 +62,11 @@ class Players {
     }
     
     func delete(creature: Creature) {
-        byLowercasedName.removeValue(forKey: creature.nameNominative.lowercased())
+        byLowercasedName.removeValue(forKey: creature.nameNominative.full.lowercased())
         creature.player?.account.creatures.remove(creature)
         scheduledForSaving.remove(creature)
 
-        let filename = filenames.playerFileName(forPlayerName: creature.nameNominative)
+        let filename = filenames.playerFileName(forPlayerName: creature.nameNominative.full)
         let fileManager = FileManager.default
         do {
             try fileManager.removeItem(atPath: filename)
@@ -100,7 +100,7 @@ class Players {
 
         let creature = Creature(from: playerFile)
         
-        let nameNominativeLowercased = creature.nameNominative.lowercased()
+        let nameNominativeLowercased = creature.nameNominative.full.lowercased()
         guard nameNominativeLowercased == name else {
             logFatal("Player name '\(nameNominativeLowercased)' does not match name obtained from filename: \(name)")
         }

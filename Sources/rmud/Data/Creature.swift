@@ -10,12 +10,12 @@ class Creature {
     var uid: UInt64 = 0
     var descriptors: Set<Descriptor> = []
     
-    var nameNominative = ""
-    var nameGenitive = ""
-    var nameDative = ""
-    var nameAccusative = ""
-    var nameInstrumental = ""
-    var namePrepositional = ""
+    var nameNominative: MultiwordName = MultiwordName("")
+    var nameGenitive: MultiwordName = MultiwordName("")
+    var nameDative: MultiwordName = MultiwordName("")
+    var nameAccusative: MultiwordName = MultiwordName("")
+    var nameInstrumental: MultiwordName = MultiwordName("")
+    var namePrepositional: MultiwordName = MultiwordName("")
     var description: [String] = [] // Detailed description
 
     var idleTics = 0 // Tics idle in game
@@ -331,7 +331,7 @@ class Creature {
     init(from playerFile: ConfigFile) {
         let s = "ОСНОВНАЯ"
         
-        player = Player(from: playerFile, nameNominative: nameNominative, creature: self)
+        player = Player(from: playerFile, nameNominative: nameNominative.full, creature: self)
         player?.nameCombined = playerFile[s, "ИМЯ"] ?? "" // also inits nameNominative
 
         // Если у игрока нет UID-а, присвоить ему новый... Если есть - использовать его собственный:
@@ -476,12 +476,12 @@ class Creature {
 
         guard let mobile = Mobile(prototype: prototype, creature: self) else { return nil }
         
-        nameNominative = prototype.nameNominative
-        nameGenitive = prototype.nameGenitive
-        nameDative = prototype.nameDative
-        nameAccusative = prototype.nameAccusative
-        nameInstrumental = prototype.nameInstrumental
-        namePrepositional = prototype.namePrepositional
+        nameNominative = MultiwordName(prototype.nameNominative)
+        nameGenitive = MultiwordName(prototype.nameGenitive)
+        nameDative = MultiwordName(prototype.nameDative)
+        nameAccusative = MultiwordName(prototype.nameAccusative)
+        nameInstrumental = MultiwordName(prototype.nameInstrumental)
+        namePrepositional = MultiwordName(prototype.namePrepositional)
         description = prototype.description
 
         self.mobile = mobile

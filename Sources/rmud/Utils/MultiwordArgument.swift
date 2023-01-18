@@ -1,6 +1,7 @@
 import Foundation
 
 struct MultiwordArgument {
+    private(set) var full = ""
     private(set) var words: [String] = []
     
     var isEmpty: Bool { return words.isEmpty }
@@ -9,9 +10,12 @@ struct MultiwordArgument {
     
     init(dotSeparatedWords: String?) {
         guard let dotSeparatedWords = dotSeparatedWords else { return }
+        full = dotSeparatedWords
 
         let maxElements = 10
-        words = dotSeparatedWords.split(separator: ".", maxSplits: maxElements, omittingEmptySubsequences: true).map(String.init)
+        words = dotSeparatedWords
+            .split(separator: ".", maxSplits: maxElements, omittingEmptySubsequences: true)
+            .map(String.init)
 
         let length = words.count
         guard length > 0 else {
@@ -22,5 +26,11 @@ struct MultiwordArgument {
             words.removeAll()
             return
         }
+    }
+}
+
+extension MultiwordArgument: CustomStringConvertible {
+    var description: String {
+        return full
     }
 }

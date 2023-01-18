@@ -19,12 +19,12 @@ func trimCommentsAndSpacing(in line: String, commentStart: String) -> String {
 }
 
 func assignNameParts(nameCombined: String,
-                     nominative: inout String,
-                     genitive: inout String,
-                     dative: inout String,
-                     accusative: inout String,
-                     instrumental: inout String,
-                     prepositional: inout String) {
+                     nominative: inout MultiwordName,
+                     genitive: inout MultiwordName,
+                     dative: inout MultiwordName,
+                     accusative: inout MultiwordName,
+                     instrumental: inout MultiwordName,
+                     prepositional: inout MultiwordName) {
     var forms = nameCombined
         .trimmingCharacters(in: nameParentheses)
         .components(separatedBy: ",")
@@ -34,24 +34,17 @@ func assignNameParts(nameCombined: String,
     }
     for (index, form) in forms.enumerated() {
         switch index {
-        case 0: nominative = form
-        case 1: genitive = form
-        case 2: dative = form
-        case 3: accusative = form
-        case 4: instrumental = form
-        case 5: prepositional = form
+        case 0: nominative = MultiwordName(form)
+        case 1: genitive = MultiwordName(form)
+        case 2: dative = MultiwordName(form)
+        case 3: accusative = MultiwordName(form)
+        case 4: instrumental = MultiwordName(form)
+        case 5: prepositional = MultiwordName(form)
         default: break
         }
     }
 
 }
-
-//extension Collection where Indices.Iterator.Element == Index {
-//    /// Returns the element at the specified index if it is within bounds, otherwise nil
-//    subscript (safe index: Index) -> Generator.Element? {
-//        return indices.contains(index) ? self[index] : nil
-//    }
-//}
 
 func shell(executableURL: URL, arguments: [String] = [], input: String? = nil) throws -> (String? , Int32) {
     let task = Process()

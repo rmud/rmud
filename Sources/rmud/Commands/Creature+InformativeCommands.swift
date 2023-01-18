@@ -98,7 +98,7 @@ extension Creature {
 
         let fieldName = String(fieldNameSubstring)
         let value = String(valueSubstring)
-        if fieldName.isAbbreviation(of: "ксвойства", caseInsensitive: true) {
+        if fieldName.isAbbrev(of: "ксвойства") {
             if let enumSpec = db.definitions.enumerations.enumSpecsByAlias["ксвойства"],
                 let v64 = enumSpec.value(byAbbreviatedName: value),
                 let bitIndex = UInt32(exactly: v64 - 1) {
@@ -111,7 +111,7 @@ extension Creature {
                 send("Неизвестное значение: \(arg)")
                 return nil
             }
-        } else if fieldName.isAbbreviation(of: "монстры", caseInsensitive: true) {
+        } else if fieldName.isAbbrev(of: "монстры") {
             let vnums = value.split(separator: ",", omittingEmptySubsequences: true).compactMap { Int($0) }
             for room in inRoom?.area?.rooms ?? [] {
                 for creature in room.creatures {
@@ -121,7 +121,7 @@ extension Creature {
                     markRooms.insert(room.vnum)
                 }
             }
-        } else if fieldName.isAbbreviation(of: "путь", caseInsensitive: true) {
+        } else if fieldName.isAbbrev(of: "путь") {
             guard !value.isEmpty else {
                 send("Укажите название пути.")
                 return nil
@@ -168,7 +168,7 @@ extension Creature {
             }
         )
         let chosenPlayers = chosenCreatures.sorted { lhs, rhs in
-            return lhs.nameNominative < rhs.nameNominative
+            return lhs.nameNominative.full < rhs.nameNominative.full
         }.compactMap { creature in
             return creature.player
         }
@@ -182,7 +182,7 @@ extension Creature {
                 continue
             }
             if !namesToSearchLowercased.isEmpty {
-                let nameLowercased = targetCreature.nameNominative.lowercased()
+                let nameLowercased = targetCreature.nameNominative.full.lowercased()
                 var matches = true
                 for searchString in namesToSearchLowercased {
                     guard nameLowercased.contains(searchString) else {
@@ -302,7 +302,7 @@ extension Creature {
                 .toCreature(self), .text(raceName), .text(className), .number(Int(level)))
         }
         
-        if context.argument1.isAbbreviation(ofOneOf: ["склонение", "declension"], caseInsensitive: true) {
+        if context.argument1.isAbbrev(ofOneOf: ["склонение", "declension"]) {
             act("Склонение Вашего имени: 1и/1р/1д/1в/1т/1п.", .toSleeping, .toCreature(self))
         }
         
@@ -608,7 +608,7 @@ extension Creature {
     }
 
     private func option(_ name: String, matches strings: String...) -> Bool {
-        return name.isAbbreviation(ofOneOf: strings, caseInsensitive: true)
+        return name.isAbbrev(ofOneOf: strings)
     }
         
     private func toggleOnOff(_ what: PlayerPreferenceFlags, _ value: String, _ on: String, _ off: String) {
@@ -623,9 +623,9 @@ extension Creature {
             } else {
                 newFlags.insert(what)
             }
-        } else if value.isAbbreviation(ofOneOf: ["включен", "да", "on", "yes"], caseInsensitive: true) {
+        } else if value.isAbbrev(ofOneOf: ["включен", "да", "on", "yes"]) {
             newFlags.insert(what)
-        } else if value.isAbbreviation(ofOneOf: ["выключен", "нет", "off", "no"], caseInsensitive: true) {
+        } else if value.isAbbrev(ofOneOf: ["выключен", "нет", "off", "no"]) {
             newFlags.remove(what)
         } else {
             send("Укажите состояние режима \"включен\" или \"выключен\".")

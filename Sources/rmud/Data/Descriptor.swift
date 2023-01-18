@@ -418,8 +418,8 @@ class Descriptor {
                 }
                 let _ = creature.putToLinkDeadState()
             default:
-                let name = !creature.nameNominative.isEmpty ? creature.nameNominative : "Соединение без персонажа"
-                let nameEnglish = !creature.nameNominative.isEmpty ? creature.nameNominative : "Connection without creature"
+                let name = !creature.nameNominative.isEmpty ? creature.nameNominative.full : "Соединение без персонажа"
+                let nameEnglish = !creature.nameNominative.isEmpty ? creature.nameNominative.full : "Connection without creature"
                 log("\(nameEnglish) [\(accountEmail), \(ip), \(hostname)] is disconnecting")
                 logToMud("\(name) [\(accountEmail), \(ip), \(hostname)] отсоединяется.", verbosity: .complete)
                 self.creature = nil

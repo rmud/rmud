@@ -83,7 +83,7 @@ class AreaManager {
         // No luck, try abbreviations
         for area in areasInSearchOrder {
             // Both names are already lowercased, so do a case sensitive compare
-            if lowercased.isAbbreviation(of: area.lowercasedName, caseInsensitive: false) {
+            if lowercased.isAbbrev(of: area.lowercasedName, caseInsensitive: false) {
                 return area
             }
         }

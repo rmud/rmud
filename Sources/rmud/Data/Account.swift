@@ -40,7 +40,7 @@ class Account {
     
     func creaturesByName() -> [Creature] {
         return creatures.sorted {
-            $0.nameNominative < $1.nameNominative
+            $0.nameNominative.full < $1.nameNominative.full
         }
     }
 }

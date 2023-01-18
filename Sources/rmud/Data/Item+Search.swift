@@ -3,23 +3,15 @@ import Foundation
 extension Item {
     // Is str a name or synonym in the appropriate grammatical case?
     // Nominative case is always checked!
-    func isAbbrevOfNameOrSynonym<S: StringProtocol>(_ word: S, cases: GrammaticalCases) -> Bool {
-        return isPredicateOfNameOrSynonym(word: word, cases: cases) { name in
-            name.hasPrefix(word, caseInsensitive: true)
+    func isAbbrevOfNameOrSynonym(_ arg: String, cases: GrammaticalCases) -> Bool {
+        return isPredicateOfNameOrSynonym(arg, cases: cases) { name in
+            arg.isAbbrev(of: name)
         }
     }
         
-    // Is str a name or synonym in the appropriate grammatical case?
-    // Nominative case is always checked!
-    func isEqualToNameOrSynonym(word: String, cases: GrammaticalCases) -> Bool {
-        return isPredicateOfNameOrSynonym(word: word, cases: cases) { name in
-            name.isEqual(to: word, caseInsensitive: true)
-        }
-    }
-    
-    private func isPredicateOfNameOrSynonym<S: StringProtocol>(word: S, cases: GrammaticalCases, predicate: (_ name: String) -> Bool) -> Bool {
+    private func isPredicateOfNameOrSynonym(_ arg: String, cases: GrammaticalCases, predicate: (_ name: String) -> Bool) -> Bool {
 
-        guard !word.isEmpty else { return false }
+        guard !arg.isEmpty else { return false }
         
         // Always check nominative case
         if nameNominative.byWord.contains(where: predicate) {
