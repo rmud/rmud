@@ -4,18 +4,14 @@
 set -e
 set -o pipefail
 
-get_version()
-{
-    git describe --tags --dirty --always --match="$TRAVIS_TAG"
-}
-
 is_calver()
 {
     local tag="$1"
-    echo "$tag" | grep -q -E "^[0-9][0-9]\.[0-9][0-9]\.[0-9][0-9]*"
+    echo "$tag" | grep -q -E "^[0-9]*\.[0-9]*\.[0-9]*"
 }
 
-version="$(get_version)"
+version="${GITHUB_REF_NAME}"
+printf "Version: %s\n" "${version}"
 
 if is_calver "$version" && [ "$DOCKER_USERNAME" != "" ] && [ "$DOCKER_PASSWORD" != "" ]; then
     echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
