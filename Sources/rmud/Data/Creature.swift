@@ -16,6 +16,26 @@ class Creature {
     var nameAccusative: MultiwordName = MultiwordName("")
     var nameInstrumental: MultiwordName = MultiwordName("")
     var namePrepositional: MultiwordName = MultiwordName("")
+    
+    func nameNominativeVisible(of whom: Creature) -> String {
+        return canSee(whom) ? whom.nameNominative.full : "кто-то"
+    }
+    func nameGenitiveVisible(of whom: Creature) -> String {
+        return canSee(whom) ? whom.nameGenitive.full : "кого-то"
+    }
+    func nameDativeVisible(of whom: Creature) -> String {
+        return canSee(whom) ? whom.nameDative.full : "кому-то"
+    }
+    func nameAccusativeVisible(of whom: Creature) -> String {
+        return canSee(whom) ? whom.nameAccusative.full : "кого-то"
+    }
+    func nameInstrumentalVisible(of whom: Creature) -> String {
+        return canSee(whom) ? whom.nameInstrumental.full : "кем-то"
+    }
+    func namePrepositionalVisible(of whom: Creature) -> String {
+        return canSee(whom) ? whom.namePrepositional.full : "ком-то"
+    }
+    
     var description: [String] = [] // Detailed description
 
     var idleTics = 0 // Tics idle in game
@@ -49,6 +69,10 @@ class Creature {
     }
     
     var gender: Gender = .neuter
+    func genderVisible(of target: Creature) -> Gender {
+        return canSee(target) ? target.gender : .masculine
+    }
+
     var classId: ClassId = .amalgamated // FIXME: introduce 'none'
     var race: Race = .human
     var level: UInt8 = 0 // Level
@@ -220,7 +244,12 @@ class Creature {
 
         return hitPoints.clamped(to: 1...1000000)
     }
-
+    func hitPointsPercentage() -> Int {
+        return (100 * hitPoints) / affectedMaximumHitPoints();
+    }
+    var isStunned: Bool { return hitPoints == 0 }
+    var isDying: Bool { return hitPoints < 0 }
+    
     // Movement points
     var arrivedAtGamePulse: UInt64 = 0
     var movement = 0

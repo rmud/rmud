@@ -17,6 +17,11 @@ enum Gender: UInt8 {
         }
     }
     
+    func ending(_ endingsPerGender: String) -> String {
+        let endings = endingsPerGender.split(separator: ",", omittingEmptySubsequences: false)
+        return String(endings[safe: Int(rawValue)] ?? "")
+    }
+    
     static let aliases = ["род", "пол", "труп.род"]
     
     static func registerDefinitions(in e: Enumerations) {

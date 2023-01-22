@@ -130,7 +130,7 @@ fileprivate let commandInfo: [Command] = [
     Command(["сравнить", "consider"], group: .combat, notImplemented),
     Command(["убить", "kill"], group: .combat, Creature.doKill,
              flags: [.noFight, .highPriority], minPosition: .standing,
-            arg1: .creature),
+            arg1: .creature, cases1: .accusative, where1: .room),
     Command(["бежать", "flee"], group: .combat, notImplemented),
     Command(["отступить", "retreat"], group: .combat, notImplemented),
     Command(["помочь", "assist"], group: .combat, notImplemented),

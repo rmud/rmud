@@ -1,6 +1,37 @@
 import Foundation
 
 extension Creature {
+    func startFight(victim: Creature) -> Bool {
+        guard fighting == nil else { return true }
+
+        guard victim != self else {
+            send("Здесь, вероятно, следует засмеяться?")
+            return false
+        }
+        
+        guard !victim.isGodMode() else {
+            send("Ваше благоразумие подсказало Вам, что лучше этого не делать.")
+            return false
+        }
+        
+        if let inRoom = inRoom, inRoom.flags.contains(.peaceful) {
+            send("Здесь так тихо и спокойно, что Вам не хочется начинать бой.")
+            return false
+        }
+        
+        fighting = victim
+        db.creaturesFighting.append(self)
+        
+        if victim.fighting == nil {
+            victim.fighting = self
+            db.creaturesFighting.append(victim)
+        }
+        
+        return true
+    }
+    
+    func hit(victim: Creature) {
+    }
     
     func stopFighting() {
         

@@ -109,6 +109,8 @@ extension Creature {
     func canSee(_ item: Item) -> Bool {
         return true // FIXME
     }
+    
+    
 
     // Simple function to determine if a non-flying char can walk on water
     func hasBoat() -> Bool {

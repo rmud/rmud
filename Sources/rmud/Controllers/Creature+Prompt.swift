@@ -32,6 +32,13 @@ extension Creature {
         if preferenceFlags?.contains(.displayCoinsInPrompt) ?? false {
             promptElements.append("\(gold)м")
         }
+        
+        if let fighting = fighting {
+            if let tank = fighting.fighting {
+                promptElements.append(statusHealth(target: tank))
+            }
+            promptElements.append(statusHealth(target: fighting))
+        }
 
         if preferenceFlags?.contains(.displayMovementInPrompt) ?? false, !movementPath.isEmpty {
             let path = movementPath.map { $0.singleLetter }.joined()
@@ -46,6 +53,16 @@ extension Creature {
         }
 
         return promptElements.joined(separator: " ") + "> "
+    }
+                
+    private func statusHealth(target: Creature) -> String {
+        let name = target.nameNominativeVisible(of: self)
+        let percent = target.hitPointsPercentage()
+        let statusColor = percentageColor(percent)
+        let condition = CreatureCondition(hitPointsPercentage: percent, isStunned: isStunned, isDying: isDying)
+        let conditionString = condition.shortDescription(gender: genderVisible(of: target), color: statusColor, normalColor: nNrm())
+        
+        return "[\(name):\(conditionString)]"
     }
     
     private func statusAutoExits() -> String {

@@ -17,6 +17,7 @@ class Db {
 
     var roomsByVnum: [Int: Room] = [:]
     var creaturesInGame: [Creature] = []
+    var creaturesFighting: [Creature] = []
     var itemsInGame: [Item] = [] // FIXME: too slow, try to remove it
     var itemsCountByVnum: [Int: Int] = [:]
     var mobilesCountByVnum: [Int: Int] = [:]

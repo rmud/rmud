@@ -316,36 +316,26 @@ extension Creature {
             act(result, .excludingCreature(target), .toCreature(self), .text(raceName))
         }
         
-        var result = "1и "
-        
-        if target.hitPoints >= 0 {
-            let percent = target.hitPoints * 100 / target.affectedMaximumHitPoints()
-            result +=
-                percent >= 100 ? "в великолепном состоянии" :
-                percent >= 90  ? "имеет несколько царапин" :
-                percent >= 75  ? "имеет несколько легких ран" :
-                percent >= 50  ? "имеет несколько ран" :
-                percent >= 25  ? "имеет несколько тяжелых ран" :
-                percent >= 10  ? "имеет несколько зияющих ран" :
-                "в ужасном состоянии"
+        let percent = hitPointsPercentage()
+        let statusColor = percentageColor(percent)
+        let condition = CreatureCondition(hitPointsPercentage: percent, isStunned: isStunned, isDying: isDying)
+        let conditionString = condition.longDescriptionPrepositional(gender: genderVisible(of: target), color: statusColor, normalColor: nNrm())
 
-            if target.isPlayer {
-                result += " и выгляд1(и,и,и,я)т "
-                let movePercent = target.movement * 100 / target.affectedMaximumMovement()
-                result +=
-                    movePercent >= 100 ? "отдохнувш1(им,ей,им,ими)" :
-                    movePercent >= 90  ? "бодр1(ым,ой,ым,ыми)" :
-                    movePercent >= 75  ? "немного уставш1(им,ей,им,ими)" :
-                    movePercent >= 50  ? "уставш1(им,ей,им,ими)" :
-                    movePercent >= 25  ? "сильно уставш1(им,ей,им,ими)" :
-                    movePercent >= 10  ? "утомленн1(ым,ой,ым,ыми)" :
-                    "истощенн1(ым,ой,ым,ыми)"
-            }
-        } else {
-            result += "умирает"
+        var result = "1и &1"
+        if !target.isDying && !target.isStunned && target.isPlayer {
+            result += " и выгляд1(и,и,и,я)т "
+            let movePercent = target.movement * 100 / target.affectedMaximumMovement()
+            result +=
+                movePercent >= 100 ? "отдохнувш1(им,ей,им,ими)" :
+                movePercent >= 90  ? "бодр1(ым,ой,ым,ыми)" :
+                movePercent >= 75  ? "немного уставш1(им,ей,им,ими)" :
+                movePercent >= 50  ? "уставш1(им,ей,им,ими)" :
+                movePercent >= 25  ? "сильно уставш1(им,ей,им,ими)" :
+                movePercent >= 10  ? "утомленн1(ым,ой,ым,ыми)" :
+                "истощенн1(ым,ой,ым,ыми)"
         }
         result += "."
         
-        act(result, .excludingCreature(target), .toCreature(self))
+        act(result, .excludingCreature(target), .toCreature(self), .text(conditionString))
     }
 }

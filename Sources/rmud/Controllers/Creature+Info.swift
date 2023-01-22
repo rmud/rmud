@@ -9,7 +9,13 @@ extension Creature {
     private func pointColor(currentValue: Int, maximumValue: Int) -> String {
         let percent = maximumValue > 0 ? (100 * currentValue) / maximumValue : 0
         
-        return percent >= 75 ? nGrn() : percent >= 25 ? bYel() : nRed()
+        return percentageColor(percent)
+    }
+
+    func percentageColor(_ percent: Int) -> String {
+        return percent >= 75 ? nGrn() :
+            percent >= 25 ? bYel() :
+            nRed()
     }
     
     func statusHitPointsColor() -> String {
