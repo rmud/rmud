@@ -162,8 +162,8 @@ let baseLevelExperience: [Int] = [
 let bodypartInfoByEquipmentPosition: [EquipmentPosition: BodypartInfo] = [
     //                         name:           wearFlags:  armor:        fragChance: options:
     .light:       BodypartInfo("свет",         .take,      0,            3,          []),
-    .fingerRight: BodypartInfo("па пальце",    .finger,    0,            1,          []),
-    .fingerLeft:  BodypartInfo("па пальце",    .finger,    0,            1,          []),
+    .fingerRight: BodypartInfo("на пальце",    .finger,    0,            1,          []),
+    .fingerLeft:  BodypartInfo("на пальце",    .finger,    0,            1,          []),
     .neck:        BodypartInfo("на шее",       .neck,      0,            2,          []),
     .neckAbout:   BodypartInfo("вокруг шеи",   .neckAbout, Armor.neck,   4,          .mageNoMetal),
     .body:        BodypartInfo("на теле",      .body,      Armor.body,   8,          .mageNoMetal),
