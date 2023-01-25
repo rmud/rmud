@@ -22,11 +22,12 @@ fileprivate enum State {
     case searchIndex
     case searchVisibility
     case searchExtraData
+    case captureAnsiColor
 }
 
 fileprivate enum TokenType {
-    case none
     case partOfFormatString
+    case color
     case text
     case number
     case creature
@@ -50,12 +51,15 @@ fileprivate enum TokenExtraData {
 // $1и $1(x,y,z) 1и 1(x,y,z)
 // type: $, @  (if not specified, it's $)
 fileprivate struct Token {
-    var type: TokenType = .none
+    var type: TokenType
     var visibility: TokenVisibility = .unaffectedByThisObject
     var index = 1
     var extraData: TokenExtraData = .none
+    var capitalize = false
     
-    init() {}
+    init(type: TokenType) {
+        self.type = type
+    }
 }
 
 func act(_ text: String, _ flags: ActFlags, _ args: [ActArgument], completion: (_ target: Creature, _ output: String)->()) {
@@ -66,7 +70,7 @@ func act(_ text: String, _ flags: ActFlags, _ args: [ActArgument], completion: (
     let targets = targetCreatures(from: args, flags: flags)
     
     for target in targets {
-        let output = render(tokens, for: target, with: args).capitalizingFirstLetter()
+        let output = render(tokens, for: target, with: args)
         completion(target, output)
         //target.send(output)
     }
@@ -126,17 +130,23 @@ fileprivate func targetCreatures(from args: [ActArgument], flags: ActFlags) -> S
 fileprivate func tokenize(text: String) -> [Token] {
     var result: [Token] = []
     
-    var token = Token()
+    var token = Token(type: .partOfFormatString)
+    token.capitalize = true
+
     var state: State = .searchToken
+    var capitalizeNextLetter = false
     
     var output = ""
     let flushOutput = {
         if !output.isEmpty {
-            var token = Token()
-            token.type = .partOfFormatString
             token.extraData = .text(output)
             result.append(token)
+
+            token = Token(type: .partOfFormatString)
+            token.capitalize = capitalizeNextLetter
+
             output.removeAll()
+            capitalizeNextLetter = false
         }
     }
 
@@ -157,7 +167,12 @@ fileprivate func tokenize(text: String) -> [Token] {
         
         switch state {
         case .searchToken:
-            if c == "&" {
+            if c == Ansi.sequenceStart {
+                flushOutput()
+                token.type = .color
+                state = .captureAnsiColor
+                output.append(c)
+            } else if c == "&" {
                 flushOutput()
                 token.type = .text
                 state = .searchIndex
@@ -176,6 +191,16 @@ fileprivate func tokenize(text: String) -> [Token] {
                 token.type = .item
                 state = .searchIndex
             } else {
+                if c.isLetter {
+                    if capitalizeNextLetter {
+                        // New sentence will be a new token with capitalized text
+                        flushOutput()
+                    }
+                } else {
+                    if c != "," && c != ":" && c != ";" && c != "-" && !c.isWhitespace && !c.isNewline {
+                        capitalizeNextLetter = true
+                    }
+                }
                 output.append(c)
             }
         case .searchIndex:
@@ -195,7 +220,7 @@ fileprivate func tokenize(text: String) -> [Token] {
             } else if token.type == .text {
                 // No modifiers in text tokens, just register this token and reset parsing
                 result.append(token)
-                token = Token()
+                token = Token(type: .partOfFormatString)
                 state = .searchToken
             } else {
                 state = .searchExtraData
@@ -230,14 +255,28 @@ fileprivate func tokenize(text: String) -> [Token] {
             }
             result.append(token)
             
-            token = Token()
+            token = Token(type: .partOfFormatString)
             state = .searchToken
+        case .captureAnsiColor:
+            output.append(c)
+            if c == Ansi.sequenceEnd {
+                let capitalize = token.capitalize
+                token.capitalize = false // no effect on color codes
+                token.extraData = .text(output)
+                result.append(token)
+
+                output.removeAll(keepingCapacity: true)
+            
+                token = Token(type: .partOfFormatString)
+                token.capitalize = capitalize // pass to next token
+                state = .searchToken
+            }
         }
     }
     
     flushOutput()
     
-    if token.type != .none {
+    if token.type != .partOfFormatString {
         result.append(token)
     }
 
@@ -344,103 +383,107 @@ fileprivate func fetchStringList(_ remainingCharacters: inout String.Iterator) -
 
 fileprivate func render(_ tokens: [Token], for target: Creature, with args: [ActArgument]) -> String {
     // FIXME: canSee for creature and item
+    var result = ""
     var output = ""
     for token in tokens {
+        defer {
+            result += token.capitalize ? output.capitalizingFirstLetter() : output
+            output.removeAll(keepingCapacity: true)
+        }
+
         switch token.type {
-        case .none:
-            assertionFailure()
-        case .partOfFormatString:
+        case .partOfFormatString, .color:
             if case .text(let string) = token.extraData {
-                output.append(string)
+                output = string
             } else {
                 assertionFailure()
             }
         case .text:
             guard let text = findTextArgument(atIndex: token.index, in: args) else {
-                output += "(ошибка:индекс)"
+                output = "(ошибка:индекс)"
                 continue
             }
-            output += text
+            output = text
         case .number:
             guard let number = findNumberArgument(atIndex: token.index, in: args) else {
-                output += "(ошибка:индекс)"
+                output = "(ошибка:индекс)"
                 continue
             }
             switch token.extraData {
             case .none:
-                output += String(number)
+                output = String(number)
             case .stringList(let endings):
                 let ending1 = endings[validating: 0] ?? ""
                 let ending2 = endings[validating: 1] ?? ""
                 let ending3 = endings[validating: 2] ?? ""
-                output += number.ending(ending1, ending2, ending3)
+                output = number.ending(ending1, ending2, ending3)
             default:
-                output += "(ошибка:формат)"
+                output = "(ошибка:формат)"
             }
         case .creature:
             guard let creature = findCreatureArgument(atIndex: token.index, in: args) else {
-                output += "(ошибка:индекс)"
+                output = "(ошибка:индекс)"
                 continue
             }
             switch token.extraData {
             case .character(let c):
                 switch c {
-                case "и": output += creature.nameNominative.full
-                case "р": output += creature.nameGenitive.full
-                case "д": output += creature.nameDative.full
-                case "в": output += creature.nameAccusative.full
-                case "т": output += creature.nameInstrumental.full
-                case "п": output += creature.namePrepositional.full
-                default: output += "(ошибка:формат)"
+                case "и": output = creature.nameNominative.full
+                case "р": output = creature.nameGenitive.full
+                case "д": output = creature.nameDative.full
+                case "в": output = creature.nameAccusative.full
+                case "т": output = creature.nameInstrumental.full
+                case "п": output = creature.namePrepositional.full
+                default: output = "(ошибка:формат)"
                 }
             case .stringList(let strings):
                 switch creature.gender { // FIXME: visible/invisible
                 case .masculine:
-                    if strings.indices.contains(0) { output += strings[0] }
+                    if strings.indices.contains(0) { output = strings[0] }
                 case .feminine:
-                    if strings.indices.contains(1) { output += strings[1] }
+                    if strings.indices.contains(1) { output = strings[1] }
                 case .neuter:
-                    if strings.indices.contains(2) { output += strings[2] }
+                    if strings.indices.contains(2) { output = strings[2] }
                 case .plural:
-                    if strings.indices.contains(3) { output += strings[3] }
+                    if strings.indices.contains(3) { output = strings[3] }
                 default:
                     break
                 }
-            default: output += "(ошибка:формат)"
+            default: output = "(ошибка:формат)"
             }
         case .item:
             // FIXME: not fully implemented
             guard let item = findItemArgument(atIndex: token.index, in: args) else {
-                output += "(ошибка:индекс)"
+                output = "(ошибка:индекс)"
                 continue
             }
             switch token.extraData {
             case .character(let c):
                 switch c {
-                case "и": output += item.nameNominative.full
-                case "р": output += item.nameGenitive.full
-                case "д": output += item.nameDative.full
-                case "в": output += item.nameAccusative.full
-                case "т": output += item.nameInstrumental.full
-                case "п": output += item.namePrepositional.full
-                default: output += "(ошибка:формат)"
+                case "и": output = item.nameNominative.full
+                case "р": output = item.nameGenitive.full
+                case "д": output = item.nameDative.full
+                case "в": output = item.nameAccusative.full
+                case "т": output = item.nameInstrumental.full
+                case "п": output = item.namePrepositional.full
+                default: output = "(ошибка:формат)"
                 }
             case .stringList(let strings):
                 switch item.gender { // FIXME: visible/invisible
                 case .masculine:
-                    if strings.indices.contains(0) { output += strings[0] }
+                    if strings.indices.contains(0) { output = strings[0] }
                 case .feminine:
-                    if strings.indices.contains(1) { output += strings[1] }
+                    if strings.indices.contains(1) { output = strings[1] }
                 case .neuter:
-                    if strings.indices.contains(2) { output += strings[2] }
+                    if strings.indices.contains(2) { output = strings[2] }
                 case .plural:
-                    if strings.indices.contains(3) { output += strings[3] }
+                    if strings.indices.contains(3) { output = strings[3] }
                 default:
                     break
                 }
-            default: output += "(ошибка:формат)"
+            default: output = "(ошибка:формат)"
             }
         }
     }
-    return output
+    return result
 }

@@ -1,6 +1,9 @@
 import Foundation
 
 public class Ansi {
+    public static let sequenceStart: Character = "\u{1B}"
+    public static let sequenceEnd: Character = "m"
+    
     // No color:
     public static let nul = ""
 
