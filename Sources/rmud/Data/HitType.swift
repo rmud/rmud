@@ -4,23 +4,65 @@ import Foundation
 // TODO: merge with WeaponHitType?
 enum HitType: UInt8  {
     case hit = 0
-    case hitType1 = 1
-    case hitType2 = 2
-    case hitType3 = 3
-    case hitType4 = 4
-    case hitType5 = 5
-    case hitType6 = 6
-    case hitType7 = 7
-    case hitType8 = 8
-    case hitType9 = 9
-    case hitType10 = 10
-    case hitType11 = 11
-    case hitType12 = 12
-    case hitType13 = 13
-    case hitType14 = 14
-    case hitType15 = 15
+    case pierce = 1
+    case slash = 2
+    case slice = 3
+    case impale = 4
+    case cleave = 5
+    case crush = 6
+    case shoot = 7
+    case scratch = 8
+    case whip = 9
+    case butt = 10
+    case peck = 11
+    case strike = 12
+    case sting = 13
+    case bite = 14
+    case knock = 15
     
     static let aliases = ["удар1", "удар2"]
+    
+    var indefinite: String {
+        switch (self) {
+        case .hit: return "ударить"
+        case .pierce: return "уколоть"
+        case .slash: return "порезать"
+        case .slice: return "полоснуть"
+        case .impale: return "пронзить"
+        case .cleave: return "рубануть"
+        case .crush: return "сокрушить"
+        case .shoot: return "прострелить"
+        case .scratch: return "царапнуть"
+        case .whip: return "хлестнуть"
+        case .butt: return "боднуть"
+        case .peck: return "клюнуть"
+        case .strike: return "лягнуть"
+        case .sting: return "ужалить"
+        case .bite: return "укусить"
+        case .knock: return "стукнуть"
+        }
+    }
+    
+    var past: String {
+        switch (self) {
+        case .hit: return "ударив"
+        case .pierce: return "уколов"
+        case .slash: return "порезав"
+        case .slice: return "полоснув"
+        case .impale: return "пронзив"
+        case .cleave: return "рубанув"
+        case .crush: return "сокрушив"
+        case .shoot: return "прострелив"
+        case .scratch: return "царапнув"
+        case .whip: return "хлестнув"
+        case .butt: return "боднув"
+        case .peck: return "клюнув"
+        case .strike: return "лягнув"
+        case .sting: return "ужалив"
+        case .bite: return "укусив"
+        case .knock: return "стукнув"
+        }
+    }
     
     static func registerDefinitions(in e: Enumerations) {
         e.add(aliases: aliases, namesByValue: [
