@@ -18,4 +18,11 @@ extension Creature {
                 (fighting == victim.fighting || fighting!.fighting == victim)) ||
                (victim.isFighting && victim.fighting!.fighting == self) // бьёт того, кто бьёт self
     }
+    
+    func damagePositionBonus(damage: Int) -> Int {
+        if !position.isAwake { return damage }
+        else if position == .resting { return damage / 2 }
+        else if position == .sitting { return damage / 4 }
+        return 0
+    }
 }
