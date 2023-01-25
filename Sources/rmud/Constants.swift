@@ -186,7 +186,7 @@ let bodypartInfoByEquipmentPosition: [EquipmentPosition: BodypartInfo] = [
 ]
 
 // Two very basic tables used in many functions
-let tableA: [Int] = [ // 0 - 36
+fileprivate let tableA: [Int] = [ // 0 - 36
     -50, // 0
     -40,-35,-30,-25,-20,-16,-12, -9, -6, -4, // 10
     -2, -1,  0,  1,  2,  4,  6,  8, 10, 13, // 20
@@ -194,7 +194,7 @@ let tableA: [Int] = [ // 0 - 36
     55, 60, 65, 70, 75, 80
 ]
 
-let tableB: [Int] = [ // 0 - 30
+fileprivate let tableB: [Int] = [ // 0 - 30
     0,
     4,  8, 12, 16, 20,
     25, 30, 35, 40, 44,
