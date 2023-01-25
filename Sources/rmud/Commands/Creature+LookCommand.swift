@@ -316,13 +316,13 @@ extension Creature {
             act(result, .excludingCreature(target), .toCreature(self), .text(raceName))
         }
         
-        let percent = hitPointsPercentage()
+        let percent = target.hitPointsPercentage()
         let statusColor = percentageColor(percent)
-        let condition = CreatureCondition(hitPointsPercentage: percent, isStunned: isStunned, isDying: isDying)
+        let condition = CreatureCondition(hitPointsPercentage: percent, position: target.position)
         let conditionString = condition.longDescriptionPrepositional(gender: genderVisible(of: target), color: statusColor, normalColor: nNrm())
 
         var result = "1и &1"
-        if !target.isDying && !target.isStunned && target.isPlayer {
+        if !target.position.isStunnedOrWorse && target.isPlayer {
             result += " и выгляд1(и,и,и,я)т "
             let movePercent = target.movement * 100 / target.affectedMaximumMovement()
             result +=

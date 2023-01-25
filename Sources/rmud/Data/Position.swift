@@ -9,10 +9,6 @@ enum Position: UInt8 {
     case sitting  = 5
     case standing = 6
     
-    var isUnconscious: Bool {
-        return self == .dying || self == .stunned
-    }
-    
     var isAwake: Bool {
         switch self {
         case .resting, .sitting, .standing: return true

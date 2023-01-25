@@ -334,7 +334,7 @@ extension Creature {
         } else if isUncomfortableClass(item: item) {
             act("Увы, @1и для Вас неудоб@1(ен,на,но,ны).",
                 .toCreature(self), .item(item))
-            act("1*и к своему разочарованию убедил1(ся,ась,ось,ись), что @1и для н1ев неудоб@1(ен,на,но,ны).",
+            act("1*и к своему разочарованию убедил1(ся,ась,ось,ись), что @1и для 1(него,нее,него,них) неудоб@1(ен,на,но,ны).",
                 .toRoom, .excludingCreature(self), .item(item))
             return
         } else {
@@ -754,7 +754,7 @@ extension Creature {
                 formatString += mobile.groundDescription
             } else {
                 if creature.isMobile || isCreatureRidingSomeone() || creature.isFighting {
-                    formatString += "2^и"
+                    formatString += "2и"
                 } else if canSee(creature), let creaturePlayer = creature.player {
                     let title = creaturePlayer.titleWithFallbackToRace(order: .raceThenName)
                     formatString += title

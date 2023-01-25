@@ -11,10 +11,10 @@ enum CreatureCondition {
     case stunned
     case dying
 
-    init(hitPointsPercentage percent: Int, isStunned: Bool, isDying: Bool) {
-        if isDying {
+    init(hitPointsPercentage percent: Int, position: Position) {
+        if position == .dying {
             self = .dying
-        } else if (isStunned) {
+        } else if position == .stunned {
             self = .stunned
         } else {
             self =

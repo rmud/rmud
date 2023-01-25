@@ -56,10 +56,10 @@ extension Creature {
     }
                 
     private func statusHealth(target: Creature) -> String {
-        let name = target.nameNominativeVisible(of: self)
+        let name = nameNominativeVisible(of: target)
         let percent = target.hitPointsPercentage()
         let statusColor = percentageColor(percent)
-        let condition = CreatureCondition(hitPointsPercentage: percent, isStunned: isStunned, isDying: isDying)
+        let condition = CreatureCondition(hitPointsPercentage: percent, position: position)
         let conditionString = condition.shortDescription(gender: genderVisible(of: target), color: statusColor, normalColor: nNrm())
         
         return "[\(name):\(conditionString)]"

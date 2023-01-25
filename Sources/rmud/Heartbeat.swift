@@ -10,6 +10,12 @@ func heartbeat() throws {
         }
     }
     
+    if gameTime.gamePulse % UInt64(pulseViolence) == 0 {
+        for creature in db.creaturesFighting {
+            creature.performViolence()
+        }
+    }
+    
     if !players.quitting.isEmpty {
         players.quitting.forEach {
             $0.runtimeFlags.remove(.suppressPrompt)

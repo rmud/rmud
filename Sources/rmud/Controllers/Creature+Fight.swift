@@ -30,9 +30,77 @@ extension Creature {
         return true
     }
     
-    func hit(victim: Creature) {
+    func performViolence() {
+        guard let fighting = fighting else {
+            logError("performViolence(): creature \(nameNominative) has no enemy")
+            return
+        }
+        
+        if position == .sitting && !isHeld() {
+            send("\(bCyn())Вам следует встать на ноги!\(nNrm())")
+        }
+        
+        attack(victim: fighting)
     }
     
+    fileprivate func attack(victim: Creature) {
+        hitOnce(victim: victim)
+    }
+    
+    fileprivate func hitOnce(victim: Creature) {
+        var damage = 0
+        
+        if isPlayer {
+            damage += Random.uniformInt(1...2)
+        }
+        
+        damage += victim.damagePositionBonus(damage: damage)
+        damage = max(1, damage)
+        
+        performDamage(victim: victim, damage: damage)
+    }
+    
+    fileprivate func performDamage(victim: Creature, damage: Int) {
+
+        if damage > 0 && victim.position == .sleeping {
+            victim.position = .sitting
+            victim.send("Вы проснулись.")
+            act("1*и проснул1(ся,ась,ось,ись).", .toRoom, .excludingCreature(victim))
+        }
+
+        sendHitMessage(victim: victim, hitType: .hit, damage: damage)
+        
+        victim.hitPoints -= damage
+        victim.updatePosition()
+    }
+    
+    func updatePosition() {
+        guard position != .dead else { return }
+        
+        if hitPoints > 0 {
+            if position.isStunnedOrWorse {
+                send("Вы пришли в себя.")
+                act("1*и приш1(ел,ла,ло,ли) в себя.", .toRoom, .excludingCreature(self))
+            }
+            return
+        }
+        
+        if hitPoints < -10 {
+            position = .dead
+            act("1и мертв1(,а,о,ы)! R.I.P.", .toRoom, .excludingCreature(self))
+            send("Вы мертвы! R.I.P.")
+        } else if hitPoints < -3 {
+            position = .dying
+            send("Вы смертельно ранены и скоро умрете, если никто не поможет.")
+            act("1*и смертельно ранен1(,а,о,ы) и скоро умр1(ет,ет,ет,ут), если 1(ему,ей,ему,им) не помогут.", .toRoom, .excludingCreature(self))
+
+        } else {
+            position = .stunned
+            send("Вы оглушены, но, вероятно, скоро придете в себя.")
+            act("1*и оглушен1(,а,о,ы), но, вероятно, скоро прид1(ет,ет,ет,ут) в себя.", .toRoom, .excludingCreature(self))
+        }
+    }
+            
     func stopFighting() {
         
     }
@@ -40,39 +108,22 @@ extension Creature {
     func redirectAttentions() {
         
     }
+    
+    func sendHitMessage(victim: Creature, hitType: HitType, damage: Int) {
+        let hitForce = HitForce(damage: damage)
+        
+        act("\(bYel())\(hitForce.attacker)\(nNrm())", .toSleeping, .toCreature(self), .excludingCreature(victim), .text(hitType.indefinite), .text(hitType.past))
 
-    func updatePosition() {
-        guard position != .dead else {
-            // No way back: victim's experience already given away
-            return
+        act("\(victim.bRed())\(hitForce.victim)\(victim.nNrm())", .toSleeping, .excludingCreature(self), .toCreature(victim), .text(hitType.indefinite), .text(hitType.past))
+
+        act(hitForce.room, .toRoom, .excludingCreature(self), .excludingCreature(victim), .text(hitType.indefinite), .text(hitType.past))
+
+        let victimMaxHit = victim.affectedMaximumHitPoints()
+        if damage > victimMaxHit / 4 {
+            victim.send("\(victim.bRed())ЭТО БЫЛО ОЧЕНЬ БОЛЬНО!\(victim.nNrm())")
         }
-    
-        if hitPoints > 0 {
-            if position.isUnconscious {
-                send("Вы пришли в себя.")
-                act("1*и приш1(ел,ла,ло,ли) в себя.", .toRoom, .excludingCreature(self))
-                position = .sitting
-            }
-            return
-        }
-    
-        if let player = player, !position.isUnconscious {
-            // Was conscious until now
-            let _ = player.stopWatching()
-        }
-    
-        let deadAtHitpoints: Int
-        if isAffected(by: .delayDeath) {
-            deadAtHitpoints = (2 * affectedMaximumHitPoints()) / 3 - 1
-        } else {
-            deadAtHitpoints = -10
-        }
-        if hitPoints <= deadAtHitpoints {
-            position = .dead
-        } else if hitPoints < -3 {
-            position = .dying
-        } else {
-            position = .stunned
+        if damage > 0 && victim.hitPoints - damage < victimMaxHit / 5 {
+            victim.send("\(victim.bRed())ВЫ ИСТЕКАЕТЕ КРОВЬЮ!\(victim.nNrm())")
         }
     }
 }

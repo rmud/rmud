@@ -247,9 +247,7 @@ class Creature {
     func hitPointsPercentage() -> Int {
         return (100 * hitPoints) / affectedMaximumHitPoints();
     }
-    var isStunned: Bool { return hitPoints == 0 }
-    var isDying: Bool { return hitPoints < 0 }
-    
+
     // Movement points
     var arrivedAtGamePulse: UInt64 = 0
     var movement = 0
