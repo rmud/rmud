@@ -52,6 +52,10 @@ extension Creature {
         let defense = 0
         
         let didHit = attack + Random.uniformInt(1...100) > defense + 50
+        guard didHit else {
+            sendMissMessage(victim: victim, hitType: .hit)
+            return
+        }
         
         var damage = 0
         
@@ -112,6 +116,14 @@ extension Creature {
     
     func redirectAttentions() {
         
+    }
+    
+    func sendMissMessage(victim: Creature, hitType: HitType) {
+        act("Вы попытались &1 2в, но промахнулись.", .toSleeping, .toCreature(self), .excludingCreature(victim), .text(hitType.indefinite), .text(hitType.past))
+
+        act("1и попытал1(ся,ась,ось,ись) &1 ВАС, но промахнул1(ся,ась,ось,ись).", .toSleeping, .excludingCreature(self), .toCreature(victim), .text(hitType.indefinite), .text(hitType.past))
+
+        act("1и попытал1(ся,ась,ось,ись) &1 2в, но промахнул1(ся,ась,ось,ись).", .toRoom, .excludingCreature(self), .excludingCreature(victim), .text(hitType.indefinite), .text(hitType.past))
     }
     
     func sendHitMessage(victim: Creature, hitType: HitType, damage: Int) {
