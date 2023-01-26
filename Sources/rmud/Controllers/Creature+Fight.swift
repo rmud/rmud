@@ -1,7 +1,7 @@
 import Foundation
 
 extension Creature {
-    func startFight(victim: Creature) -> Bool {
+    func startFighting(victim: Creature) -> Bool {
         guard fighting == nil else { return true }
 
         guard victim != self else {
@@ -28,6 +28,16 @@ extension Creature {
         }
         
         return true
+    }
+            
+    func stopFighting() {
+        guard isFighting else { return }
+        fighting = nil
+
+        guard let index = db.creaturesFighting
+            .lastIndex(where: { creature in creature == self })
+            else { return }
+        db.creaturesFighting.remove(at: index)
     }
     
     func performViolence() {
@@ -81,6 +91,10 @@ extension Creature {
         
         victim.hitPoints -= damage
         victim.updatePosition()
+        
+        if victim.isFighting && victim.position.isStunnedOrWorse {
+            victim.stopFighting()
+        }
     }
     
     func updatePosition() {
@@ -108,10 +122,6 @@ extension Creature {
             send("Вы оглушены, но, вероятно, скоро придете в себя.")
             act("1*и оглушен1(,а,о,ы), но, вероятно, скоро прид1(ет,ет,ет,ут) в себя.", .toRoom, .excludingCreature(self))
         }
-    }
-            
-    func stopFighting() {
-        
     }
     
     func redirectAttentions() {

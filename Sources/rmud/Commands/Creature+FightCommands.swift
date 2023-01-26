@@ -11,7 +11,7 @@ extension Creature {
             logIntervention("\(nameNominative.full) атакует \(victim.nameAccusative.full)")
         }
         
-        guard startFight(victim: victim) else { return }
+        guard startFighting(victim: victim) else { return }
         lagSet(pulseViolence)
 
         hitOnce(victim: victim)
