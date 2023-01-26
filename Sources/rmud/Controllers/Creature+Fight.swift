@@ -47,7 +47,7 @@ extension Creature {
         hitOnce(victim: victim)
     }
     
-    fileprivate func hitOnce(victim: Creature) {
+    func hitOnce(victim: Creature) {
         var damage = 0
         
         if isPlayer {
