@@ -14,8 +14,6 @@ func gameLoop() {
     var beforeSleep = timeval()
     var now = timeval()
     var missedPulses = 0
-
-    let scheduler = Scheduler.sharedInstance
     
     gettimeofday(&lastTime, nil)
     

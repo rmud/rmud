@@ -14,6 +14,7 @@ let messages = Messages.sharedInstance
 let morpher = Morpher.sharedInstance
 let networking = Networking.sharedInstance
 let players = Players.sharedInstance
+let scheduler = Scheduler.sharedInstance
 let settings = Settings.sharedInstance
 let socials = Socials.sharedInstance
 let spells = Spells.sharedInstance

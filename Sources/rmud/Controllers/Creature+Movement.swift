@@ -29,7 +29,7 @@ extension Creature {
         let pulsesNeeded = (inRoom.terrain.gamePulsesNeeded + toRoom.terrain.gamePulsesNeeded) / 2
         let pulsesPassed = gameTime.gamePulse - arrivedAtGamePulse
         guard pulsesPassed >= pulsesNeeded else {
-            Scheduler.sharedInstance.schedule(
+            scheduler.schedule(
                 afterGamePulses: pulsesNeeded - pulsesPassed,
                 handlerType: .movement,
                 target: self,
