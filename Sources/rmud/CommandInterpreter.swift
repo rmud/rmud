@@ -1,8 +1,8 @@
 import Foundation
 
-fileprivate let notImplemented: Command.Handler? = nil
+private let notImplemented: Command.Handler? = nil
 
-fileprivate let commandInfo: [Command] = [
+private let commandInfo: [Command] = [
     
     // Movement
     Command(["север", "north", "\u{1b}[A"], group: .movement, subcommand: .north, Creature.doMove,

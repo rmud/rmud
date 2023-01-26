@@ -43,11 +43,16 @@ extension Creature {
         attack(victim: fighting)
     }
     
-    fileprivate func attack(victim: Creature) {
+    private func attack(victim: Creature) {
         hitOnce(victim: victim)
     }
     
     func hitOnce(victim: Creature) {
+        let attack = 0
+        let defense = 0
+        
+        let didHit = attack + Random.uniformInt(1...100) > defense + 50
+        
         var damage = 0
         
         if isPlayer {
@@ -60,7 +65,7 @@ extension Creature {
         performDamage(victim: victim, damage: damage)
     }
     
-    fileprivate func performDamage(victim: Creature, damage: Int) {
+    private func performDamage(victim: Creature, damage: Int) {
 
         if damage > 0 && victim.position == .sleeping {
             victim.position = .sitting

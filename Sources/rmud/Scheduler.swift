@@ -15,7 +15,7 @@ class Scheduler {
         let targetAction: TargetAction
     }
     
-    fileprivate struct TargetActionWrapper<T: AnyObject>: TargetAction {
+    private struct TargetActionWrapper<T: AnyObject>: TargetAction {
         let handlerType: HandlerType
         let target: T
         let action: (T) -> () -> ()

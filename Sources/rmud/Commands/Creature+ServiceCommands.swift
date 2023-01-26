@@ -88,7 +88,7 @@ extension Creature {
         }
     }
     
-    fileprivate func itemsByNameAndPrice(clerk: Creature) -> [(NameAndPrice, [Item])] {
+    private func itemsByNameAndPrice(clerk: Creature) -> [(NameAndPrice, [Item])] {
         let itemsByNameAndPrice: [NameAndPrice: [Item]] = clerk.carrying.reduce(into: [:]) {
             (result, item) in
             let price = clerk.mobile?.shopBuyPrice(item: item) ?? 1
@@ -100,13 +100,13 @@ extension Creature {
         return itemsByNameAndPrice.sorted(by: { $0.key < $1.key })
     }
     
-    fileprivate func isSellingItems(clerk: Creature) -> Bool {
+    private func isSellingItems(clerk: Creature) -> Bool {
         guard let shopkeeper = clerk.mobile?.shopkeeper,
               let _ = shopkeeper.sellProfit else { return false }
         return true;
     }
     
-    fileprivate func shopGetItemByNumber(items: [(NameAndPrice, [Item])], argument: String) -> Item? {
+    private func shopGetItemByNumber(items: [(NameAndPrice, [Item])], argument: String) -> Item? {
         guard let number = Int(argument) else { return nil }
         let index = number - 1
         return items[safe: index]?.1.first
@@ -146,7 +146,7 @@ extension Creature {
         send(output)
     }
     
-    fileprivate func shopBuy(clerk: Creature, name: String) {
+    private func shopBuy(clerk: Creature, name: String) {
         guard isSellingItems(clerk: clerk), let shopkeeper = clerk.mobile?.shopkeeper else {
             act("1и сказал1(,а,о,и) Вам: \"Я ничего не продаю.\"", .toCreature(self), .excludingCreature(clerk))
             return

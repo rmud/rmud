@@ -704,11 +704,11 @@ extension Descriptor: Hashable {
     }
 }
 
-fileprivate func zlibAlloc(data: voidpf?, items: uInt, size: uInt) -> voidpf? {
+private func zlibAlloc(data: voidpf?, items: uInt, size: uInt) -> voidpf? {
     return malloc(Int(items * size))
 }
 
-fileprivate func zlibFree(opaque: voidpf?, address: voidpf?) {
+private func zlibFree(opaque: voidpf?, address: voidpf?) {
     return free(address)
 }
 

@@ -17,7 +17,7 @@ enum ActArgument {
     case item(Item)
 }
 
-fileprivate enum State {
+private enum State {
     case searchToken
     case searchIndex
     case searchVisibility
@@ -25,7 +25,7 @@ fileprivate enum State {
     case captureAnsiColor
 }
 
-fileprivate enum TokenType {
+private enum TokenType {
     case partOfFormatString
     case color
     case text
@@ -34,13 +34,13 @@ fileprivate enum TokenType {
     case item
 }
 
-fileprivate enum TokenVisibility {
+private enum TokenVisibility {
     case unaffectedByThisObject
     case and
     case or
 }
 
-fileprivate enum TokenExtraData {
+private enum TokenExtraData {
     case none
     case character(Character)
     case stringList([String])
@@ -50,7 +50,7 @@ fileprivate enum TokenExtraData {
 // Tokens have the following form:
 // $1и $1(x,y,z) 1и 1(x,y,z)
 // type: $, @  (if not specified, it's $)
-fileprivate struct Token {
+private struct Token {
     var type: TokenType
     var visibility: TokenVisibility = .unaffectedByThisObject
     var index = 1
@@ -99,7 +99,7 @@ func act(_ text: String, _ args: ActArgument...) {
     act(text, ActFlags(), args)
 }
 
-fileprivate func targetCreatures(from args: [ActArgument], flags: ActFlags) -> Set<Creature> {
+private func targetCreatures(from args: [ActArgument], flags: ActFlags) -> Set<Creature> {
     var targets: Set<Creature> = []
     
     if flags.contains(.toRoom) {
@@ -127,7 +127,7 @@ fileprivate func targetCreatures(from args: [ActArgument], flags: ActFlags) -> S
     return targets
 }
 
-fileprivate func tokenize(text: String) -> [Token] {
+private func tokenize(text: String) -> [Token] {
     var result: [Token] = []
     
     var token = Token(type: .partOfFormatString)
@@ -283,7 +283,7 @@ fileprivate func tokenize(text: String) -> [Token] {
     return result
 }
 
-fileprivate func findFirstCreature(in args: [ActArgument]) -> Creature? {
+private func findFirstCreature(in args: [ActArgument]) -> Creature? {
     for arg in args {
         switch arg {
         case .toCreature(let creature): return creature
@@ -294,7 +294,7 @@ fileprivate func findFirstCreature(in args: [ActArgument]) -> Creature? {
     return nil
 }
 
-fileprivate func findTextArgument(atIndex index: Int, in args: [ActArgument]) -> String? {
+private func findTextArgument(atIndex index: Int, in args: [ActArgument]) -> String? {
     var atIndex = 1
     for arg in args {
         guard case .text(let string) = arg else { continue }
@@ -307,7 +307,7 @@ fileprivate func findTextArgument(atIndex index: Int, in args: [ActArgument]) ->
     return nil
 }
 
-fileprivate func findNumberArgument(atIndex index: Int, in args: [ActArgument]) -> Int? {
+private func findNumberArgument(atIndex index: Int, in args: [ActArgument]) -> Int? {
     var atIndex = 1
     for arg in args {
         guard case .number(let number) = arg else { continue }
@@ -320,7 +320,7 @@ fileprivate func findNumberArgument(atIndex index: Int, in args: [ActArgument]) 
     return nil
 }
 
-fileprivate func findCreatureArgument(atIndex index: Int, in args: [ActArgument]) -> Creature? {
+private func findCreatureArgument(atIndex index: Int, in args: [ActArgument]) -> Creature? {
     var atIndex = 1
     for arg in args {
         var found: Creature!
@@ -341,7 +341,7 @@ fileprivate func findCreatureArgument(atIndex index: Int, in args: [ActArgument]
     return nil
 }
 
-fileprivate func findItemArgument(atIndex index: Int, in args: [ActArgument]) -> Item? {
+private func findItemArgument(atIndex index: Int, in args: [ActArgument]) -> Item? {
     var atIndex = 1
     for arg in args {
         var found: Item!
@@ -361,7 +361,7 @@ fileprivate func findItemArgument(atIndex index: Int, in args: [ActArgument]) ->
     return nil
 }
 
-fileprivate func fetchStringList(_ remainingCharacters: inout String.Iterator) -> [String]? {
+private func fetchStringList(_ remainingCharacters: inout String.Iterator) -> [String]? {
     var result: [String] = []
     var currentElement = ""
     
@@ -381,7 +381,7 @@ fileprivate func fetchStringList(_ remainingCharacters: inout String.Iterator) -
     return nil
 }
 
-fileprivate func render(_ tokens: [Token], for target: Creature, with args: [ActArgument]) -> String {
+private func render(_ tokens: [Token], for target: Creature, with args: [ActArgument]) -> String {
     // FIXME: canSee for creature and item
     var result = ""
     var output = ""
