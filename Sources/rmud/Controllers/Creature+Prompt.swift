@@ -56,13 +56,13 @@ extension Creature {
     }
                 
     private func statusHealth(target: Creature) -> String {
-        let name = nameNominativeVisible(of: target)
-        let percent = target.hitPointsPercentage()
-        let statusColor = percentageColor(percent)
-        let condition = CreatureCondition(hitPointsPercentage: percent, position: position)
-        let conditionString = condition.shortDescription(gender: genderVisible(of: target), color: statusColor, normalColor: nNrm())
+        let targetName = nameNominativeVisible(of: target)
+        let targetPercent = target.hitPointsPercentage()
+        let statusColor = percentageColor(targetPercent)
+        let targetCondition = CreatureCondition(hitPointsPercentage: targetPercent, position: target.position)
+        let conditionString = targetCondition.shortDescription(gender: genderVisible(of: target), color: statusColor, normalColor: nNrm())
         
-        return "[\(name):\(conditionString)]"
+        return "[\(targetName):\(conditionString)]"
     }
     
     private func statusAutoExits() -> String {
