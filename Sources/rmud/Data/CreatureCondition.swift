@@ -10,9 +10,12 @@ enum CreatureCondition {
     case awful
     case stunned
     case dying
+    case dead
 
     init(hitPointsPercentage percent: Int, position: Position) {
-        if position == .dying {
+        if position == .dead {
+            self = .dead
+        } else if position == .dying {
             self = .dying
         } else if position == .stunned {
             self = .stunned
@@ -39,6 +42,7 @@ enum CreatureCondition {
         case .awful: return "в \(color)ужасном\(normalColor) состоянии"
         case .stunned: return "\(color)оглушен\(gender.ending(",а,о,ы"))\(normalColor)"
         case .dying: return "\(color)умира\(gender.ending("ет,ет,ет,ют"))\(normalColor)"
+        case .dead: return "\(color)мертв\(gender.ending(",а,о,ы"))\(normalColor)"
         }
     }
 
@@ -54,6 +58,7 @@ enum CreatureCondition {
         case .awful: condition = "ужасное"
         case .stunned: condition = "оглушен\(gender.ending(",а,о,ы"))"
         case .dying: condition = "умира\(gender.ending("ет,ет,ет,ют"))"
+        case .dead: condition = "мертв\(gender.ending(",а,о,ы"))"
         }
         return "\(color)\(condition)\(normalColor)"
     }
