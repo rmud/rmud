@@ -46,8 +46,8 @@ extension Creature {
         let toActor = event.toActor ?? toActorDefaultMessage(event.isAllowed)
         let toRoom = event.toRoomExcludingActor ??
             toRoomDefaultMessage(event.isAllowed)
-        act(toActor, .toCreature(self))
-        act(toRoom, .toRoom, .excludingCreature(self))
+        act(toActor, .to(self))
+        act(toRoom, .toRoom, .excluding(self))
         guard event.isAllowed else { return }
         
         position = .standing
@@ -57,18 +57,18 @@ extension Creature {
         if position == .standing {
             send("Вы легли и заснули.")
             act("1*и лег1(,ла,ло,ли) и заснул1(,а,о,и).",
-                .toRoom, .excludingCreature(self))
+                .toRoom, .excluding(self))
         } else {
             send("Вы заснули.")
             act("1*и заснул1(,а,о,и).",
-                .toRoom, .excludingCreature(self))
+                .toRoom, .excluding(self))
         }
         position = .sleeping
     }
 
     func doWake(context: CommandContext) {
         guard !isAffected(by: .sleep) else {
-            act(spells.message(.sleep, "ПРОСНУТЬСЯ"), .toSleeping, .toCreature(self))
+            act(spells.message(.sleep, "ПРОСНУТЬСЯ"), .toSleeping, .to(self))
             return
         }
         
@@ -82,8 +82,8 @@ extension Creature {
             (event.isAllowed ? "Вы проснулись." : "Вы не смогли проснуться.")
         let toRoom = event.toRoomExcludingActor ??
             (event.isAllowed ? "1*и проснул1(ся,ась,ось,ись)." : "")
-        act(toActor, .toSleeping, .toCreature(self))
-        act(toRoom, .toRoom, .excludingCreature(self))
+        act(toActor, .toSleeping, .to(self))
+        act(toRoom, .toRoom, .excluding(self))
         guard event.isAllowed else { return }
         
         position = .sitting
@@ -119,7 +119,7 @@ extension Creature {
         send(keepItems
             ? "Вы покинули игру."
             : "Вы выбросили все, что у Вас было, и покинули игру.")
-        act("1*и выш1(ел,ла,ло,ли) из игры.", .toRoom, .excludingCreature(self))
+        act("1*и выш1(ел,ла,ло,ли) из игры.", .toRoom, .excluding(self))
         
         log("\(nameNominative) has left the game")
         logToMud("\(nameNominative) выходит из игры.", verbosity: .normal)

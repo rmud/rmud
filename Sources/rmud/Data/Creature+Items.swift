@@ -97,7 +97,7 @@ extension Creature {
 
         if item.extraFlags.contains(.privateItem) && uid == item.ownerUid {
             if !isSilent {
-                act("Неведомая сила не позволила Вам взять @1в.", .toCreature(self), .item(item))
+                act("Неведомая сила не позволила Вам взять @1в.", .to(self), .item(item))
             }
             return false
         }
@@ -110,7 +110,7 @@ extension Creature {
         
         if !canCarryOneMoreItem() {
             if !isSilent {
-                act("У Вас в руках слишком много предметов, Вы не можете удержать @1в.", .toCreature(self), .item(item))
+                act("У Вас в руках слишком много предметов, Вы не можете удержать @1в.", .to(self), .item(item))
             }
             return false;
         }
@@ -124,12 +124,12 @@ extension Creature {
         }
         if !canLift(item: item) && !isMyItemAlready() {
             if !isSilent {
-                act("Вы не смогли поднять @1в.", .toCreature(self), .item(item))
+                act("Вы не смогли поднять @1в.", .to(self), .item(item))
             }
             return false
         } else if !item.wearFlags.contains(.take) {
             if !isSilent {
-                act("@1в взять нельзя.", .toCreature(self), .item(item))
+                act("@1в взять нельзя.", .to(self), .item(item))
             }
             return false
         }

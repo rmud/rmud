@@ -84,7 +84,7 @@ extension Creature {
         if damage > 0 && victim.position == .sleeping {
             victim.position = .sitting
             victim.send("Вы проснулись.")
-            act("1*и проснул1(ся,ась,ось,ись).", .toRoom, .excludingCreature(victim))
+            act("1*и проснул1(ся,ась,ось,ись).", .toRoom, .excluding(victim))
         }
 
         sendHitMessage(victim: victim, hitType: .hit, damage: damage)
@@ -103,24 +103,24 @@ extension Creature {
         if hitPoints > 0 {
             if position.isStunnedOrWorse {
                 send("Вы пришли в себя.")
-                act("1*и приш1(ел,ла,ло,ли) в себя.", .toRoom, .excludingCreature(self))
+                act("1*и приш1(ел,ла,ло,ли) в себя.", .toRoom, .excluding(self))
             }
             return
         }
         
         if hitPoints < -10 {
             position = .dead
-            act("1и мертв1(,а,о,ы)! R.I.P.", .toRoom, .excludingCreature(self))
+            act("1и мертв1(,а,о,ы)! R.I.P.", .toRoom, .excluding(self))
             send("Вы мертвы! R.I.P.")
         } else if hitPoints < -3 {
             position = .dying
             send("Вы смертельно ранены и скоро умрете, если никто не поможет.")
-            act("1*и смертельно ранен1(,а,о,ы) и скоро умр1(ет,ет,ет,ут), если 1(ему,ей,ему,им) не помогут.", .toRoom, .excludingCreature(self))
+            act("1*и смертельно ранен1(,а,о,ы) и скоро умр1(ет,ет,ет,ут), если 1(ему,ей,ему,им) не помогут.", .toRoom, .excluding(self))
 
         } else {
             position = .stunned
             send("Вы оглушены, но, вероятно, скоро придете в себя.")
-            act("1*и оглушен1(,а,о,ы), но, вероятно, скоро прид1(ет,ет,ет,ут) в себя.", .toRoom, .excludingCreature(self))
+            act("1*и оглушен1(,а,о,ы), но, вероятно, скоро прид1(ет,ет,ет,ут) в себя.", .toRoom, .excluding(self))
         }
     }
     
@@ -129,21 +129,21 @@ extension Creature {
     }
     
     func sendMissMessage(victim: Creature, hitType: HitType) {
-        act("Вы попытались &1 2в, но промахнулись.", .toSleeping, .toCreature(self), .excludingCreature(victim), .text(hitType.indefinite), .text(hitType.past))
+        act("Вы попытались &1 2в, но промахнулись.", .toSleeping, .to(self), .excluding(victim), .text(hitType.indefinite), .text(hitType.past))
 
-        act("1и попытал1(ся,ась,ось,ись) &1 ВАС, но промахнул1(ся,ась,ось,ись).", .toSleeping, .excludingCreature(self), .toCreature(victim), .text(hitType.indefinite), .text(hitType.past))
+        act("1и попытал1(ся,ась,ось,ись) &1 ВАС, но промахнул1(ся,ась,ось,ись).", .toSleeping, .excluding(self), .to(victim), .text(hitType.indefinite), .text(hitType.past))
 
-        act("1и попытал1(ся,ась,ось,ись) &1 2в, но промахнул1(ся,ась,ось,ись).", .toRoom, .excludingCreature(self), .excludingCreature(victim), .text(hitType.indefinite), .text(hitType.past))
+        act("1и попытал1(ся,ась,ось,ись) &1 2в, но промахнул1(ся,ась,ось,ись).", .toRoom, .excluding(self), .excluding(victim), .text(hitType.indefinite), .text(hitType.past))
     }
     
     func sendHitMessage(victim: Creature, hitType: HitType, damage: Int) {
         let hitForce = HitForce(damage: damage)
         
-        act("\(bYel())\(hitForce.attacker)\(nNrm())", .toSleeping, .toCreature(self), .excludingCreature(victim), .text(hitType.indefinite), .text(hitType.past))
+        act("\(bYel())\(hitForce.attacker)\(nNrm())", .toSleeping, .to(self), .excluding(victim), .text(hitType.indefinite), .text(hitType.past))
 
-        act("\(victim.bRed())\(hitForce.victim)\(victim.nNrm())", .toSleeping, .excludingCreature(self), .toCreature(victim), .text(hitType.indefinite), .text(hitType.past))
+        act("\(victim.bRed())\(hitForce.victim)\(victim.nNrm())", .toSleeping, .excluding(self), .to(victim), .text(hitType.indefinite), .text(hitType.past))
 
-        act(hitForce.room, .toRoom, .excludingCreature(self), .excludingCreature(victim), .text(hitType.indefinite), .text(hitType.past))
+        act(hitForce.room, .toRoom, .excluding(self), .excluding(victim), .text(hitType.indefinite), .text(hitType.past))
 
         let victimMaxHit = victim.affectedMaximumHitPoints()
         if damage > victimMaxHit / 4 {

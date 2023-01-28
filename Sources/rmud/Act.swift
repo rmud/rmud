@@ -12,8 +12,8 @@ struct ActFlags: OptionSet {
 enum ActArgument {
     case text(String)
     case number(Int)
-    case toCreature(Creature)
-    case excludingCreature(Creature)
+    case to(Creature)
+    case excluding(Creature)
     case item(Item)
 }
 
@@ -112,14 +112,14 @@ private func targetCreatures(from args: [ActArgument], flags: ActFlags) -> Set<C
     
     // First exclude creatures we don't want to send anything to
     for arg in args {
-        if case .excludingCreature(let creature) = arg {
+        if case .excluding(let creature) = arg {
             targets.remove(creature)
         }
     }
     
     // Then include explicitly requested ones
     for arg in args {
-        if case .toCreature(let creature) = arg {
+        if case .to(let creature) = arg {
             targets.insert(creature)
         }
     }
@@ -286,8 +286,8 @@ private func tokenize(text: String) -> [Token] {
 private func findFirstCreature(in args: [ActArgument]) -> Creature? {
     for arg in args {
         switch arg {
-        case .toCreature(let creature): return creature
-        case .excludingCreature(let creature): return creature
+        case .to(let creature): return creature
+        case .excluding(let creature): return creature
         default: break
         }
     }
@@ -325,8 +325,8 @@ private func findCreatureArgument(atIndex index: Int, in args: [ActArgument]) ->
     for arg in args {
         var found: Creature!
         switch arg {
-        case .toCreature(let creature),
-             .excludingCreature(let creature):
+        case .to(let creature),
+             .excluding(let creature):
             found = creature
             break
         default:

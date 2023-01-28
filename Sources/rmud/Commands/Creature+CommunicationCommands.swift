@@ -14,15 +14,15 @@ extension Creature {
         }
         guard !isAffected(by: .silence) else {
             act(spells.message(.silence, "МОЛЧАНИЕ"),
-                .toCreature(self))
+                .to(self))
             act("1*и беззвучно пошевелил1(,а,о,и) губами.", .toRoom,
-                .excludingCreature(self))
+                .excluding(self))
             return
         }
         act("1и произнес1(,ла,ло,ли): \"&\"", .toRoom,
-            .excludingCreature(self), .text(context.argument1))
+            .excluding(self), .text(context.argument1))
         act("Вы произнесли: \"&\"",
-            .toCreature(self), .text(context.argument1))
+            .to(self), .text(context.argument1))
     }
 }
 
@@ -39,7 +39,7 @@ extension Creature {
         }
         
         guard !isAffected(by: .silence) else {
-            act(spells.message(.silence, "МОЛЧАНИЕ"), .toCreature(self))
+            act(spells.message(.silence, "МОЛЧАНИЕ"), .to(self))
             return
         }
 
@@ -53,22 +53,21 @@ extension Creature {
                 return
             }
             act("Вы приказали 2д: \"&\"",
-                .toCreature(self), .excludingCreature(creature), .text(command))
+                .to(self), .excluding(creature), .text(command))
             act("1и приказал1(,а,о,и) Вам: \"&\"", .toSleeping,
-                .excludingCreature(self), .toCreature(creature), .text(command))
+                .excluding(self), .to(creature), .text(command))
             act("1и отдал1(,а,о,и) 2д приказ.", .toRoom,
-                .excludingCreature(self), .excludingCreature(creature))
+                .excluding(self), .excluding(creature))
             //guard shallAbide(creature) else {
             //    act("1и проигнорировал1(,а,о,и) приказ.", .toRoom,
-            //        .excludingCreature(creature))
+            //        .excluding(creature))
             //    return
             //}
             creature.interpretCommand(command)
         } else {
-            act("Вы приказали: \"&\"",
-                .toCreature(self), .text(command))
+            act("Вы приказали: \"&\"", .to(self), .text(command))
             act("1и отдал1(,а,о,и) приказ.", .toRoom,
-                .excludingCreature(self), .text(command))
+                .excluding(self), .text(command))
             
             creatures.forEach { creature in
                 guard creature != self else { return }

@@ -206,7 +206,7 @@ extension Creature {
         
         if toTerrain == .waterNoSwim {
             if let riding = riding, !riding.isAffected(by: .fly) && !riding.hasBoat() {
-                act("2и не может везти Вас в этом направлении.", .toCreature(self), .excludingCreature(riding))
+                act("2и не может везти Вас в этом направлении.", .to(self), .excluding(riding))
                 return nil
             }
             else if !isRiding && !isFlying && !hasBoat() {
@@ -225,7 +225,7 @@ extension Creature {
         
         if direction == .up && toTerrain == .air {
             if let riding = riding, !riding.isAffected(by: .fly) {
-                act("2и не умеет летать.", .toCreature(self), .excludingCreature(riding))
+                act("2и не умеет летать.", .to(self), .excluding(riding))
                 return nil
             }
             if !isRiding && !isFlying {
@@ -242,7 +242,7 @@ extension Creature {
                 return nil
             }
             if toTerrain == .tree && !riding.isAffected(by: .fly) {
-                act("Чтобы везти Вас туда, 2и долж2(ен,на,но) уметь летать.", .toCreature(self), .excludingCreature(riding))
+                act("Чтобы везти Вас туда, 2и долж2(ен,на,но) уметь летать.", .to(self), .excluding(riding))
                 return nil
             }
         } else if isMountable && toTerrain == .tree && !isFlying {
@@ -255,14 +255,14 @@ extension Creature {
                 send("Вам не разрешено передвигаться в этом направлении.")
                 return nil
             } else if let riding = riding, let ridingMobile = riding.mobile, ridingMobile.flags.contains(.mountable) && level < Level.hero {
-                act("2и отказывается передвигаться в этом направлении.", .toCreature(self), .excludingCreature(riding))
+                act("2и отказывается передвигаться в этом направлении.", .to(self), .excluding(riding))
                 return nil
             }
         }
         
         if toRoom.flags.contains(.tunnel) {
             if (isRiding || isRiddenBy) && !toRoom.creatures.isEmpty {
-                act("Вы не помещаетесь туда вместе с 2т.", .toCreature(self), .excludingCreature(isRiding ? riding! : riddenBy!))
+                act("Вы не помещаетесь туда вместе с 2т.", .to(self), .excluding(isRiding ? riding! : riddenBy!))
                 return nil
             }
             
@@ -281,7 +281,7 @@ extension Creature {
         }
 
         if let riding = riding, riding.isFighting {
-            act("2и не может Вас везти, пока не закончит бой!", .toCreature(self), .excludingCreature(riding))
+            act("2и не может Вас везти, пока не закончит бой!", .to(self), .excluding(riding))
             return nil
         }
         
@@ -322,7 +322,7 @@ extension Creature {
         //FIXME
         //arilou: вот тут мы не проверяем специфику того, кто несет,
         if let riding = riding, riding.isPlayer && riding.movement < needMovement {
-            act("2и сильно устал2(,а,о,и), и не может везти Вас дальше.", .toCreature(self), .excludingCreature(riding))
+            act("2и сильно устал2(,а,о,и), и не может везти Вас дальше.", .to(self), .excluding(riding))
             return nil
         }
         
@@ -359,10 +359,10 @@ extension Creature {
         if isHeld() {
             if isMount {
                 if let master = following {
-                    act(spells.message(.holdPerson, "ПАРАЛИЗОВАН"), .excludingCreature(self), .toCreature(master))
+                    act(spells.message(.holdPerson, "ПАРАЛИЗОВАН"), .excluding(self), .to(master))
                 }
             } else {
-                act(spells.message(.holdPerson, "ПАРАЛИЧ"), .toSleeping, .toCreature(self))
+                act(spells.message(.holdPerson, "ПАРАЛИЧ"), .toSleeping, .to(self))
             }
             return true
         }
@@ -374,7 +374,7 @@ extension Creature {
             // а если верхом - то достаточно лодки или полёта у mount'а
             if isMount {
                 if let master = following {
-                    act("2и не может увезти Вас отсюда.", .toCreature(master), .excludingCreature(self))
+                    act("2и не может увезти Вас отсюда.", .to(master), .excluding(self))
                 }
             } else {
                 send("Чтобы уйти отсюда, Вам необходимо иметь лодку.")
@@ -396,10 +396,10 @@ extension Creature {
                     let master = following,
                     let masterInRoom = master.inRoom,
                     inRoom === masterInRoom {
-                act(spells.message(.charmPerson, "НЕ_УЙДЕШЬ"), .toCreature(self), .excludingCreature(master))
+                act(spells.message(.charmPerson, "НЕ_УЙДЕШЬ"), .to(self), .excluding(master))
                 if runtimeFlags.contains(.order) {
-                    act(spells.message(.charmPerson, "НЕ_УЙДЕТ"), .excludingCreature(self), .toCreature(master))
-                    act(spells.message(.charmPerson, "НЕ_УЙДУ"), .toRoom, .excludingCreature(self), .excludingCreature(master))
+                    act(spells.message(.charmPerson, "НЕ_УЙДЕТ"), .excluding(self), .to(master))
+                    act(spells.message(.charmPerson, "НЕ_УЙДУ"), .toRoom, .excluding(self), .excluding(master))
                 }
                 return true
             }
@@ -428,7 +428,7 @@ extension Creature {
             runtimeFlags.remove(.failedHide)
             send("Вы прекратили прятаться.")
             if informRoom {
-                act("1*и прекратил1(,а,о,и) прятаться.", .toRoom, .excludingCreature(self))
+                act("1*и прекратил1(,а,о,и) прятаться.", .toRoom, .excluding(self))
             }
         }
     }
@@ -466,17 +466,17 @@ extension Creature {
     
         guard mode != .fall else {
             send("Вы упали вниз!")
-            act("1и упал1(,а,о,и) вниз.", .toRoom, .excludingCreature(self))
+            act("1и упал1(,а,о,и) вниз.", .toRoom, .excluding(self))
             return
         }
     
         guard mode == .normal else {
             if isMounted {
-                act("1и с 2т на спине убежал1(,а,о,и) &.", .toRoom, .excludingCreature(rider), .excludingCreature(mount), .text(direction.whereTo))
+                act("1и с 2т на спине убежал1(,а,о,и) &.", .toRoom, .excluding(rider), .excluding(mount), .text(direction.whereTo))
                 if let riding = riding {
-                    act("2и быстро убежал2(,а,о,и), унося Вас подальше от боя.", .toCreature(self), .excludingCreature(riding))
+                    act("2и быстро убежал2(,а,о,и), унося Вас подальше от боя.", .to(self), .excluding(riding))
                 } else if let riddenBy = riddenBy {
-                    act("Вы быстро убежали, унося 2в подальше от боя.", .toCreature(self), .excludingCreature(riddenBy))
+                    act("Вы быстро убежали, унося 2в подальше от боя.", .to(self), .excluding(riddenBy))
                 }
             } else if mode == .maneuvre {
                 // FIXME: isAllowed not checked
@@ -485,10 +485,10 @@ extension Creature {
                     "Вы выполнили обманный маневр и убежали &."
                 let toRoom = event.toRoomExcludingActor ??
                     "1и выполнил1(,а,о,и) обманный маневр и убежал1(,а,о,и) &."
-                act(toActor, .toCreature(self), .text(direction.whereTo))
-                act(toRoom, .toRoom, .excludingCreature(self), .text(direction.whereTo))
+                act(toActor, .to(self), .text(direction.whereTo))
+                act(toRoom, .toRoom, .excluding(self), .text(direction.whereTo))
             } else {
-                act("1и запаниковал1(,а,о,и) и убежал1(,а,о,и) &.", .toRoom, .excludingCreature(self), .text(direction.whereTo))
+                act("1и запаниковал1(,а,о,и) и убежал1(,а,о,и) &.", .toRoom, .excluding(self), .text(direction.whereTo))
                 send("Вы быстро убежали из боя.")
             }
             return
@@ -515,7 +515,7 @@ extension Creature {
                 let (success, _) = mount.sneakSuccessful(victim: creature)
                 if !success {
                     if mount.shouldShowMovement(to: creature, leader: leader) {
-                        act(message, .toCreature(creature), .excludingCreature(mount), .excludingCreature(rider), .text(direction.whereTo))
+                        act(message, .to(creature), .excluding(mount), .excluding(rider), .text(direction.whereTo))
                     }
                 } else if masterIsMountOrRider {
                     creature.runtimeFlags.remove(.follow)
@@ -539,7 +539,7 @@ extension Creature {
                 let (success, _) = mount.sneakSuccessful(victim: creature)
                 if !success {
                     if shouldShowMovement(to: creature, leader: leader) {
-                        act(message, .toCreature(creature), .excludingCreature(self), .text(direction.whereTo))
+                        act(message, .to(creature), .excluding(self), .text(direction.whereTo))
                     } else if masterIsMountOrRider {
                         creature.runtimeFlags.remove(.follow)
                     }
@@ -594,7 +594,7 @@ extension Creature {
             if exit.flags.contains(.hidden) {
                 sendCantGoThereMessage()
             } else {
-                act("&1 закрыт&2.", .toCreature(self), .text(exit.type.nominative), .text(exit.type.adjunctiveEnd))
+                act("&1 закрыт&2.", .to(self), .text(exit.type.nominative), .text(exit.type.adjunctiveEnd))
             }
             return true
         }
@@ -610,7 +610,7 @@ extension Creature {
         guard let creature = context.creature1 else {
             if let following = following {
                 act("Вы следуете за 2т.", .toSleeping,
-                    .toCreature(self), .excludingCreature(following))
+                    .to(self), .excluding(following))
             } else {
                 send("Вы ни за кем не следуете.")
             }
@@ -619,13 +619,13 @@ extension Creature {
         
         guard following != creature else {
             act("Вы уже следуете за 2т.", .toSleeping,
-                .toCreature(self), .excludingCreature(creature))
+                .to(self), .excluding(creature))
             return
         }
         
         //guard !isCharmed() else {
         //    act("Вы хотите следовать только за 2т!", .toSleeping,
-        //        .toCreature(self), .excludingCreature(following))
+        //        .to(self), .excluding(following))
         //    return
         //}
 

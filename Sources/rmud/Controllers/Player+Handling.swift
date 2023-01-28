@@ -19,7 +19,7 @@ extension Player {
             return false
         }
         act("Вы прекратили наблюдать за состоянием 2р.",
-            .toSleeping, .toCreature(creature), .excludingCreature(watching))
+            .toSleeping, .to(creature), .excluding(watching))
         self.watching = nil
         return true
     }

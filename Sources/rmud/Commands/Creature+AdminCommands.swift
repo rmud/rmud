@@ -113,14 +113,14 @@ extension Creature {
                 return
             }
             let item = Item(prototype: itemPrototype, uid: db.createUid() /*, in: nil*/)
-            act("1*и сделал1(,а,о,и) волшебный жест, и появил@1(ся,ась,ось,ись) @1и!", .toRoom, .excludingCreature(self), .item(item))
-            act("Вы создали @1в.", .toCreature(self), .item(item))
+            act("1*и сделал1(,а,о,и) волшебный жест, и появил@1(ся,ась,ось,ись) @1и!", .toRoom, .excluding(self), .item(item))
+            act("Вы создали @1в.", .to(self), .item(item))
             
             var isOvermax = false
             let countInWorld = db.itemsCountByVnum[vnum] ?? 0
             if let loadMaximum = itemPrototype.maximumCountInWorld,
                     countInWorld >= loadMaximum {
-                act("ВНИМАНИЕ! Превышен максимум экземпляров для @1р!", .toCreature(self), .item(item))
+                act("ВНИМАНИЕ! Превышен максимум экземпляров для @1р!", .to(self), .item(item))
                 isOvermax = true
             }
             logIntervention("\(nameNominative) создает\(isOvermax ? ", ПРЕВЫСИВ ПРЕДЕЛ,":"") \(item.nameAccusative) в комнате \"\(inRoom?.name ?? "без имени")\".")
@@ -660,7 +660,7 @@ extension Creature {
                 to.send(player.poofout)
             }
         } else {
-            act("1*и исчез1(,ла,ло,ли) в клубах дыма.", .toRoom, .excludingCreature(self))
+            act("1*и исчез1(,ла,ло,ли) в клубах дыма.", .toRoom, .excluding(self))
         }
     }
     
@@ -673,7 +673,7 @@ extension Creature {
                 to.send(player.poofin)
             }
         } else {
-            act("1*и появил1(ся,ась,ось,ись) в клубах дыма.", .toRoom, .excludingCreature(self))
+            act("1*и появил1(ся,ась,ось,ись) в клубах дыма.", .toRoom, .excluding(self))
         }
     }
 }

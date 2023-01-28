@@ -82,11 +82,11 @@ class Creature {
         
         while level <= maximumMortalLevel && experience >= classId.info.experience(forLevel: level + 1) {
             advanceLevel()
-            act("&1Вы получили уровень!&2", .toSleeping, .toCreature(self), .text(bWht()), .text(nNrm()))
+            act("&1Вы получили уровень!&2", .toSleeping, .to(self), .text(bWht()), .text(nNrm()))
         }
         while level > 1 && experience < classId.info.experience(forLevel: level) - levelLossBuffer() {
             loseLevel()
-            act("&1Вы потеряли уровень!&2", .toSleeping, .toCreature(self), .text(bWht()), .text(nNrm()))
+            act("&1Вы потеряли уровень!&2", .toSleeping, .to(self), .text(bWht()), .text(nNrm()))
         }
     }
     
@@ -277,7 +277,7 @@ class Creature {
             
             experience += gain
             if mode != .silent {
-                act("Вы получили # очк#(о,а,ов) опыта.", .toSleeping, .toCreature(self), .number(gain))
+                act("Вы получили # очк#(о,а,ов) опыта.", .toSleeping, .to(self), .number(gain))
             }
             adjustLevel()
         } else if gain < 0 {
@@ -297,7 +297,7 @@ class Creature {
                 message = ""
             }
             if !message.isEmpty {
-                act(message, .toSleeping, .toCreature(self), .number(-gain))
+                act(message, .toSleeping, .to(self), .number(-gain))
             }
             adjustLevel()
         } else {

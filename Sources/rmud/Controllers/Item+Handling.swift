@@ -167,7 +167,7 @@ extension Item {
 
         if extraFlags.contains(.fragile) {
             if let someoneInRoom = room.creatures.first {
-                act("Прикоснувшись к земле, @1*и рассыпал@1(ся,ась,ось,ись) в пыль.", .toRoom, .toCreature(someoneInRoom), .item(self))
+                act("Прикоснувшись к земле, @1*и рассыпал@1(ся,ась,ось,ись) в пыль.", .toRoom, .to(someoneInRoom), .item(self))
             }
             extract(mode: .purgeNothing)
             return
@@ -181,7 +181,7 @@ extension Item {
         
         if room.flags.contains(.dump) && !extraFlags.contains(.buried) {
             if let someoneInRoom = room.creatures.first {
-                act("@1и упал@1(,а,о,и) в кучу мусора.", .toRoom, .toCreature(someoneInRoom), .item(self))
+                act("@1и упал@1(,а,о,и) в кучу мусора.", .toRoom, .to(someoneInRoom), .item(self))
             }
             extraFlags.insert(.stink)
             extraFlags.insert(.buried)

@@ -10,7 +10,7 @@ extension Creature {
         
         // Sample
         //act("&11и нарушил1(,а,о,и) правила игры!&2", .toSleeping,
-        //    .toCreature(self), .text(bRed()), .text(nNrm()))
+        //    .to(self), .text(bRed()), .text(nNrm()))
         
         //        if context.line.isEmpty {
         //            lookAtRoom(ignoreBrief: true)
@@ -32,10 +32,10 @@ extension Creature {
         if let creature1 = context.creature1 {
             look(atCreature: creature1)
             if self != creature1 {
-                act("1*и посмотрел1(,а,о,и) на Вас.", .excludingCreature(self), .toCreature(creature1))
-                act("1*и посмотрел1(,а,о,и) на 2в.", .toRoom, .excludingCreature(self), .excludingCreature(creature1))
+                act("1*и посмотрел1(,а,о,и) на Вас.", .excluding(self), .to(creature1))
+                act("1*и посмотрел1(,а,о,и) на 2в.", .toRoom, .excluding(self), .excluding(creature1))
             } else {
-                act("1*и посмотрел1(,а,о,и) на себя.", .toRoom, .excludingCreature(self))
+                act("1*и посмотрел1(,а,о,и) на себя.", .toRoom, .excluding(self))
             }
             return
         }
@@ -51,7 +51,7 @@ extension Creature {
     
     func doScan(context: CommandContext) {
         guard !isAffected(by: .blindness) else {
-            act(spells.message(.blindness, "СЛЕП"), .toCreature(self))
+            act(spells.message(.blindness, "СЛЕП"), .to(self))
             return
         }
         
@@ -84,7 +84,7 @@ extension Creature {
         guard isAwake else { return }
         
         guard !isAffected(by: .blindness) else {
-            act(spells.message(.blindness, "СЛЕП"), .toCreature(self))
+            act(spells.message(.blindness, "СЛЕП"), .to(self))
             return
         }
 
@@ -96,10 +96,10 @@ extension Creature {
         let autostat = preferenceFlags?.contains(.autostat) ?? false
         if autostat {
             act("&1[&2] &3 [&4]&5",
-                .toCreature(self), .text(bCyn()), .text(String(room.vnum)), .text(room.name), .text(room.flags.description), .text(nNrm()))
+                .to(self), .text(bCyn()), .text(String(room.vnum)), .text(room.name), .text(room.flags.description), .text(nNrm()))
         } else {
             act("&1&2&3",
-                .toCreature(self), .text(bCyn()), .text(room.name), .text(nNrm()))
+                .to(self), .text(bCyn()), .text(room.name), .text(nNrm()))
         }
         
         let mapWidth = Int(player?.mapWidth ?? defaultMapWidth)
@@ -313,7 +313,7 @@ extension Creature {
             result += " &."
             
             let raceName = target.race.info.namesByGender[target.gender] ?? "(раса неизвестна)"
-            act(result, .excludingCreature(target), .toCreature(self), .text(raceName))
+            act(result, .excluding(target), .to(self), .text(raceName))
         }
         
         let percent = target.hitPointsPercentage()
@@ -336,6 +336,6 @@ extension Creature {
         }
         result += "."
         
-        act(result, .excludingCreature(target), .toCreature(self), .text(conditionString))
+        act(result, .excluding(target), .to(self), .text(conditionString))
     }
 }

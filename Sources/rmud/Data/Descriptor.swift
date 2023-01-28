@@ -410,7 +410,7 @@ class Descriptor {
             case .playing, .close:
                 creature.descriptors.remove(self)
                 if creature.inRoom != nil, creature.isPlayer, creature.descriptors.isEmpty {
-                    act("1*и потерял1(,а,о,и) связь.", .toRoom, .excludingCreature(creature))
+                    act("1*и потерял1(,а,о,и) связь.", .toRoom, .excluding(creature))
                     // FIXME
                     //save_char_safe(d->character, RENT_CRASH);
                     log("\(creature.nameNominative) [\(accountEmail), \(ip), \(hostname)] has lost the connection")

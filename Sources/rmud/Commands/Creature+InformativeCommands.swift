@@ -228,8 +228,8 @@ extension Creature {
             let flags: ActFlags = .toSleeping
             let isImmortal = !(player?.roles ?? []).isEmpty
             let args: [ActArgument] = [
-                .toCreature(self),
-                .excludingCreature(targetCreature),
+                .to(self),
+                .excluding(targetCreature),
                 .text(isImmortal ? bWht() : bCyn()), // &1
                 .text(!prefix.isEmpty ? prefix.appending(" ") : ""), // &2
                 .text(titleToShow), // &3
@@ -256,7 +256,7 @@ extension Creature {
             
             act(format,
                 .toSleeping,
-                .toCreature(self),
+                .to(self),
                 .number(playersCount), // #2
                 .text(nCyn()), // &1
                 .text(nNrm()) // &2
@@ -288,7 +288,7 @@ extension Creature {
             do {
                 let affectedAgeComponents = GameTimeComponents(gameSeconds: player.affectedAgeSeconds())
                 act("Вы &1 1и, &2 #1 уровня. Вам #2 #2(год,года,лет).", .toSleeping,
-                    .toCreature(self), .text(raceName), .text(className), .number(Int(level)), .number(affectedAgeComponents.years))
+                    .to(self), .text(raceName), .text(className), .number(Int(level)), .number(affectedAgeComponents.years))
             }
             
             do {
@@ -299,11 +299,11 @@ extension Creature {
             }
         } else {
             act("Вы &1 1и, &2 #1 уровня.", .toSleeping,
-                .toCreature(self), .text(raceName), .text(className), .number(Int(level)))
+                .to(self), .text(raceName), .text(className), .number(Int(level)))
         }
         
         if context.argument1.isAbbrev(ofOneOf: ["склонение", "declension"]) {
-            act("Склонение Вашего имени: 1и/1р/1д/1в/1т/1п.", .toSleeping, .toCreature(self))
+            act("Склонение Вашего имени: 1и/1р/1д/1в/1т/1п.", .toSleeping, .to(self))
         }
         
         if let player = player {
@@ -316,7 +316,7 @@ extension Creature {
         }
         
         act("У Вас сейчас #1 из #2 очк#1(о,а,ов) жизни и #3 из #4 очк#3(о,а,ов) бодрости.",
-            .toSleeping, .toCreature(self), .number(hitPoints), .number(affectedMaximumHitPoints()), .number(movement), .number(affectedMaximumMovement()))
+            .toSleeping, .to(self), .number(hitPoints), .number(affectedMaximumHitPoints()), .number(movement), .number(affectedMaximumMovement()))
         
         let alignment = affectedAlignment()
         let alignmentCategory = alignment.category
@@ -345,11 +345,10 @@ extension Creature {
             if experienceNeeded > 0 {
                 format += " До следующего уровня осталось #2."
             }
-            act(format, .toSleeping, .toCreature(self), .number(experience), .number(experienceNeeded))
+            act(format, .toSleeping, .to(self), .number(experience), .number(experienceNeeded))
         }
         
-        act("У Вас есть # стальн#(ая,ые,ых) монет#(а,ы,).", .toSleeping,
-            .toCreature(self), .number(gold))
+        act("У Вас есть # стальн#(ая,ые,ых) монет#(а,ы,).", .toSleeping, .to(self), .number(gold))
 
         if let player = player {
             let seconds = player.playedSecondsSaved + player.playedSecondsUnsaved
@@ -358,7 +357,7 @@ extension Creature {
             //seconds -= (secondsPerRealDay * days)
             
             act("Вы играете #1 д#1(ень,ня,ней) и #2 час#2(,а,ов).", .toSleeping,
-                .toCreature(self), .number(Int(days)), .number(Int(hours)))
+                .to(self), .number(Int(days)), .number(Int(hours)))
         }
     }
 }
@@ -654,7 +653,7 @@ extension Creature {
 
         pageLength = newPageLength != 0 ? newPageLength : defaultPageLength
         act("Теперь у Вас будет # строк#(а,и,) на странице.", .toSleeping,
-            .toCreature(self), .number(Int(pageLength)))
+            .to(self), .number(Int(pageLength)))
     }
     
     private func togglePageWidth(_ value: String) {
@@ -672,7 +671,7 @@ extension Creature {
 
         pageWidth = newPageWidth != 0 ? newPageWidth : defaultPageWidth
         act("Теперь у Вас будет # символ#(,а,ов) на строке.", .toSleeping,
-            .toCreature(self), .number(Int(pageWidth)))
+            .to(self), .number(Int(pageWidth)))
     }
     
     private func toggleMaxIdle(_ value: String) {
@@ -691,7 +690,7 @@ extension Creature {
         }
         controllingPlayer?.maxIdle = newMaxIdle
         act("Теперь Вы будете отсоединены через # минут#(у,ы,) простоя.", .toSleeping,
-            .toCreature(self), .number(newMaxIdle))
+            .to(self), .number(newMaxIdle))
     }
     
     private func toggleWimpy(_ value: String) {

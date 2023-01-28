@@ -43,8 +43,8 @@ extension Creature {
         let toActor = event.toActor ?? toActorDefaultMessage(event.isAllowed)
         let toRoom = event.toRoomExcludingActor ??
             toRoomDefaultMessage(event.isAllowed)
-        act(toActor, .toCreature(self), .item(item))
-        act(toRoom, .toRoom, .excludingCreature(self), .item(item))
+        act(toActor, .to(self), .item(item))
+        act(toRoom, .toRoom, .excluding(self), .item(item))
         guard event.isAllowed else { return }
 
         if isGodMode() {
@@ -52,7 +52,7 @@ extension Creature {
         }
         
         if inRoom.flags.contains(.dump) && !item.extraFlags.contains(.fragile) {
-            act("@1и упал@1(,а,о,и) в кучу мусора.", .toRoom, .toCreature(self), .item(item))
+            act("@1и упал@1(,а,о,и) в кучу мусора.", .toRoom, .to(self), .item(item))
             /*    if (!OBJ_FLAGGED(obj, ITEM_STINK)) {
              int exp = obj->cond_max ? (obj->cost * obj->cond_current) / obj->cond_max : 0;
              if (exp > 0) gain_exp(ch, exp, GAIN_EXP_NORMAL);

@@ -61,12 +61,12 @@ extension Creature {
         }
         
         guard clerk.isAwake && !clerk.isHeld() else {
-            act("2и сейчас не в состоянии Вас обслужить.", .toCreature(self), .excludingCreature(clerk))
+            act("2и сейчас не в состоянии Вас обслужить.", .to(self), .excluding(clerk))
             return
         }
         
         guard serviceType == .inn || clerk.canSee(self) else {
-            act("1и произнес1(,ла,ло,ли): \"Я не обслуживаю тех, кого не вижу!\"", .toRoom, .excludingCreature(clerk))
+            act("1и произнес1(,ла,ло,ли): \"Я не обслуживаю тех, кого не вижу!\"", .toRoom, .excluding(clerk))
             return
         }
 
@@ -114,12 +114,12 @@ extension Creature {
     
     fileprivate func shopList(clerk: Creature, filter: String?) {
         guard isSellingItems(clerk: clerk) else {
-            act("1и сказал1(,а,о,и) Вам: \"Я ничего не продаю.\"", .toCreature(self), .excludingCreature(clerk))
+            act("1и сказал1(,а,о,и) Вам: \"Я ничего не продаю.\"", .to(self), .excluding(clerk))
             return
         }
         
         guard !clerk.carrying.isEmpty else {
-            act("1и сказал1(,а,о,и) Вам: \"На данный момент ничего в продаже нет.\"", .excludingCreature(clerk), .toCreature(self))
+            act("1и сказал1(,а,о,и) Вам: \"На данный момент ничего в продаже нет.\"", .excluding(clerk), .to(self))
             return
         }
         
@@ -148,7 +148,7 @@ extension Creature {
     
     private func shopBuy(clerk: Creature, name: String) {
         guard isSellingItems(clerk: clerk), let shopkeeper = clerk.mobile?.shopkeeper else {
-            act("1и сказал1(,а,о,и) Вам: \"Я ничего не продаю.\"", .toCreature(self), .excludingCreature(clerk))
+            act("1и сказал1(,а,о,и) Вам: \"Я ничего не продаю.\"", .to(self), .excluding(clerk))
             return
         }
         
@@ -179,7 +179,7 @@ extension Creature {
         
         guard !allItems.isEmpty else {
             act("1и сказал1(,а,о,и) Вам: \"У меня такого нет.\"",
-                .excludingCreature(clerk), .toCreature(self))
+                .excluding(clerk), .to(self))
             return
         }
         
@@ -187,11 +187,11 @@ extension Creature {
             current + (clerk.mobile?.shopBuyPrice(item: item) ?? 1)
         }
         act("1и сказал1(,а,о,и) Вам: \"Это будет стоить # монет#(у,ы).\"",
-            .excludingCreature(clerk), .toCreature(self), .number(totalPrice));
+            .excluding(clerk), .to(self), .number(totalPrice));
         
         if gold < totalPrice && !isGodMode() {
             act("1и сказал1(,а,о,и) Вам: \"У Вас не хватает денег.\"",
-                .excludingCreature(clerk), .toCreature(self))
+                .excluding(clerk), .to(self))
             for item in createdItems {
                 item.extract(mode: .purgeAllContents)
             }
@@ -219,10 +219,10 @@ extension Creature {
             }
             clerk.gold += price
             
-            act("Вы купили у 1р @1в.", .excludingCreature(clerk), .toCreature(self), .item(item)) { target, output in
+            act("Вы купили у 1р @1в.", .excluding(clerk), .to(self), .item(item)) { target, output in
                 stacker.collect(target: target, line: output)
             }
-            act("2+и купил2(,а,о,и) у 1+р @1в.", .toRoom, .excludingCreature(clerk), .excludingCreature(self), .item(item)) { target, output in
+            act("2+и купил2(,а,о,и) у 1+р @1в.", .toRoom, .excluding(clerk), .excluding(self), .item(item)) { target, output in
                 stacker.collect(target: target, line: output)
             }
             

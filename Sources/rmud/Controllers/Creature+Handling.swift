@@ -121,11 +121,11 @@ extension Creature {
             // FIXME
         } else {
             act("Вы прекратили следовать за 2т.",
-                .toSleeping, .toCreature(self), .excludingCreature(master))
+                .toSleeping, .to(self), .excluding(master))
             act("1*и прекратил1(,а,о,и) следовать за Вами.",
-                .toSleeping, .excludingCreature(self), .toCreature(master))
+                .toSleeping, .excluding(self), .to(master))
             act("1+и прекратил1(,а,о,и) следовать за 2+т.",
-                .toRoom, .excludingCreature(self), .excludingCreature(master))
+                .toRoom, .excluding(self), .excluding(master))
         }
         
         removeFollower()
@@ -137,11 +137,11 @@ extension Creature {
         following = leader
         if !silent {
             act("Теперь Вы будете следовать за 2т.", .toSleeping,
-                .toCreature(self), .excludingCreature(leader))
+                .to(self), .excluding(leader))
             act("1*и начал1(,а,о,и) следовать за Вами.",
-                .excludingCreature(self), .toCreature(leader))
+                .excluding(self), .to(leader))
             act("1+и начал1(,а,о,и) следовать за 2+т.", .toRoom,
-                .excludingCreature(self), .excludingCreature(leader))
+                .excluding(self), .excluding(leader))
         }
     }
     
@@ -224,14 +224,14 @@ extension Creature {
         
         guard !wearFlags.isEmpty && !item.hasType(.weapon) else {
             if !isSilent {
-                act("@1и никуда не надевается.", .toCreature(self), .item(item))
+                act("@1и никуда не надевается.", .to(self), .item(item))
             }
             return
         }
 
         guard !item.isWorn else {
             if !isSilent {
-                act("@1и уже надет.", .toCreature(self), .item(item))
+                act("@1и уже надет.", .to(self), .item(item))
             }
             return
         }
@@ -279,7 +279,7 @@ extension Creature {
     func performWear(item: Item, position: EquipmentPosition, isSilent: Bool) {
         let sendCantWear = {
             act("@1в надеть на эту часть тела нельзя.",
-                .toCreature(self), .item(item))
+                .to(self), .item(item))
         }
         
         // first, make sure that the wear position is valid
@@ -328,14 +328,14 @@ extension Creature {
         }
 
         if isUncomfortableRace(item: item) {
-            act("Увы, @1и сделан@1(,а,о,ы) явно не под Ваши размеры.", .toCreature(self), .item(item))
-            act("1*и недовольно поерзал1(,а,о,и) и прекратил1(,а,о,и) пользоваться @1т.", .excludingCreature(self), .item(item))
+            act("Увы, @1и сделан@1(,а,о,ы) явно не под Ваши размеры.", .to(self), .item(item))
+            act("1*и недовольно поерзал1(,а,о,и) и прекратил1(,а,о,и) пользоваться @1т.", .excluding(self), .item(item))
             return
         } else if isUncomfortableClass(item: item) {
             act("Увы, @1и для Вас неудоб@1(ен,на,но,ны).",
-                .toCreature(self), .item(item))
+                .to(self), .item(item))
             act("1*и к своему разочарованию убедил1(ся,ась,ось,ись), что @1и для 1(него,нее,него,них) неудоб@1(ен,на,но,ны).",
-                .toRoom, .excludingCreature(self), .item(item))
+                .toRoom, .excluding(self), .item(item))
             return
         } else {
             if item.isCarried {
@@ -343,7 +343,7 @@ extension Creature {
             }
             equip(item: item, position: position)
             if item.hasType(.weapon) && weaponEfficiencyPercents(for: item, in: position) < 100 {
-                act("Вы почувствовали, что @1и слишком тяжел@1(,а,о,ы) для Вас.", .toCreature(self), .item(item))
+                act("Вы почувствовали, что @1и слишком тяжел@1(,а,о,ы) для Вас.", .to(self), .item(item))
             }
             if item.extraFlags.contains(.stringed) {
                 // FIXME: check that removing/wearing bow can't be used to shot faster
@@ -400,8 +400,8 @@ extension Creature {
             item.removeFromCreature()
         }
         
-        act("Не удержав в руках, Вы уронили @1в на землю!", .toSleeping, .toCreature(self), .item(item))
-        act("Не удержав в руках, 1+и уронил1(,а,о,и) @1+в на землю!", .toRoom, .excludingCreature(self), .item(item))
+        act("Не удержав в руках, Вы уронили @1в на землю!", .toSleeping, .to(self), .item(item))
+        act("Не удержав в руках, 1+и уронил1(,а,о,и) @1+в на землю!", .toRoom, .excluding(self), .item(item))
         item.put(in: inRoom, activateDecayTimer: true)
         
         return true
@@ -424,8 +424,8 @@ extension Creature {
             return false
         }
         
-        act("Вас ударило током, и Вы выпустили @1в из рук.", .toSleeping, .toCreature(self), .item(item))
-        act("1+в ударило током, и 1еи выпустил1(,а,о,и) @1+в из рук.", .toRoom, .excludingCreature(self), .item(item))
+        act("Вас ударило током, и Вы выпустили @1в из рук.", .toSleeping, .to(self), .item(item))
+        act("1+в ударило током, и 1еи выпустил1(,а,о,и) @1+в из рук.", .toRoom, .excluding(self), .item(item))
         
         if let wornBy = item.wornBy {
             if wornBy.unequip(position: item.wornOn) != item {
@@ -574,8 +574,8 @@ extension Creature {
             (event.isAllowed ? position.wearToActor : position.unableToWearToActor)
         let toRoom = event.toRoomExcludingActor ??
             (event.isAllowed ? position.wearToRoom : position.unableToWearToRoom)
-        act(toActor, .toCreature(self), .item(item))
-        act(toRoom, .toRoom, .excludingCreature(self), .item(item))
+        act(toActor, .to(self), .item(item))
+        act(toRoom, .toRoom, .excluding(self), .item(item))
         shouldCancelAction = !event.isAllowed
     }
     
@@ -818,13 +818,13 @@ extension Creature {
             }
         }
         
-        var actArguments: [ActArgument] = [.toCreature(self),
-                                           .excludingCreature(creature)]
+        var actArguments: [ActArgument] = [.to(self),
+                                           .excluding(creature)]
         if let creatureRiding = creature.riding {
-            actArguments.append(.excludingCreature(creatureRiding))
+            actArguments.append(.excluding(creatureRiding))
         }
         if let creatureFighting = creature.fighting {
-            actArguments.append(.excludingCreature(creatureFighting))
+            actArguments.append(.excluding(creatureFighting))
         }
         actArguments.append(.text(autostatString))
         var result = ""
@@ -901,7 +901,7 @@ extension Creature {
    
         var result = ""
         act(formatString,
-            .toSleeping, .toCreature(self),
+            .toSleeping, .to(self),
             .item(item), .text(vnumString)) { target, output in
                 assert(result.isEmpty) // should be only one target
                 result = output
