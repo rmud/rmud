@@ -13,7 +13,8 @@ class WebServer {
                 }
 
                 do {
-                    let app = Application()
+                    let env = Environment(name: "production", arguments: ["vapor"])
+                    let app = Application(env)
                     app.http.server.configuration.hostname = "0.0.0.0"
                     app.http.server.configuration.port = Int(port)
                     defer { app.shutdown() }
