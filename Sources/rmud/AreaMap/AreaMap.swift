@@ -201,26 +201,38 @@ public class AreaMap {
     }
 
     func debugPrinted() -> String {
-        let minX = range.from.x
-        let minY = range.from.y
-        //let minPlane = planeRange.lowerBound
-
         let elementWidth = 6 //14
-
+        let columnCount = range.toInclusive.x - range.from.x + 1
+        let lineCount = range.toInclusive.y - range.from.y + 1
+        let separator = String(repeating: "=", count: columnCount * elementWidth) + "\n"
+        
         var result = ""
         for plane in rangesByPlane.keys.sorted() {
             if !result.isEmpty {
                 result += "\n"
             }
             result += "Plane \(plane):\n"
+
+            for index in range.from.x ... range.toInclusive.x {
+                result.append("\(index)".padding(toLength: elementWidth, withPad: " ", startingAt: 0))
+            }
+            result += "\n"
+            result.append(separator)
             
-            let fillLine = [String](repeating: " ".padding(toLength: elementWidth, withPad: " ", startingAt: 0), count: range.toInclusive.x - range.from.x + 1)
-            var grid = [[String]](repeating: fillLine, count: range.toInclusive.y - range.from.y + 1)
+            let fillLine = [String](repeating: " ".padding(toLength: elementWidth, withPad: " ", startingAt: 0), count: columnCount)
+            var grid = [[String]](repeating: fillLine, count: lineCount)
 
             for (position, element) in mapElementsByPosition {
+                if case let .passage(axis, toRoom, fromRoom) = element, (fromRoom.vnum == 1010 && toRoom.vnum == 1000) || (fromRoom.vnum == 1000 && toRoom.vnum == 1010) {
+                    result += "_bp \(axis) to=\(toRoom) from=\(fromRoom) plane=\(position.plane) posX=\(position.x) posY=\(position.y)\n"
+                }
                 guard position.plane == plane else { continue }
-                let atX = position.x - minX
-                let atY = position.y - minY
+                let atX = position.x - range.from.x
+                let atY = position.y - range.from.y
+                guard atX >= 0 && atY >= 0 else {
+                    result += "ERROR: atX=\(atX) atY=\(atY) posX=\(position.x) posY=\(position.y) element=\(element)\n"
+                    continue
+                }
                 switch element {
                 case .room(let room):
                     grid[atY][atX] = String(room.vnum).padding(toLength: elementWidth, withPad: " ", startingAt: 0)
@@ -246,7 +258,7 @@ public class AreaMap {
                 for column in row {
                     result.append(column)
                 }
-                result.append(" || \(minY + index)")
+                result.append(" || \(range.from.y + index)")
             }
         }
 
