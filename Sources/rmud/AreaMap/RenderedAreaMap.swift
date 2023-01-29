@@ -313,6 +313,9 @@ class RenderedAreaMap {
                 (rc1.plane == rc2.plane && rc1.y == rc2.y && rc1.x < rc2.x)
         }.map { room in
             var legend = room.legend!
+            if legend.name.isEmpty {
+                legend.name = room.name
+            }
             if legend.symbol != RoomLegend.defaultSymbol {
                 return RoomLegendWithMetadata(finalLegend: legend, room: room)
             }
