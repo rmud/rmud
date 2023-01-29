@@ -53,6 +53,26 @@ enum Terrain: UInt8 {
         return UInt64(timeNeededSec) * 10
     }
     
+    var name: String {
+        switch self {
+        case .inside:         return "помещение"
+        case .city:           return "город"
+        case .field:          return "поле"
+        case .forest:         return "лес"
+        case .hills:          return "холмы"
+        case .mountain:       return "горы"
+        case .waterSwimmable: return "мелководье"
+        case .waterNoSwim:    return "глубоководье"
+        case .underwater:     return "подводой"
+        case .air:            return "воздух"
+        case .longRoad:       return "дорога"
+        case .swamp:          return "болото"
+        case .spareForest:    return "редкийлес"
+        case .jungle:         return "джунгли"
+        case .tree:           return "надереве"
+        }
+    }
+    
     static func registerDefinitions(in e: Enumerations) {
         e.add(aliases: aliases, namesByValue: [
             0:  "помещение",    // Внутри помещения

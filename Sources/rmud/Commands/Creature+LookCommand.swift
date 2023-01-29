@@ -95,8 +95,16 @@ extension Creature {
         
         let autostat = preferenceFlags?.contains(.autostat) ?? false
         if autostat {
-            act("&1[&2] &3 [&4]&5",
-                .to(self), .text(bCyn()), .text(String(room.vnum)), .text(room.name), .text(room.flags.description), .text(nNrm()))
+            act("&1[&2] &3 &4[&5] &6<&7>&8",
+                .to(self),
+                .text(bCyn()),
+                .text(String(room.vnum)),
+                .text(room.name),
+                .text(nYel()),
+                .text(room.flags.description),
+                .text(nGrn()),
+                .text(room.terrain.name),
+                .text(nNrm()))
         } else {
             act("&1&2&3",
                 .to(self), .text(bCyn()), .text(room.name), .text(nNrm()))
