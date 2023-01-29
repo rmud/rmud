@@ -183,7 +183,7 @@ public class AreaMap {
                         }
                     }
                 }
-            case .passage(let axis, _, _):
+            case .passage(let passageAxis, _, _) where passageAxis == axis:
                 let fillElement = element
                 for fillCoordinate in fillRange {
                     var position = oldPosition
