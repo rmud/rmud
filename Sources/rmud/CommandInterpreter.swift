@@ -49,7 +49,7 @@ private let commandInfo: [Command] = [
             arg1: [.creature, .item, .word], cases1: [.accusative], where1: [.equipment, .inventory, .room]),
     Command(["взглянуть", "glance"], group: .information, notImplemented),
     Command(["наблюдать", "watch"], group: .information, notImplemented),
-    Command(["оглядеться", "scan", "выходы"], group: .information, Creature.doScan,
+    Command(["оглядеться", "scan", "выходы", "exits"], group: .information, Creature.doScan,
             minPosition: .resting),
     Command(["кто", "who"], group: .information, Creature.doWho,
         flags: .informational, minPosition: .sleeping),
@@ -128,7 +128,7 @@ private let commandInfo: [Command] = [
 
     // Combat
     Command(["сравнить", "consider"], group: .combat, notImplemented),
-    Command(["убить", "kill"], group: .combat, Creature.doKill,
+    Command(["убить", "kill", "ударить"], group: .combat, Creature.doKill,
              flags: [.noFight, .highPriority], minPosition: .standing,
             arg1: .creature, cases1: .accusative, where1: .room),
     Command(["бежать", "flee"], group: .combat, notImplemented),
