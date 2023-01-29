@@ -534,6 +534,8 @@ extension Creature {
         let stackMobiles = onOff(preferenceFlags.contains(.stackMobiles))
         let stackItems = onOff(preferenceFlags.contains(.stackItems))
         let map = onOff(preferenceFlags.contains(.map))
+        let mapWidth = controllingPlayer?.mapWidth ?? defaultMapWidth
+        let mapHeight = controllingPlayer?.mapHeight ?? defaultMapHeight
         let automapper = onOff(preferenceFlags.contains(.automapper))
         //send("цвет            Цвет: \(color).")
         send("краткий         Не показывать описания комнат: \(brief).")
@@ -543,6 +545,7 @@ extension Creature {
         send("монстры         Группировка одинаковых монстров: \(stackMobiles).")
         send("предметы        Группировать предметы: \(stackItems).")
         send("карта           Отображать карту области: \(map).")
+        send("карта <1-9>     Размер карты: \(mapWidth)х\(mapHeight) клет\(mapHeight.ending("ка","ки","ок")).")
         send("картография     Поддержка средств составления карты: \(automapper).")
         send("")
         
