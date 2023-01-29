@@ -78,8 +78,8 @@ extension RoomFlags: CustomStringConvertible {
     var description: String {
         let result = T.names
             .filter { k, v in contains(T(rawValue: 1 << (UInt32(k) - 1))) }
-            .map { (k, v) in v }
+            .map { (k, v) in v.uppercased() }
             .joined(separator: ", ")
-        return !result.isEmpty ? result : "нет"
+        return !result.isEmpty ? result : "НЕТ"
     }
 }
