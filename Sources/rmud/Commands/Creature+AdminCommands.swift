@@ -314,8 +314,8 @@ extension Creature {
                 names: [mp.nameNominative, mp.nameGenitive, mp.nameDative, mp.nameAccusative, mp.nameInstrumental, mp.namePrepositional],
                 isAnimate: isAnimate)
 
-            //send("\(nBlu())\(vnum)\(nNrm()) \(isAnimate ? nGrn() : nYel())\(compressed)\(nNrm()) | \(mp.nameNominative) | \(mp.nameGenitive) | \(mp.nameDative) | \(mp.nameAccusative) | \(mp.nameInstrumental) | \(mp.namePrepositional)")
-            table.add(row: [String(vnum), compressed, mp.nameGenitive, mp.nameDative, mp.nameAccusative, mp.nameInstrumental, mp.namePrepositional], colors: [nBlu(), isAnimate ? nGrn() : nYel()])
+            //send("\(cVnum())\(vnum)\(nNrm()) \(isAnimate ? nGrn() : nYel())\(compressed)\(nNrm()) | \(mp.nameNominative) | \(mp.nameGenitive) | \(mp.nameDative) | \(mp.nameAccusative) | \(mp.nameInstrumental) | \(mp.namePrepositional)")
+            table.add(row: [String(vnum), compressed, mp.nameGenitive, mp.nameDative, mp.nameAccusative, mp.nameInstrumental, mp.namePrepositional], colors: [cVnum(), isAnimate ? nGrn() : nYel()])
         }
         send(table.description)
     }
@@ -349,7 +349,7 @@ extension Creature {
             return
         }
         for room in area.rooms.sorted(by: { $0.vnum < $1.vnum }) {
-            send("\(nBlu())\(room.vnum)\(nNrm()) \(room.prototype.name)")
+            send("\(cVnum())\(room.vnum)\(nNrm()) \(room.prototype.name)")
         }
     }
     
@@ -368,7 +368,7 @@ extension Creature {
             return
         }
         for (vnum, mobilePrototype) in area.prototype.mobilePrototypesByVnum.sorted(by: { $0.key < $1.key }) {
-            send("\(nBlu())\(vnum)\(nNrm()) \(mobilePrototype.nameNominative)")
+            send("\(cVnum())\(vnum)\(nNrm()) \(mobilePrototype.nameNominative)")
         }
     }
 
@@ -387,7 +387,7 @@ extension Creature {
             return
         }
         for (vnum, itemPrototype) in area.prototype.itemPrototypesByVnum.sorted(by: { $0.key < $1.key }) {
-            send("\(nBlu())\(vnum)\(nNrm()) \(itemPrototype.nameNominative)")
+            send("\(cVnum())\(vnum)\(nNrm()) \(itemPrototype.nameNominative)")
         }
     }
 

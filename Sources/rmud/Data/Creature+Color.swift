@@ -27,5 +27,7 @@ extension Creature {
     func bMag() -> String { return colorPick(Ansi.bMag) }
     func bCyn() -> String { return colorPick(Ansi.bCyn) }
     func bWht() -> String { return colorPick(Ansi.bWht) }
+    
+    func cVnum() -> String { return bBlu() }
 }
 

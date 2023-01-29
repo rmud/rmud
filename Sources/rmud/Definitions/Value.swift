@@ -186,7 +186,7 @@ enum Value {
         case .number(let value):
             switch style {
             case .areaFile: return String(value)
-            case .ansiOutput(let creature): return "\(creature.nBlu())\(value)\(creature.nNrm())"
+            case .ansiOutput(let creature): return "\(creature.bBlu())\(value)\(creature.nNrm())"
             }
         case .enumeration(let value):
             let result = enumSpec?()?.lowercasedNamesByValue[value]?.uppercased() ?? String(value)
@@ -231,7 +231,7 @@ enum Value {
             let escaped = escaping(value)
             switch style {
             case .areaFile: return escaped
-            case .ansiOutput(let creature): return "\(creature.nRed())\(escaped)\(creature.nNrm())"
+            case .ansiOutput(let creature): return "\(creature.bRed())\(escaped)\(creature.nNrm())"
             }
         case .longText(let values):
             let separator: String
@@ -244,7 +244,7 @@ enum Value {
             let result = !finalText.isEmpty ? finalText : escaping("")
             switch style {
             case .areaFile: return result
-            case .ansiOutput(let creature): return "\(creature.nRed())\(result)\(creature.nNrm())"
+            case .ansiOutput(let creature): return "\(creature.bRed())\(result)\(creature.nNrm())"
             }
         case .dice(let value):
             switch style {
