@@ -802,3 +802,11 @@ extension Creature: Hashable {
     }
 }
 
+extension Creature: CustomDebugStringConvertible {
+    var debugDescription: String {
+        guard let vnum = mobile?.vnum else {
+            return "$<\(nameNominative.full)>"
+        }
+        return "$\(vnum)"
+    }
+}

@@ -99,3 +99,8 @@ extension Room: Hashable {
     }
 }
 
+extension Room: CustomDebugStringConvertible {
+    var debugDescription: String {
+        return "#\(vnum)"
+    }
+}

@@ -226,3 +226,8 @@ extension Item: Hashable {
     }
 }
 
+extension Item: CustomDebugStringConvertible {
+    var debugDescription: String {
+        return "@\(vnum)"
+    }
+}
