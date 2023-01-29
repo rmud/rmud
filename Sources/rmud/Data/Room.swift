@@ -39,17 +39,17 @@ class Room {
         }
     }
     
-    func hasValidExit(_ direction: Direction, includingImaginaryRooms: Bool = false) -> Bool {
+    func hasValidExit(_ direction: Direction, includingImaginaryExits: Bool = false) -> Bool {
         if let exit = exits[direction] {
-            return exit.toRoom(includingImaginaryExits: includingImaginaryRooms) != nil
+            return exit.toRoom(includingImaginaryExits: includingImaginaryExits) != nil
         }
         return false
     }
 
-    func exitDestination(_ direction: Direction) -> (ExitDestination, toRoom: Room?)? {
-        guard let exit = exits[direction], let toVnum = exit.toVnum else {
-            return nil
-        }
+    func exitDestination(_ direction: Direction, includingImaginaryExits: Bool = false) -> (ExitDestination, toRoom: Room?)? {
+        guard let exit = exits[direction] else { return nil }
+        guard !exit.flags.contains(.imaginary) || includingImaginaryExits else { return nil }
+        guard let toVnum = exit.toVnum else { return nil }
         guard let toRoom = db.roomsByVnum[toVnum] else {
             return (.invalid, nil)
         }

@@ -29,7 +29,7 @@ class AreaMapper {
         
         mutating func append(directionsOf room: Room) {
             for direction in Direction.orderedByMappingPriorityDirections {
-                if room.hasValidExit(direction, includingImaginaryRooms: true) {
+                if room.hasValidExit(direction, includingImaginaryExits: true) {
                     let roomAndDirection = RoomAndDirection(room: room, direction: direction)
                     append(roomAndDirection: roomAndDirection)
                 }
