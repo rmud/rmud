@@ -88,10 +88,11 @@ extension Creature {
     
     private func processFilter(_ arg: String) -> (highlightRooms: Set<Int>, markRooms: Set<Int>)? {
         let elements = arg.split(separator: ":", maxSplits: 1, omittingEmptySubsequences: false)
-        guard let fieldNameSubstring = elements[safe: 0], let valueSubstring = elements[safe: 1] else {
+        guard let fieldNameSubstring = elements[safe: 0] else {
             send("Некорректный фильтр: \(arg)")
             return nil
         }
+        let valueSubstring = elements[safe: 1] ?? ""
         
         var highlightRooms: Set<Int> = []
         var markRooms: Set<Int> = []
@@ -99,6 +100,10 @@ extension Creature {
         let fieldName = String(fieldNameSubstring)
         let value = String(valueSubstring)
         if fieldName.isAbbrev(of: "ксвойства") {
+            guard !value.isEmpty else {
+                send("Укажите свойства комнаты.")
+                return nil
+            }
             if let enumSpec = db.definitions.enumerations.enumSpecsByAlias["ксвойства"],
                 let v64 = enumSpec.value(byAbbreviatedName: value),
                 let bitIndex = UInt32(exactly: v64 - 1) {
