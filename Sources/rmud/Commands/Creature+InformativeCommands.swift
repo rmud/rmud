@@ -413,6 +413,11 @@ extension Creature {
                         "Группировка одинаковых предметов включена.",
                         "Группировка одинаковых предметов отключена.")
 
+        } else if option(name, matches: "путь", "path") {
+            toggleOnOff(.goIntoUnknownRooms, value,
+                        "Теперь Вы будете заходить в неизведанные места.",
+                        "Теперь Вы будете останавливаться перед неизведанными местами.")
+
         } else if option(name, matches: "карта", "map") {
             if var mapSize = UInt8(value) {
                 mapSize = clamping(mapSize, to: validMapSizeRange)
@@ -533,6 +538,7 @@ extension Creature {
         let movement = onOff(preferenceFlags.contains(.hideTeamMovement))
         let stackMobiles = onOff(preferenceFlags.contains(.stackMobiles))
         let stackItems = onOff(preferenceFlags.contains(.stackItems))
+        let goIntoUnknownRooms = onOff(preferenceFlags.contains(.goIntoUnknownRooms))
         let map = onOff(preferenceFlags.contains(.map))
         let mapWidth = controllingPlayer?.mapWidth ?? defaultMapWidth
         let mapHeight = controllingPlayer?.mapHeight ?? defaultMapHeight
@@ -544,6 +550,7 @@ extension Creature {
         send("передвижение    Пропускать сообщения о групповом передвижении: \(movement).")
         send("монстры         Группировка одинаковых монстров: \(stackMobiles).")
         send("предметы        Группировать предметы: \(stackItems).")
+        send("путь            Заходить в неизведанные места: \(goIntoUnknownRooms).")
         send("карта           Отображать карту области: \(map).")
         send("карта <1-9>     Размер карты: \(mapWidth)х\(mapHeight) клет\(mapHeight.ending("ка","ки","ок")).")
         send("картография     Поддержка средств составления карты: \(automapper).")

@@ -18,8 +18,8 @@ extension Creature {
         // waiting for timer expiration.
         // In both cases there should be no pre-planned path.
         if (!interactive && movementPathInitialRoom != inRoom.vnum) || movementPath.count >= 2 {
-            if let player = player {
-                guard player.exploredRooms.contains(toRoom.vnum) else {
+            if let player = controllingPlayer {
+                guard player.preferenceFlags.contains(.goIntoUnknownRooms) || player.exploredRooms.contains(toRoom.vnum) else {
                     send("Дальше путь Вам незнаком.")
                     movementPath.removeAll()
                     return

@@ -51,6 +51,7 @@ struct PlayerPreferenceFlags: OptionSet {
     static let reequip        = T(rawValue: 1 << 38) // Reequip char when he enters the game
     static let nohpmvWhenMax  = T(rawValue: 1 << 39) // Don't show HP&MV in status when max
     static let map            = T(rawValue: 1 << 40) // Карта
+    static let goIntoUnknownRooms = T(rawValue: 1 << 41)
 
     var mudlogVerbosity: MudlogVerbosity {
         get {
