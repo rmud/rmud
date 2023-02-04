@@ -108,6 +108,13 @@ extension Creature {
         removeFromRoom()
         put(in: room)
     }
+    
+    func goto(room: Room) {
+        sendPoofOut()
+        teleportTo(room: room)
+        sendPoofIn()
+        lookAtRoom(ignoreBrief: false)
+    }
 
     // Call this to stop following or charm spells
     // FIXME: this function is doing too much unrelated things
@@ -694,218 +701,30 @@ extension Creature {
             }
         }
     }
-
-    // Shows a creature to a creature
-    func describe(creature: Creature) -> String {
-        let isCreatureRiddenByMe: ()->Bool = {
-            if let creatureRiddenBy = creature.riddenBy,
-                    creatureRiddenBy.inRoom == creature.inRoom &&
-                    creatureRiddenBy == self {
-                return true
-            }
-            return false
-        }
-        // FIXME: по логике мне кажется здесь должно быть еще creature.riding == self
-        let isCreatureRidingSomeone: ()->Bool = {
-            if let creatureRiding = creature.riding,
-                    creatureRiding.inRoom == creature.inRoom {
-                return true
-            }
-            return false
-        }
-        
-        let autostat = preferenceFlags?.contains(.autostat) ?? false
-        var autostatString = ""
-        var formatString = "&1" // for autostatString, which will be first text argument to act()
-        if autostat {
-            if let mobile = creature.mobile {
-                let vnumString = String(mobile.vnum).leftExpandingTo(minimumLength: 6)
-                autostatString = "[\(vnumString)] "
-            } else {
-                let levelString = String(creature.level).leftExpandingTo(minimumLength: 2, with: "0")
-                let classAbbreviation = creature.classId.info.abbreviation.leftExpandingTo(minimumLength: 3)
-                autostatString = "[\(levelString) \(classAbbreviation)] "
-            }
-        }
-
-        let holylight = { self.preferenceFlags?.contains(.holylight) ?? false }
-        let isCreatureHiding = {
-            creature.runtimeFlags.contains(.hiding) && !self.isAffected(by: .senseLife)
-        }
-        
-        // FIXME: check mounts logic here
-        // FIXME: also canSee likely checks hiding state too?
-        if !isCreatureRiddenByMe() && !isCreatureRidingSomeone() && !holylight() &&
-            (!canSee(creature) || isCreatureHiding()) {
-            if hasLitOrGlowingItems() {
-                formatString += "Блики света выдают присутствие здесь кого-то постороннего."
-            } else if isCarryingOrWearingItem(withAnyOf: .hum) {
-                formatString += "Краем уха Вы уловили какой-то шум."
-            } else if isCarryingOrWearingItem(withAnyOf: .stink) {
-                formatString += "Откуда-то исходит неприятный запах."
-            } else if isCarryingOrWearingItem(withAnyOf: .fragrant) {
-                formatString += "Откуда-то исходит приятный запах."
-            } else {
-                formatString += "Вы чувствуете здесь чье-то незримое присутствие."
+    
+    func sendPoofIn() {
+        if let player = player,
+            !player.poofin.isEmpty,
+            let room = inRoom {
+            for to in room.creatures {
+                guard to != self && to.canSee(self) else { continue }
+                to.send(player.poofin)
             }
         } else {
-            if let mobile = creature.mobile,
-                !mobile.groundDescription.isEmpty && !isCreatureRiddenByMe() && !isCreatureRidingSomeone() && creature.position == mobile.defaultPosition && !creature.isFighting && !creature.isCharmed() {
-                formatString += mobile.groundDescription
-            } else {
-                if creature.isMobile || isCreatureRidingSomeone() || creature.isFighting {
-                    formatString += "2и"
-                } else if canSee(creature), let creaturePlayer = creature.player {
-                    let title = creaturePlayer.titleWithFallbackToRace(order: .raceThenName)
-                    formatString += title
-                    if title.contains(",") {
-                        formatString += ","
-                    }
-                } else {
-                    formatString += "Кто-то"
-                }
-                
-                if isCreatureRidingSomeone() {
-                    formatString += " сидит здесь верхом на "
-                    formatString += creature.riding == self ? "Вас." : "3п."
-                } else if isCreatureRiddenByMe() {
-                    formatString += " держит Вас на себе."
-                } else if let creatureFighting = creature.fighting {
-                    formatString += " сражается здесь с "
-                    if creatureFighting == self {
-                        formatString += "ВАМИ!"
-                    } else if creature.inRoom == creatureFighting.inRoom {
-                        formatString += "4т!"
-                    } else {
-                        formatString += "тем, кто уже ушел!"
-                    }
-                } else {
-                    formatString += " \(creature.position.groundDescription)."
-                }
-            }
-            
-            if creature.isPlayer {
-                if !creature.descriptors.isEmpty {
-                    if isGodMode() {
-                        formatString += " (неуязвим)"
-                    }
-                } else {
-                    formatString += " (потерял2(,а,о,и) связь)"
-                }
-            }
-            if let mobile = creature.mobile, mobile.flags.contains(.tethered) {
-                formatString += " (привязан2(,а,о,ы))"
-            }
-            if creature.isAffected(by: .invisible) {
-                formatString += " (невидим2(ый,ая,ое,ые))"
-            }
-            if creature.runtimeFlags.contains(.hiding) {
-                formatString += " (пряч2(е,е,е,у)тся)"
-            }
-            
-            let creatureAlignment = creature.affectedAlignment()
-            if isAffected(by: .detectEvil) && creatureAlignment.isEvil {
-                formatString += " (красная аура)"
-            }
-            if isAffected(by: .detectGood) && creatureAlignment.isGood {
-                formatString += " (белая аура)"
-            }
-            if isAffected(by: .detectPoison) && creature.isAffected(by: .poison) {
-                formatString += " (зеленая аура)"
-            }
-            if creature.isAffected(by: .fly) && creature.position == .standing {
-                formatString += " (лета2(е,е,е,ю)т)"
-            }
+            act("1*и появил1(ся,ась,ось,ись) в клубах дыма.", .toRoom, .excluding(self))
         }
-        
-        var actArguments: [ActArgument] = [.to(self),
-                                           .excluding(creature)]
-        if let creatureRiding = creature.riding {
-            actArguments.append(.excluding(creatureRiding))
-        }
-        if let creatureFighting = creature.fighting {
-            actArguments.append(.excluding(creatureFighting))
-        }
-        actArguments.append(.text(autostatString))
-        var result = ""
-        act(formatString, .toSleeping, actArguments) { target, output in
-            assert(result.isEmpty) // should be only one target
-            result = output
-        }
-        return result
     }
     
-    // Describes the item from viewpoint of the creature
-    func describe(item: Item) -> String {
-        var vnumString = ""
-        if preferenceFlags?.contains(.autostat) ?? false {
-            vnumString = "[\(String(item.vnum).leftExpandingTo(minimumLength: 6))] "
-        }
-        var formatString = "&1" // placeholder for vnumString
-
-        if item.inRoom != nil {
-            formatString.append(item.groundDescription)
+    func sendPoofOut() {
+        if let player = player,
+                !player.poofout.isEmpty,
+                let room = inRoom {
+            for to in room.creatures {
+                guard to != self && to.canSee(self) else { continue }
+                to.send(player.poofout)
+            }
         } else {
-            formatString += "@1и"
-            if let vessel: ItemExtraData.Vessel = item.extraData(),
-                    !vessel.isEmpty &&
-                    (item.carriedBy == self || item.wornBy == self) {
-                formatString += " \(vessel.liquid.instrumentalWithPreposition)"
-            }
+            act("1*и исчез1(,ла,ло,ли) в клубах дыма.", .toRoom, .excluding(self))
         }
-        
-        if item.extraFlags.contains(.buried) {
-            formatString += " (закопан@1(,а,о,ы))"
-        }
-        if item.extraFlags.contains(.invisible) {
-            formatString += " (невидим@1(ый,ая,ое,ые))"
-        }
-        if item.extraFlags.contains(.bless) && isAffected(by: .detectMagic) {
-            formatString += " (светлая аура)"
-        }
-        if item.extraFlags.contains(.cursed) && isAffected(by: .detectMagic) {
-            formatString += " (темная аура)"
-        }
-        if item.extraFlags.contains(.magic) && isAffected(by: .detectMagic) {
-            formatString += " (голубая аура)"
-        }
-        if isAffected(by: .detectPoison) {
-            let isPoisonedVessel = {
-                (item.extraData() as ItemExtraData.Vessel?)?.isPoisoned ?? false
-            }
-            let isPoisonedFountain = {
-                (item.extraData() as ItemExtraData.Fountain?)?.isPoisoned ?? false
-            }
-            let isPoisonedFood = {
-                (item.extraData() as ItemExtraData.Food?)?.isPoisoned ?? false
-            }
-            let isPoisonedWeapon = {
-                (item.extraData() as ItemExtraData.Weapon?)?.isPoisoned ?? false
-            }
-            if isPoisonedVessel() || isPoisonedFountain() || isPoisonedFood() || isPoisonedWeapon() {
-                formatString += " (зеленая аура)"
-            }
-        }
-        if item.extraFlags.contains(.glow) {
-            formatString += " (мягко свет@1(и,и,и,я)тся)"
-        }
-        if item.extraFlags.contains(.hum) {
-            formatString += " (тихо шум@1(и,и,и,я)т)"
-        }
-        if item.extraFlags.contains(.stink) {
-            formatString += " (неприятно пахн@1(е,е,е,у)т)"
-        }
-        if item.extraFlags.contains(.fragrant) {
-            formatString += " (благоуха@1(е,е,е,ю)т)"
-        }
-   
-        var result = ""
-        act(formatString,
-            .toSleeping, .to(self),
-            .item(item), .text(vnumString)) { target, output in
-                assert(result.isEmpty) // should be only one target
-                result = output
-        }
-        return result
     }
 }
