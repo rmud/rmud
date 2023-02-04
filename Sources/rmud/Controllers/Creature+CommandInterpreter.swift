@@ -126,6 +126,7 @@ extension Creature {
         for item in carrying {
             guard context.targetName.isEmpty ||
                     context.targetName.words.allSatisfy({ word in
+                        isVnum(word, of: item) ||
                         item.isAbbrevOfNameOrSynonym(word, cases: cases)
                     }) else {
                         continue
@@ -148,6 +149,7 @@ extension Creature {
         guard creature.isPlayer || !isPlayersOnly else { return false }
         guard context.targetName.isEmpty ||
                 context.targetName.words.allSatisfy({ word in
+                    isVnum(word, of: creature) ||
                     creature.isAbbrevOfNameOrSynonym(word, cases: cases)
                 }) else {
                     return false
@@ -176,11 +178,32 @@ extension Creature {
         return false
     }
     
-    private func fetchCreaturesInWorld(context: inout FetchArgumentContext, into: inout [Creature], cases: GrammaticalCases, skipInSameRoom: Bool, isPlayersOnly: Bool = false) -> Bool {
+    private func fetchCreaturesInArea(context: inout FetchArgumentContext, into: inout [Creature], cases: GrammaticalCases, skipInSameRoom: Bool, isPlayersOnly: Bool = false) -> Bool {
         for creature in db.creaturesInGame {
-            guard isMatchingCreature(creature: creature, context: context, cases: cases, isPlayersOnly: isPlayersOnly) else { continue }
             if skipInSameRoom && inRoom == creature.inRoom { continue }
+            guard inRoom?.area?.lowercasedName == creature.inRoom?.area?.lowercasedName else { continue }
+            guard isMatchingCreature(creature: creature, context: context, cases: cases, isPlayersOnly: isPlayersOnly) else { continue }
+
+            defer { context.currentIndex += 1 }
+            guard context.currentIndex >= context.targetStartIndex else { continue }
             
+            context.objectsAdded += 1
+            into.append(creature)
+
+            if case .count(let maxObjects) = context.targetAmount {
+                guard context.objectsAdded < maxObjects else { return true }
+            }
+        }
+        
+        return false
+    }
+    
+    private func fetchCreaturesInWorld(context: inout FetchArgumentContext, into: inout [Creature], cases: GrammaticalCases, skipInSameRoom: Bool, skipInSameArea: Bool, isPlayersOnly: Bool = false) -> Bool {
+        for creature in db.creaturesInGame {
+            if skipInSameRoom && inRoom == creature.inRoom { continue }
+            if skipInSameArea && inRoom?.area?.lowercasedName == creature.inRoom?.area?.lowercasedName { continue }
+            guard isMatchingCreature(creature: creature, context: context, cases: cases, isPlayersOnly: isPlayersOnly) else { continue }
+
             defer { context.currentIndex += 1 }
             guard context.currentIndex >= context.targetStartIndex else { continue }
             
@@ -257,12 +280,21 @@ extension Creature {
         // - items in room
         // TODO
 
-        // - creatures in world
+        // - creatures in area
         if what.contains(.creature) && whereAt.contains(.world) {
-            if fetchCreaturesInWorld(context: &context, into: &intoCreatures, cases: cases, skipInSameRoom: true, isPlayersOnly: what.contains(.playersOnly)) {
+            if fetchCreaturesInArea(context: &context, into: &intoCreatures, cases: cases, skipInSameRoom: true, isPlayersOnly: what.contains(.playersOnly)) {
                 return
             }
         }
+        
+        // - creatures in world
+        if what.contains(.creature) && whereAt.contains(.world) {
+            if fetchCreaturesInWorld(context: &context, into: &intoCreatures, cases: cases, skipInSameRoom: true, skipInSameArea: true, isPlayersOnly: what.contains(.playersOnly)) {
+                return
+            }
+        }
+        
+        // - items in area
 
         // - items in world
         // TODO

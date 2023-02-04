@@ -45,10 +45,11 @@ extension Creature {
                 showPlane = .specific(plane)
             } else if isGodMode() {
                 // Maybe it's a filter
-                if let (highlightRoomsNew, markRoomsNew) = processFilter(arg) {
-                    highlightRooms.formUnion(highlightRoomsNew)
-                    markRooms.formUnion(markRoomsNew)
+                guard let (highlightRoomsNew, markRoomsNew) = processFilter(arg) else {
+                    return
                 }
+                highlightRooms.formUnion(highlightRoomsNew)
+                markRooms.formUnion(markRoomsNew)
             }
         }
 
@@ -100,12 +101,13 @@ extension Creature {
         let fieldName = String(fieldNameSubstring)
         let value = String(valueSubstring)
         if fieldName.isAbbrev(of: "ксвойства") {
+            guard let enumSpec = db.definitions.enumerations.enumSpecsByAlias["ксвойства"] else { fatalError("Enum spec not found") }
+            let validValues = enumSpec.valuesByLowercasedName.keys.joined(separator: " ")
             guard !value.isEmpty else {
-                send("Укажите свойства комнаты.")
+                send("Укажите свойство комнаты. Допустимые значения: \(validValues)")
                 return nil
             }
-            if let enumSpec = db.definitions.enumerations.enumSpecsByAlias["ксвойства"],
-                let v64 = enumSpec.value(byAbbreviatedName: value),
+            if let v64 = enumSpec.value(byAbbreviatedName: value),
                 let bitIndex = UInt32(exactly: v64 - 1) {
                 for room in inRoom?.area?.rooms ?? [] {
                     if room.flags.contains(RoomFlags(rawValue: 1 << bitIndex)) {
@@ -113,7 +115,7 @@ extension Creature {
                     }
                 }
             } else {
-                send("Неизвестное значение: \(arg)")
+                send("Неизвестное свойство комнаты: \(arg). Допустимые значения: \(validValues)")
                 return nil
             }
         } else if fieldName.isAbbrev(of: "монстры") {

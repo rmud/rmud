@@ -1,6 +1,23 @@
 import Foundation
 
 extension Creature {
+    func isVnum(_ arg: String, of creature: Creature) -> Bool {
+        guard isGodMode() else { return false }
+        guard let mobile = creature.mobile else { return false }
+        return arg.isEqual(to: "м\(mobile.vnum)")
+    }
+    
+    func isVnum(_ arg: String, of item: Item) -> Bool {
+        guard isGodMode() else { return false }
+        return arg.isEqual(to: "п\(item.vnum)")
+    }
+
+    func isVnum(_ arg: String, of room: Room) -> Bool {
+        guard isGodMode() else { return false }
+        let vnumString = String(room.vnum)
+        return arg == vnumString || arg.isEqual(to: "к\(vnumString)")
+    }
+    
     // Is str a name or synonym in the appropriate grammatical case?
     // Nominative case is always checked!
     func isAbbrevOfNameOrSynonym(_ arg: String, cases: GrammaticalCases) -> Bool {
