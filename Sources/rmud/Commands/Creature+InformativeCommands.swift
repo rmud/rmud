@@ -18,10 +18,10 @@ extension Creature {
 
             legendsWithMetadata.forEach { legendWithMetadata in
                 let legend = legendWithMetadata.finalLegend
-                var line = "\(Ansi.nYel)\(legend.symbol)\(Ansi.nNrm) \(legend.name)"
+                var line = "\(self.nYel())\(legend.symbol)\(self.nNrm()) \(legend.name)"
                 if isHolylight {
                     let room = legendWithMetadata.room
-                    line += " \(Ansi.bCyn)[\(room.vnum)]\(Ansi.nNrm)"
+                    line += " \(self.cVnum())[\(room.vnum)]\(self.nNrm())"
                 }
                 self.send(line)
             }

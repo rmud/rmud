@@ -15,6 +15,7 @@ extension Creature {
         case room
         case mobile
         case item
+        case path
     }
     
     private struct ShowSubcommand {
@@ -38,6 +39,7 @@ extension Creature {
         ShowSubcommand("areas",     "область",    "область",    .admin, .areas ),
         ShowSubcommand("room",      "комната",    "комнату",    .admin, .room),
         ShowSubcommand("mobile",    "монстр",     "монстра",    .admin, .mobile),
+        ShowSubcommand("paths",     "путь",       "путь",       .admin, .path),
         ShowSubcommand("item",      "предмет",    "предмет",    .admin, .item),
         ShowSubcommand("player",    "персонаж",   "персонажа",  .admin, .player ),
         ShowSubcommand("stats",     "статистика", "статистику", .admin, .statistics ),
@@ -122,6 +124,8 @@ extension Creature {
                 return
             }
             showItem(vnum: vnum)
+        case .path:
+            listPaths()
         }
     }
 
@@ -255,5 +259,16 @@ extension Creature {
         }
         let itemString = itemPrototype.save(for: .ansiOutput(creature: self), with: db.definitions)
         send(itemString.trimmingCharacters(in: .newlines))
+    }
+    
+    private func listPaths() {
+        guard let area = inRoom?.area else {
+            send("Комната, в которой Вы находитесь, не принадлежит ни одной области.")
+            return
+        }
+        for path in area.paths.sorted(by: { $0.0 < $1.0 }) {
+            let vnums = path.value.sorted().map(String.init).joined(separator: ", ")
+            send("\(bRed())\(path.key)\(nNrm()): \(cVnum())\(vnums)\(nNrm())")
+        }
     }
 }

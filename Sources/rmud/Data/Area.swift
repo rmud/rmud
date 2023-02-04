@@ -9,6 +9,7 @@ class Area {
     var age: Int = 0
     var vnumRange: ClosedRange<Int>
     var originVnum: Int?
+    var paths: [String: Set<Int>] { prototype.paths }
     
     var rooms: [Room] = []
     var map = AreaMap()
