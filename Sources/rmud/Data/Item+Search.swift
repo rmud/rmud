@@ -5,7 +5,7 @@ extension Item {
     // Nominative case is always checked!
     func isAbbrevOfNameOrSynonym(_ arg: String, cases: GrammaticalCases) -> Bool {
         return isPredicateOfNameOrSynonym(arg, cases: cases) { name in
-            arg.isAbbrev(of: name)
+            arg.isAbbrevCI(of: name)
         }
     }
         

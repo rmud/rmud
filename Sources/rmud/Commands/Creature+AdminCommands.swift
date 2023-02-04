@@ -269,7 +269,7 @@ extension Creature {
     private func getShowMode(_ modeString: String) -> ShowMode? {
         for subcommand in Creature.showSubcommands {
             guard !subcommand.roles.intersection(player?.roles ?? []).isEmpty else { continue }
-            guard modeString.isAbbrev(ofOneOf: [subcommand.nameEnglish, subcommand.nameNominative, subcommand.nameAccusative]) else { continue }
+            guard modeString.isAbbrevCI(ofAny: [subcommand.nameEnglish, subcommand.nameNominative, subcommand.nameAccusative]) else { continue }
             return subcommand.mode
         }
         return nil
@@ -582,7 +582,7 @@ extension Creature {
         } else {
             if let area = areaManager.areasByLowercasedName[name.lowercased()] {
                 areasToSave = [area]
-            } else if name.isEqual(toOneOf: ["все", "all"]) {
+            } else if name.isEqualCI(toAny: ["все", "all"]) {
                 guard !areaManager.areasByLowercasedName.isEmpty else {
                     send("Не найдено ни одной области.")
                     return

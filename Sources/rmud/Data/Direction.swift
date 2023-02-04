@@ -128,8 +128,8 @@ enum Direction: UInt8 {
     
     init?(_ name: String, allowAbbreviating: Bool) {
         for direction in Direction.orderedDirections {
-            if allowAbbreviating ? direction.name.hasPrefix(name, caseInsensitive: true) :
-                    direction.name.isEqual(to: name) {
+            if allowAbbreviating ? direction.name.hasPrefixCI(name) :
+                    direction.name.isEqualCI(to: name) {
                 self = direction
                 return
             }

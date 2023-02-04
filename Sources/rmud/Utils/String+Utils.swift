@@ -15,22 +15,22 @@ extension String {
         return self
     }
     
-    public func isAbbrev(of string: String, caseInsensitive: Bool = true) -> Bool {
+    public func isAbbrevCI(of string: String, caseInsensitive: Bool = true) -> Bool {
         guard !string.isEmpty else { return false }
         
         let isAbbreviated = !hasSuffix("!")
         if isAbbreviated {
-            return string.hasPrefix(self, caseInsensitive: caseInsensitive)
+            return string.hasPrefixCI(self, caseInsensitive: caseInsensitive)
         } else {
-            return string.isEqual(to: self.dropLast(1), caseInsensitive: caseInsensitive)
+            return string.isEqualCI(to: self.dropLast(1), caseInsensitive: caseInsensitive)
         }
     }
 
 
-    public func isAbbrev(ofOneOf strings: [String], caseInsensitive: Bool = true) -> Bool {
+    public func isAbbrevCI(ofAny strings: [String], caseInsensitive: Bool = true) -> Bool {
         guard !isEmpty else { return false }
         return strings.contains { string in
-            isAbbrev(of: string, caseInsensitive: caseInsensitive)
+            isAbbrevCI(of: string, caseInsensitive: caseInsensitive)
         }
     }
     
@@ -63,7 +63,7 @@ extension String {
         }
     }
 
-    public func hasPrefix<S: StringProtocol>(_ prefix: S, caseInsensitive: Bool) -> Bool {
+    public func hasPrefixCI<S: StringProtocol>(_ prefix: S, caseInsensitive: Bool = true) -> Bool {
         if caseInsensitive {
             guard !prefix.isEmpty else { return true }
             return nil != range(of: prefix,
@@ -72,38 +72,25 @@ extension String {
         return hasPrefix(prefix)
     }
 
-    public func hasPrefix(oneOf prefixes: [String], caseInsensitive: Bool) -> Bool {
+    public func hasPrefixCI<S: StringProtocol>(oneOf prefixes: [S], caseInsensitive: Bool = true) -> Bool {
         for prefix in prefixes {
-            if hasPrefix(prefix, caseInsensitive: caseInsensitive) {
+            if hasPrefixCI(prefix, caseInsensitive: caseInsensitive) {
                 return true
             }
         }
         return false
     }
 
-    public func isPrefix(of string: String, caseInsensitive: Bool = false) -> Bool {
-        return string.hasPrefix(self, caseInsensitive: caseInsensitive)
-    }
-    
-    public func isPrefix(ofOneOf strings: [String], caseInsensitive: Bool = false) -> Bool {
-        for item in strings {
-            if isPrefix(of: item, caseInsensitive: caseInsensitive) {
-                return true
-            }
-        }
-        return false
-    }
-
-    public func isEqual<S: StringProtocol>(to string: S, caseInsensitive: Bool = true) -> Bool {
+    public func isEqualCI<S: StringProtocol>(to string: S, caseInsensitive: Bool = true) -> Bool {
         switch caseInsensitive {
         case false: return self == string
         case true: return caseInsensitiveCompare(string) == .orderedSame
         }
     }
     
-    public func isEqual(toOneOf strings: [String], caseInsensitive: Bool = true) -> Bool {
+    public func isEqualCI(toAny strings: [String], caseInsensitive: Bool = true) -> Bool {
         for item in strings {
-            if isEqual(to: item, caseInsensitive: caseInsensitive) {
+            if isEqualCI(to: item, caseInsensitive: caseInsensitive) {
                 return true
             }
         }

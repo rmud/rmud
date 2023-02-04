@@ -38,6 +38,6 @@ struct CommandContext {
     }
 
     func isSubCommand1(oneOf commands: [String]) -> Bool {
-        return argument1.isAbbrev(ofOneOf: commands)
+        return argument1.isAbbrevCI(ofAny: commands)
     }
 }

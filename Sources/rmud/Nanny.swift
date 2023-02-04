@@ -61,7 +61,7 @@ func nanny(_ d: Descriptor, line: String) {
 
     case .confirmAccountCreation:
         let account = d.account!
-        if arg.isAbbrev(ofOneOf: ["да", "yes"]) {
+        if arg.isAbbrevCI(ofAny: ["да", "yes"]) {
             account.confirmationCode = arc4random_uniform(100000)
             sendConfirmationCodeEmail(account: d.account!)
             account.flags.insert(.confirmationEmailSent)
@@ -72,7 +72,7 @@ func nanny(_ d: Descriptor, line: String) {
                    """)
 
             d.state = .verifyConfirmationCode
-        } else if arg.isAbbrev(ofOneOf: ["нет", "no"]) {
+        } else if arg.isAbbrevCI(ofAny: ["нет", "no"]) {
             accounts.remove(account: account)
             d.account = nil
             d.state = .getAccountName
@@ -155,7 +155,7 @@ func nanny(_ d: Descriptor, line: String) {
 //            break
 //        }
 //
-//        if arg.isEqual(toOneOf: ["новый", "new"]) {
+//        if arg.isEqualCI(toAny: ["новый", "new"]) {
 //
 //            d.send(playerNameRules)
 //            d.state = .getNameReal
@@ -186,7 +186,7 @@ func nanny(_ d: Descriptor, line: String) {
 //        d.state = .password
 
     case .nameConfirmation:
-        if arg.isAbbrev(ofOneOf: ["да", "yes"]) {
+        if arg.isAbbrevCI(ofAny: ["да", "yes"]) {
             let creature = d.creature!
             let name = creature.nameNominative
             log("Host [\(d.ip), \(d.hostname)] starts creating a new character: \(name)")
@@ -196,7 +196,7 @@ func nanny(_ d: Descriptor, line: String) {
             creature.gender = morpher.detectGender(name: creature.nameNominative.full)
             d.state = .qSex
             break
-        } else if arg.isAbbrev(ofOneOf: ["нет", "no"]) {
+        } else if arg.isAbbrevCI(ofAny: ["нет", "no"]) {
             d.creature = nil
             d.state = .getNameReal
             break
@@ -216,12 +216,12 @@ func nanny(_ d: Descriptor, line: String) {
             d.state = .getNameGenitive
         }
         if !arg.isEmpty {
-            if arg.isAbbrev(ofOneOf: ["мужской", "male"]) {
+            if arg.isAbbrevCI(ofAny: ["мужской", "male"]) {
                 creature.gender = .masculine
                 prepareNextQuestion()
                 break
             }
-            if arg.isAbbrev(ofOneOf: ["женский", "female"]) {
+            if arg.isAbbrevCI(ofAny: ["женский", "female"]) {
                 creature.gender = .feminine
                 prepareNextQuestion()
                 break
@@ -386,7 +386,7 @@ func nanny(_ d: Descriptor, line: String) {
     case .accountMenu:
         stateAccountMenu(d, arg)
     case .chooseCreature:
-        if arg.isEqual(toOneOf: ["новый", "new"]) {
+        if arg.isEqualCI(toAny: ["новый", "new"]) {
             d.state = .getNameReal
             break
         }
@@ -427,7 +427,7 @@ func nanny(_ d: Descriptor, line: String) {
         let nameEnglish = { !creature.nameNominative.isEmpty ? creature.nameNominative.full : "without name" }
         let name = { !creature.nameNominative.isEmpty ? creature.nameNominative.full : "без имени" }
 
-        if arg.isEqual(toOneOf: ["да", "yes"]) {
+        if arg.isEqualCI(toAny: ["да", "yes"]) {
             if creature.player?.flags.contains(.frozen) ?? false {
                 d.send("Этот персонаж сейчас не может быть удален.")
                 log("Failed attempt to delete frozen creature '\(nameEnglish())' of level \(creature.level)")
@@ -585,7 +585,7 @@ func sendStatePrompt(_ d: Descriptor) {
 }
 
 private func stateGetCharset(_ d: Descriptor, _ arg: String) {
-    if arg.isEqual(to: "list") {
+    if arg.isEqualCI(to: "list") {
         d.send(selectCharset)
     } else if charsetParse(d, arg) {
         // Команда переключения в бинарный режим нужна Unix Telnet, иначе он не позволяет
@@ -856,7 +856,7 @@ private func validateNewName(name: String, nameNominative: String?) -> (isValid:
         return (isValid: false, reason: "\(nameType) персонажа не может быть длиннее \(playerMaxNameLength) букв.")
     }
     
-    if name.hasPrefix(oneOf: ["ъ", "ы", "ь"], caseInsensitive: true) {
+    if name.hasPrefixCI(oneOf: ["ъ", "ы", "ь"]) {
         return (isValid: false, reason: "\(nameType) персонажа не может начинаться буквы \"\(name.first!)\".")
     }
     
@@ -880,7 +880,7 @@ private func validateNewName(name: String, nameNominative: String?) -> (isValid:
         for d in networking.descriptors {
             if d.state != .playing, let creature = d.creature {
                 let creatureName = creature.nameNominative.full
-                if name.isEqual(to: creatureName) {
+                if name.isEqualCI(to: creatureName) {
                     return (isValid: false, reason: "Персонаж с этим именем уже создается.")
                 }
             }
@@ -913,7 +913,7 @@ private func isValidPassword(_ password: String, descriptor d: Descriptor) -> (i
     }
 
     if let creature = d.creature,
-       password.isEqual(to: creature.nameNominative.full) {
+       password.isEqualCI(to: creature.nameNominative.full) {
         return (isValid: false, reason: "Пароль не может совпадать с именем Вашего персонажа.")
     }
     
@@ -1038,12 +1038,12 @@ private func chooseCreature(arg: String, account: Account) -> Creature? {
         }
     } else {
         for creature in account.creatures {
-            if arg.isEqual(to: creature.nameNominative.full) {
+            if arg.isEqualCI(to: creature.nameNominative.full) {
                 return creature
             }
         }
         for creature in account.creatures {
-            if arg.isAbbrev(of: creature.nameNominative.full) {
+            if arg.isAbbrevCI(of: creature.nameNominative.full) {
                 return creature
             }
         }

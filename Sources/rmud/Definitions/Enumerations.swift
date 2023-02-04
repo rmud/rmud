@@ -24,7 +24,7 @@ class Enumerations {
             // No luck, try abbreviations
             for (name, value) in valuesByLowercasedName.sorted(by: { $0.key < $1.key }) {
                 // Both names are already lowercased, so do a case sensitive compare
-                if lowercased.isAbbrev(of: name, caseInsensitive: false) {
+                if lowercased.isAbbrevCI(of: name, caseInsensitive: false) {
                     return value
                 }
             }

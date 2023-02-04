@@ -39,7 +39,7 @@ extension Creature {
 
         let args = context.restOfString().components(separatedBy: .whitespaces).filter { !$0.isEmpty }
         for arg in args {
-            if arg.isEqual(toOneOf: ["все", "всё", "all"]) {
+            if arg.isEqualCI(toAny: ["все", "всё", "all"]) {
                 showPlane = .all
             } else if let plane = Int(arg) {
                 showPlane = .specific(plane)
@@ -100,7 +100,7 @@ extension Creature {
 
         let fieldName = String(fieldNameSubstring)
         let value = String(valueSubstring)
-        if fieldName.isAbbrev(of: "ксвойства") {
+        if fieldName.isAbbrevCI(of: "ксвойства") {
             guard let enumSpec = db.definitions.enumerations.enumSpecsByAlias["ксвойства"] else { fatalError("Enum spec not found") }
             let validValues = enumSpec.valuesByLowercasedName.keys.joined(separator: " ")
             guard !value.isEmpty else {
@@ -118,7 +118,7 @@ extension Creature {
                 send("Неизвестное свойство комнаты: \(arg). Допустимые значения: \(validValues)")
                 return nil
             }
-        } else if fieldName.isAbbrev(of: "монстры") {
+        } else if fieldName.isAbbrevCI(of: "монстры") {
             let vnums = value.split(separator: ",", omittingEmptySubsequences: true).compactMap { Int($0) }
             for room in inRoom?.area?.rooms ?? [] {
                 for creature in room.creatures {
@@ -128,7 +128,7 @@ extension Creature {
                     markRooms.insert(room.vnum)
                 }
             }
-        } else if fieldName.isAbbrev(of: "путь") {
+        } else if fieldName.isAbbrevCI(of: "путь") {
             guard !value.isEmpty else {
                 send("Укажите название пути.")
                 return nil
@@ -309,7 +309,7 @@ extension Creature {
                 .to(self), .text(raceName), .text(className), .number(Int(level)))
         }
         
-        if context.argument1.isAbbrev(ofOneOf: ["склонение", "declension"]) {
+        if context.argument1.isAbbrevCI(ofAny: ["склонение", "declension"]) {
             act("Склонение Вашего имени: 1и/1р/1д/1в/1т/1п.", .toSleeping, .to(self))
         }
         
@@ -381,7 +381,7 @@ extension Creature {
         let name = context.argument1
         let value = context.argument2
 
-        if name.isEqual(toOneOf: ["сброс", "reset"]) {
+        if name.isEqualCI(toAny: ["сброс", "reset"]) {
             player.preferenceFlags = PlayerPreferenceFlags.defaultFlags
             player.mapWidth = defaultMapWidth
             player.mapHeight = defaultMapHeight
@@ -624,7 +624,7 @@ extension Creature {
     }
 
     private func option(_ name: String, matches strings: String...) -> Bool {
-        return name.isAbbrev(ofOneOf: strings)
+        return name.isAbbrevCI(ofAny: strings)
     }
         
     private func toggleOnOff(_ what: PlayerPreferenceFlags, _ value: String, _ on: String, _ off: String) {
@@ -639,9 +639,9 @@ extension Creature {
             } else {
                 newFlags.insert(what)
             }
-        } else if value.isAbbrev(ofOneOf: ["включен", "да", "on", "yes"]) {
+        } else if value.isAbbrevCI(ofAny: ["включен", "да", "on", "yes"]) {
             newFlags.insert(what)
-        } else if value.isAbbrev(ofOneOf: ["выключен", "нет", "off", "no"]) {
+        } else if value.isAbbrevCI(ofAny: ["выключен", "нет", "off", "no"]) {
             newFlags.remove(what)
         } else {
             send("Укажите состояние режима \"включен\" или \"выключен\".")
@@ -747,7 +747,7 @@ extension Creature {
         }
         
         // Not using abbrevs because it's too easy to hit single letter token
-        if value.isEqual(toOneOf: ["все", "all"]) {
+        if value.isEqualCI(toAny: ["все", "all"]) {
             newFlags.insert(.displayHitPointsInPrompt)
             newFlags.insert(.displayXpInPrompt)
             newFlags.insert(.displayMovementInPrompt)
