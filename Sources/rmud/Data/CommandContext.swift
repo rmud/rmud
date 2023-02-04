@@ -10,11 +10,16 @@ struct CommandContext {
     var creatures2: [Creature] = []
     var creature2: Creature? { return creatures2.first }
     var items1: [Item] = []
+    var item1: Item? { return items1.first }
     var items2: [Item] = []
+    var item2: Item? { return items2.first }
+    var room1: Room?
+    var room2: Room?
     var subcommand: SubCommand = .none
     var hasArguments: Bool {
         return !creatures1.isEmpty || !creatures2.isEmpty ||
             !items1.isEmpty || !items2.isEmpty ||
+            room1 != nil || room2 != nil ||
             !argument1.isEmpty || !argument2.isEmpty
     }
 

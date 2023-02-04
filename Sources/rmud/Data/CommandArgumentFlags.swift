@@ -8,13 +8,14 @@ struct CommandArgumentFlags {
 
         static let item         = T(rawValue: 1 << 0)
         static let creature     = T(rawValue: 1 << 1)
+        static let room         = T(rawValue: 1 << 2)
         // FIXME: maybe belongs to Extra?
-        static let beacon       = T(rawValue: 1 << 2) // монстры только с флагом МАЯК
+        static let beacon       = T(rawValue: 1 << 3) // монстры только с флагом МАЯК
         // FIXME: maybe belongs to Extra?
-        static let playersOnly  = T(rawValue: 1 << 3) // цель не может быть монстром
-        static let word         = T(rawValue: 1 << 4)
-        static let restOfString = T(rawValue: 1 << 5)
-        static let many         = T(rawValue: 1 << 6)
+        static let playersOnly  = T(rawValue: 1 << 4) // цель не может быть монстром
+        static let word         = T(rawValue: 1 << 5)
+        static let restOfString = T(rawValue: 1 << 6)
+        static let many         = T(rawValue: 1 << 7)
     }
     
     struct Where: OptionSet {

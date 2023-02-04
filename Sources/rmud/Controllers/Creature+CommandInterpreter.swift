@@ -94,6 +94,7 @@ extension Creature {
                           cases: command.arg1Cases,
                           intoCreatures: &context.creatures1,
                           intoItems: &context.items1,
+                          intoRoom: &context.room1,
                           intoString: &context.argument1)
             fetchArgument(from: scanner,
                           what: command.arg2What,
@@ -101,6 +102,7 @@ extension Creature {
                           cases: command.arg2Cases,
                           intoCreatures: &context.creatures2,
                           intoItems: &context.items2,
+                          intoRoom: &context.room2,
                           intoString: &context.argument2)
             if let handler = command.handler {
                 handler(self)(context)
@@ -218,12 +220,46 @@ extension Creature {
         return false
     }
     
+    private func fetchRoom(context: inout FetchArgumentContext, into: inout Room?) -> Bool {
+        guard isGodMode() else { return false }
+
+        let argument = context.targetName.full
+        
+        var roomVnum: Int?
+        if argument.allSatisfy({ $0.isNumber }) {
+            roomVnum = Int(argument)
+        } else if argument.starts(with: "к") || argument.starts(with: "К") {
+            let num = argument.dropFirst()
+            if num.allSatisfy({ $0.isNumber }) {
+                roomVnum = Int(num)
+            }
+        }
+        
+        if roomVnum == nil {
+            if let area = areaManager.findArea(byAbbreviatedName: argument) {
+                if let originVnum = area.originVnum {
+                    roomVnum = originVnum
+                } else {
+                    roomVnum = area.rooms.first?.vnum
+                }
+            }
+        }
+        
+        guard let roomVnum = roomVnum else { return false }
+        guard let room = db.roomsByVnum[roomVnum] else { return false }
+        
+        context.objectsAdded += 1
+        into = room
+        return true
+    }
+    
     func fetchArgument(from scanner: Scanner,
                                what: CommandArgumentFlags.What,
                                where whereAt: CommandArgumentFlags.Where,
                                cases: GrammaticalCases,
                                intoCreatures: inout [Creature],
                                intoItems: inout [Item],
+                               intoRoom: inout Room?,
                                intoString: inout String) {
         // Exit early if no argument was requested
         guard what.contains(anyOf: [.creature, .item, .word, .restOfString]) else {
@@ -238,6 +274,7 @@ extension Creature {
         // - items in room
         // - creatures in world
         // - items in world
+        // - rooms
         // - as word
         // - as rest of string
         
@@ -298,6 +335,13 @@ extension Creature {
 
         // - items in world
         // TODO
+        
+        // - rooms
+        if what.contains(.room) && whereAt.contains(.world) {
+            if fetchRoom(context: &context, into: &intoRoom) {
+                return
+            }
+        }
 
         // - as word
         if what.contains(.word) {

@@ -4,7 +4,7 @@ import Foundation
 
 extension Creature {
     func doGoto(context: CommandContext) {
-        guard let targetRoom = chooseTargetRoom(argument: context.argument1, cases: .dative) else {
+        guard let targetRoom = chooseTargetRoom(context: context) else {
             return
         }
 
@@ -18,41 +18,15 @@ extension Creature {
         lookAtRoom(ignoreBrief: false)
     }
     
-    private func chooseTargetRoom(argument: String, cases: GrammaticalCases) -> Room? {
-        guard !argument.isEmpty else {
+    private func chooseTargetRoom(context: CommandContext) -> Room? {
+        guard context.hasArguments else {
             send("Укажите номер комнаты, имя области, имя персонажа, название монстра или предмета.")
             return nil
         }
         
-        if let first = argument.unicodeScalars.first,
-                CharacterSet.decimalDigits.contains(first) &&
-                !argument.contains("."),
-                let roomVnum = Int(argument) {
-            guard let room = db.roomsByVnum[roomVnum] else {
-                send("Комнаты с таким номером не существует.")
-                return nil
-            }
-            return room
-        }
-
-        if let area = areaManager.findArea(byAbbreviatedName: argument) {
-            guard let room = chooseTeleportTargetRoom(area: area) else {
-                return nil
-            }
-            return room
-        }
-        
-        
-        var creatures: [Creature] = []
-        var items: [Item] = []
-        var text = ""
-        let scanner = Scanner(string: argument)
-        
-        fetchArgument(from: scanner, what: [.creature, .item], where: .world, cases: cases, intoCreatures: &creatures, intoItems: &items, intoString: &text)
-        
-        if let creature = creatures.first {
+        if let creature = context.creature1 {
             return creature.inRoom
-        } else if var item = items.first {
+        } else if var item = context.item1 {
             while let container = item.inContainer {
                 item = container
             }
@@ -63,9 +37,9 @@ extension Creature {
             } else if let carriedBy = item.carriedBy, canSee(carriedBy), let inRoom = carriedBy.inRoom {
                 return inRoom
             }
+        } else if let room = context.room1 {
+            return room
         }
-        
-        send("Ничего с таким названием или именем не существует.")
         return nil
     }
 
