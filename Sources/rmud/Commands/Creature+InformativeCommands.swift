@@ -39,7 +39,7 @@ extension Creature {
 
         let args = context.restOfString().components(separatedBy: .whitespaces).filter { !$0.isEmpty }
         for arg in args {
-            if arg.isEqual(toOneOf: ["все", "всё", "all"], caseInsensitive: true) {
+            if arg.isEqual(toOneOf: ["все", "всё", "all"]) {
                 showPlane = .all
             } else if let plane = Int(arg) {
                 showPlane = .specific(plane)
@@ -381,7 +381,7 @@ extension Creature {
         let name = context.argument1
         let value = context.argument2
 
-        if name.isEqual(toOneOf: ["сброс", "reset"], caseInsensitive: false) {
+        if name.isEqual(toOneOf: ["сброс", "reset"]) {
             player.preferenceFlags = PlayerPreferenceFlags.defaultFlags
             player.mapWidth = defaultMapWidth
             player.mapHeight = defaultMapHeight
@@ -747,7 +747,7 @@ extension Creature {
         }
         
         // Not using abbrevs because it's too easy to hit single letter token
-        if value.isEqual(toOneOf: ["все", "all"], caseInsensitive: true) {
+        if value.isEqual(toOneOf: ["все", "all"]) {
             newFlags.insert(.displayHitPointsInPrompt)
             newFlags.insert(.displayXpInPrompt)
             newFlags.insert(.displayMovementInPrompt)

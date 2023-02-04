@@ -126,10 +126,10 @@ enum Direction: UInt8 {
         return maxLength
     }()
     
-    init?(_ name: String, allowAbbreviating: Bool, caseInsensitive: Bool) {
+    init?(_ name: String, allowAbbreviating: Bool) {
         for direction in Direction.orderedDirections {
-            if allowAbbreviating ? direction.name.hasPrefix(name, caseInsensitive: caseInsensitive) :
-                    direction.name.isEqual(to: name, caseInsensitive: caseInsensitive) {
+            if allowAbbreviating ? direction.name.hasPrefix(name, caseInsensitive: true) :
+                    direction.name.isEqual(to: name) {
                 self = direction
                 return
             }

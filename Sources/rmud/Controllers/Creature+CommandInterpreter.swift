@@ -27,7 +27,7 @@ extension Creature {
         }
     
         static func extractIndexAndAmount(_ word: String) -> (name: String?, startIndex: Int, amount: TargetAmount) {
-            if word.isEqual(toOneOf: ["все", "всем", "all"], caseInsensitive: true) {
+            if word.isEqual(toOneOf: ["все", "всем", "all"]) {
                 return (nil, 1, .infinite)
             }
             
@@ -117,7 +117,7 @@ extension Creature {
     }
     
     private func fetchSelf(word: String, into: inout [Creature]) -> Bool {
-        if word.isEqual(toOneOf: ["себя", "себе", "собой", "я", "меня", "мне", "мной", "i", "self", "me"], caseInsensitive: true) {
+        if word.isEqual(toOneOf: ["себя", "себе", "собой", "я", "меня", "мне", "мной", "i", "self", "me"]) {
             into.append(self)
             return true
         }

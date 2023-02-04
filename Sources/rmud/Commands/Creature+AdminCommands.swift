@@ -582,7 +582,7 @@ extension Creature {
         } else {
             if let area = areaManager.areasByLowercasedName[name.lowercased()] {
                 areasToSave = [area]
-            } else if name.isEqual(toOneOf: ["все", "all"], caseInsensitive: false) {
+            } else if name.isEqual(toOneOf: ["все", "all"]) {
                 guard !areaManager.areasByLowercasedName.isEmpty else {
                     send("Не найдено ни одной области.")
                     return

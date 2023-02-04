@@ -94,14 +94,14 @@ extension String {
         return false
     }
 
-    public func isEqual<S: StringProtocol>(to string: S, caseInsensitive: Bool = false) -> Bool {
+    public func isEqual<S: StringProtocol>(to string: S, caseInsensitive: Bool = true) -> Bool {
         switch caseInsensitive {
         case false: return self == string
         case true: return caseInsensitiveCompare(string) == .orderedSame
         }
     }
     
-    public func isEqual(toOneOf strings: [String], caseInsensitive: Bool = false) -> Bool {
+    public func isEqual(toOneOf strings: [String], caseInsensitive: Bool = true) -> Bool {
         for item in strings {
             if isEqual(to: item, caseInsensitive: caseInsensitive) {
                 return true

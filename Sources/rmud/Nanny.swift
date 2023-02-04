@@ -155,7 +155,7 @@ func nanny(_ d: Descriptor, line: String) {
 //            break
 //        }
 //
-//        if arg.isEqual(toOneOf: ["новый", "new"], caseInsensitive: true) {
+//        if arg.isEqual(toOneOf: ["новый", "new"]) {
 //
 //            d.send(playerNameRules)
 //            d.state = .getNameReal
@@ -386,7 +386,7 @@ func nanny(_ d: Descriptor, line: String) {
     case .accountMenu:
         stateAccountMenu(d, arg)
     case .chooseCreature:
-        if arg.isEqual(toOneOf: ["новый", "new"], caseInsensitive: true) {
+        if arg.isEqual(toOneOf: ["новый", "new"]) {
             d.state = .getNameReal
             break
         }
@@ -427,7 +427,7 @@ func nanny(_ d: Descriptor, line: String) {
         let nameEnglish = { !creature.nameNominative.isEmpty ? creature.nameNominative.full : "without name" }
         let name = { !creature.nameNominative.isEmpty ? creature.nameNominative.full : "без имени" }
 
-        if arg.isEqual(toOneOf: ["да", "yes"], caseInsensitive: true) {
+        if arg.isEqual(toOneOf: ["да", "yes"]) {
             if creature.player?.flags.contains(.frozen) ?? false {
                 d.send("Этот персонаж сейчас не может быть удален.")
                 log("Failed attempt to delete frozen creature '\(nameEnglish())' of level \(creature.level)")
@@ -585,7 +585,7 @@ func sendStatePrompt(_ d: Descriptor) {
 }
 
 private func stateGetCharset(_ d: Descriptor, _ arg: String) {
-    if arg.isEqual(to: "list", caseInsensitive: true) {
+    if arg.isEqual(to: "list") {
         d.send(selectCharset)
     } else if charsetParse(d, arg) {
         // Команда переключения в бинарный режим нужна Unix Telnet, иначе он не позволяет
@@ -880,7 +880,7 @@ private func validateNewName(name: String, nameNominative: String?) -> (isValid:
         for d in networking.descriptors {
             if d.state != .playing, let creature = d.creature {
                 let creatureName = creature.nameNominative.full
-                if name.isEqual(to: creatureName, caseInsensitive: true) {
+                if name.isEqual(to: creatureName) {
                     return (isValid: false, reason: "Персонаж с этим именем уже создается.")
                 }
             }
@@ -913,7 +913,7 @@ private func isValidPassword(_ password: String, descriptor d: Descriptor) -> (i
     }
 
     if let creature = d.creature,
-       password.isEqual(to: creature.nameNominative.full, caseInsensitive: true) {
+       password.isEqual(to: creature.nameNominative.full) {
         return (isValid: false, reason: "Пароль не может совпадать с именем Вашего персонажа.")
     }
     
@@ -1038,7 +1038,7 @@ private func chooseCreature(arg: String, account: Account) -> Creature? {
         }
     } else {
         for creature in account.creatures {
-            if arg.isEqual(to: creature.nameNominative.full, caseInsensitive: true) {
+            if arg.isEqual(to: creature.nameNominative.full) {
                 return creature
             }
         }

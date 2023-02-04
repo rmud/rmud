@@ -24,7 +24,7 @@ extension Creature {
 
         // First, test for full direction name match
         // Allow abbreviating directions only after handling creatures and items
-        if !context.argument1.isEmpty, let direction = Direction(context.argument1, allowAbbreviating: false, caseInsensitive: true) {
+        if !context.argument1.isEmpty, let direction = Direction(context.argument1, allowAbbreviating: false) {
             look(inDirection: direction)
             return
         }
@@ -41,7 +41,7 @@ extension Creature {
         }
         
         // Lastly, test for abbreviated direction name
-        if !context.argument1.isEmpty, let direction = Direction(context.argument1, allowAbbreviating: true, caseInsensitive: true) {
+        if !context.argument1.isEmpty, let direction = Direction(context.argument1, allowAbbreviating: true) {
             look(inDirection: direction)
             return
         }
