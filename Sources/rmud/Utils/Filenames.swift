@@ -38,8 +38,9 @@ class Filenames
     }
     
     private func areaPrefix(for startVnum: Int) -> String {
-        return String(startVnum / 100).leftExpandingTo(3, with: "0")
-
+        return String(
+            String(startVnum / 100).leftExpandingTo(3, with: "0")
+        )
     }
 
     // Text

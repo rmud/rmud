@@ -6,18 +6,18 @@ extension String {
         fatalError()
     }
 
-    func leftExpandingTo(_ minimumLength: Int, with padString: String = " ", startingAt: Int = 0) -> String {
-        if count < minimumLength {
-            return "".padding(toLength: minimumLength - count, withPad: padString, startingAt: startingAt) + self
-        }
-        return self
+    func leftExpandingTo(_ minimumLength: Int, with character: Character = " ") -> String {
+        return repeatElement(
+            character,
+            count: max(0, minimumLength - count)
+        ) + self
     }
     
-    func rightExpandingTo(_ minimumLength: Int, with padString: String = " ", startingAt: Int = 0) -> String {
-        if count < minimumLength {
-            return padding(toLength: minimumLength, withPad: padString, startingAt: startingAt)
-        }
-        return self
+    func rightExpandingTo(_ minimumLength: Int, with character: Character = " ") -> String {
+        return self + repeatElement(
+            character,
+            count: max(0, minimumLength - count)
+        )
     }
     
     public func isAbbrevCI(of string: String, caseInsensitive: Bool = true) -> Bool {
