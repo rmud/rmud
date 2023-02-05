@@ -177,6 +177,9 @@ private let commandInfo: [Command] = [
             arg1: [.creature, .item, .room], cases1: .dative, where1: .world),
     
     // 32+
+    Command(["где", "where"], group: .administrative, Creature.doWhere,
+            flags: .informational, minPosition: .dead, roles: .admin,
+            arg1: [.creature, .item, .many], cases1: .nominative, where1: .world),
     Command(["показать", "show"], group: .administrative, Creature.doShow,
             flags: .informational, minPosition: .dead, roles: .admin,
             arg1: .word,

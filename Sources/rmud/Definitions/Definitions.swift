@@ -411,7 +411,7 @@ class Definitions {
         var result = "[\(name)]\n\n"
         
         for fieldName in d.fieldsByLowercasedName.keys.sorted() {
-            result += fieldName.uppercased().rightExpandingTo(minimumLength: 20)
+            result += fieldName.uppercased().rightExpandingTo(20)
             result += " "
             result += "\n"
         }
@@ -440,7 +440,7 @@ class Definitions {
             result += "\n"
             for name in valuesByName.keys.sorted() {
                 guard let value = valuesByName[name] else { fatalError() }
-                result += "  " + (name.uppercased() + " ").rightExpandingTo(minimumLength: 30, with: ".")
+                result += "  " + (name.uppercased() + " ").rightExpandingTo(30, with: ".")
                 result += " "
                 result += String(value)
                 result += "\n"

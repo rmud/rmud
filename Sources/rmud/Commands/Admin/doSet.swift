@@ -164,7 +164,7 @@ extension Creature {
             if index != 0 {
                 result += "\n"
             }
-            result += fieldName.uppercased() //.rightExpandingTo(minimumLength: 20)
+            result += fieldName.uppercased() //.rightExpandingTo(20)
         }
         return result
     }

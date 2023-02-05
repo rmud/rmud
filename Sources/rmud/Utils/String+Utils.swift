@@ -1,14 +1,19 @@
 import Foundation
 
 extension String {
-    func leftExpandingTo(minimumLength: Int, with padString: String = " ", startingAt: Int = 0) -> String {
+    @available(*, deprecated, message: "doesn't work with grapheme clusters. Use leftExpandingTo and rightExpandingTo instead.")
+    func padding<T>(toLength newLength: Int, withPad padString: T, startingAt padIndex: Int) -> String where T : StringProtocol {
+        fatalError()
+    }
+
+    func leftExpandingTo(_ minimumLength: Int, with padString: String = " ", startingAt: Int = 0) -> String {
         if count < minimumLength {
             return "".padding(toLength: minimumLength - count, withPad: padString, startingAt: startingAt) + self
         }
         return self
     }
     
-    func rightExpandingTo(minimumLength: Int, with padString: String = " ", startingAt: Int = 0) -> String {
+    func rightExpandingTo(_ minimumLength: Int, with padString: String = " ", startingAt: Int = 0) -> String {
         if count < minimumLength {
             return padding(toLength: minimumLength, withPad: padString, startingAt: startingAt)
         }

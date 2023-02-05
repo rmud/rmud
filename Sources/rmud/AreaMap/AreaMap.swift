@@ -214,18 +214,15 @@ public class AreaMap {
             result += "Plane \(plane):\n"
 
             for index in range.from.x ... range.toInclusive.x {
-                result.append("\(index)".padding(toLength: elementWidth, withPad: " ", startingAt: 0))
+                result += "\(index)".rightExpandingTo(elementWidth)
             }
             result += "\n"
-            result.append(separator)
+            result += separator
             
-            let fillLine = [String](repeating: " ".padding(toLength: elementWidth, withPad: " ", startingAt: 0), count: columnCount)
+            let fillLine = [String](repeating: " ".rightExpandingTo(elementWidth), count: columnCount)
             var grid = [[String]](repeating: fillLine, count: lineCount)
 
             for (position, element) in mapElementsByPosition {
-                if case let .passage(axis, toRoom, fromRoom) = element, (fromRoom.vnum == 1010 && toRoom.vnum == 1000) || (fromRoom.vnum == 1000 && toRoom.vnum == 1010) {
-                    result += "_bp \(axis) to=\(toRoom) from=\(fromRoom) plane=\(position.plane) posX=\(position.x) posY=\(position.y)\n"
-                }
                 guard position.plane == plane else { continue }
                 let atX = position.x - range.from.x
                 let atY = position.y - range.from.y
@@ -235,15 +232,15 @@ public class AreaMap {
                 }
                 switch element {
                 case .room(let room):
-                    grid[atY][atX] = String(room.vnum).padding(toLength: elementWidth, withPad: " ", startingAt: 0)
+                    grid[atY][atX] = String(room.vnum).rightExpandingTo(elementWidth)
                 case .passage(let axis, _, _):
                     switch axis {
                     case .y:
-                        grid[atY][atX] = "|".padding(toLength: elementWidth, withPad: " ", startingAt: 0)
+                        grid[atY][atX] = "|".rightExpandingTo(elementWidth)
                     case .x:
-                        grid[atY][atX] = "-".padding(toLength: elementWidth, withPad: " ", startingAt: 0)
+                        grid[atY][atX] = "-".rightExpandingTo(elementWidth)
                     case .plane:
-                        grid[atY][atX] = "x".padding(toLength: elementWidth, withPad: " ", startingAt: 0)
+                        grid[atY][atX] = "x".rightExpandingTo(elementWidth)
                     }
                 }
             }

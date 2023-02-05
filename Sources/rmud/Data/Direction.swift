@@ -38,7 +38,7 @@ enum Direction: UInt8 {
        return Set([.north, .east, .south, .west])
     }()
     
-    var inverse: Direction {
+    var opposite: Direction {
         switch self {
         case .north: return .south
         case .east: return .west

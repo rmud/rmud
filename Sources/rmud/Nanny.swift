@@ -610,7 +610,7 @@ private func stateGetCharset(_ d: Descriptor, _ arg: String) {
 }
 
 private func sendConfirmationCodeEmail(account: Account) {
-    let confirmationCode = String(account.confirmationCode).leftExpandingTo(minimumLength: 5, with: "0")
+    let confirmationCode = String(account.confirmationCode).leftExpandingTo(5, with: "0")
 
     let text = """
     Здравствуйте,

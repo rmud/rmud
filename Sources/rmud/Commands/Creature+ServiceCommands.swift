@@ -131,7 +131,7 @@ extension Creature {
             let name = nameAndPrice.name
             let price = nameAndPrice.price
             let item = items.first!
-            let indexString = String(index + 1).leftExpandingTo(minimumLength: 3)
+            let indexString = String(index + 1).leftExpandingTo(3)
             let liquid: String
             if let vessel: ItemExtraData.Vessel = item.extraData(), !vessel.isEmpty {
                 liquid = " \(vessel.liquid.instrumentalWithPreposition)"

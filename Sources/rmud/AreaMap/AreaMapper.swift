@@ -108,7 +108,7 @@ class AreaMapper {
             let planes = renderedMap.planes.sorted(by: <)
             for plane in planes {
                 let map = renderedMap.fragment(wholePlane: plane, playerRoom: currentRoom)
-                let title = [ColoredCharacter]("<\(plane)>").padding(toLength: map.first?.count ?? 0, withPad: " ")
+                let title = [ColoredCharacter]("<\(plane)>").rightExpandingTo(map.first?.count ?? 0, withPad: " ")
                 var mapWithTitle = [title]
                 mapWithTitle += map
                 if fragments.isEmpty {

@@ -42,7 +42,7 @@ extension Creature {
         let fromRoom = inRoom
         showLeaveMessage(direction: direction)
         teleportTo(room: toRoom)
-        showArrivalMessage(fromRoom: fromRoom, fromDirection: direction.inverse)
+        showArrivalMessage(fromRoom: fromRoom, fromDirection: direction.opposite)
         
         lookAtRoom(ignoreBrief: false)
     }

@@ -203,8 +203,8 @@ extension Creature {
             let prefix: String
             
             let autostatPrefix: ()->String = {
-                let levelString = String(targetCreature.level).leftExpandingTo(minimumLength: 2, with: "0")
-                let classAbbreviation = targetCreature.classId.info.abbreviation.leftExpandingTo(minimumLength: 3)
+                let levelString = String(targetCreature.level).leftExpandingTo(2, with: "0")
+                let classAbbreviation = targetCreature.classId.info.abbreviation.leftExpandingTo(3)
                 return "[\(levelString) \(classAbbreviation)]"
             }
             
@@ -818,7 +818,7 @@ extension Creature {
             $1.count > $0.count 
         }?.count ?? 0
         for groupName in commandGroups.orderedKeys {
-            let paddedGroupName = groupName.leftExpandingTo(minimumLength: groupNameMaxLength, with: " ")
+            let paddedGroupName = groupName.leftExpandingTo(groupNameMaxLength, with: " ")
             var line = "\(bCyn())\(paddedGroupName.uppercased())\(groupSuffix)\(nNrm())"
             var lineLength = groupName.count + groupSuffix.count // without ANSI codes
             for commandIndexEntry in commandGroups[groupName] ?? [] {

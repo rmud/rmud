@@ -74,11 +74,11 @@ extension Creature {
         var formatString = "&1" // for autostatString, which will be first text argument to act()
         if autostat {
             if let mobile = creature.mobile {
-                let vnumString = String(mobile.vnum).leftExpandingTo(minimumLength: 6)
+                let vnumString = Format.leftPaddedVnum(mobile.vnum)
                 autostatString = "[\(vnumString)] "
             } else {
-                let levelString = String(creature.level).leftExpandingTo(minimumLength: 2, with: "0")
-                let classAbbreviation = creature.classId.info.abbreviation.leftExpandingTo(minimumLength: 3)
+                let levelString = String(creature.level).leftExpandingTo(2, with: "0")
+                let classAbbreviation = creature.classId.info.abbreviation.leftExpandingTo(3)
                 autostatString = "[\(levelString) \(classAbbreviation)] "
             }
         }
@@ -194,7 +194,7 @@ extension Creature {
     func describe(item: Item) -> String {
         var vnumString = ""
         if preferenceFlags?.contains(.autostat) ?? false {
-            vnumString = "[\(String(item.vnum).leftExpandingTo(minimumLength: 6))] "
+            vnumString = "[\(Format.leftPaddedVnum(item.vnum))] "
         }
         var formatString = "&1" // placeholder for vnumString
 

@@ -151,7 +151,7 @@ extension Creature {
 
         var roomVnumString = ""
         if autostat, let room = toRoom {
-            roomVnumString = "[\(String(room.vnum).leftExpandingTo(minimumLength: 6))] "
+            roomVnumString = "[\(Format.leftPaddedVnum(room.vnum))] "
         }
         
         let holylight = { self.preferenceFlags?.contains(.holylight) ?? false }

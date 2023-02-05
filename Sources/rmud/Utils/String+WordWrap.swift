@@ -50,7 +50,7 @@ extension String {
             let firstWordInLine = currentLine.length == 0
             if firstWordInLine && currentLine.number < columnLines.count {
                 let column = columnLines[currentLine.number]
-                let paddedColumn = column.padding(toLength: columnWidth, withPad: " ")
+                let paddedColumn = column.rightExpandingTo(columnWidth, withPad: " ")
                 currentLine.append(paddedColumn, length: columnWidth)
             }
             
@@ -94,7 +94,7 @@ extension String {
         
         if !currentWord.content.isEmpty {
             if currentLine.length == 0 && currentLine.number < columnLines.count {
-                let paddedColumn = columnLines[currentLine.number].padding(toLength: columnWidth, withPad: " ")
+                let paddedColumn = columnLines[currentLine.number].rightExpandingTo(columnWidth, withPad: " ")
                 currentLine.append(paddedColumn, length: columnWidth)
             }
             currentLine.append(currentWord.eatAll(), length: nil)
@@ -160,7 +160,7 @@ extension String {
         while !scanner.isAtEnd {
             let firstWordInLine = currentLine.length == 0
             if firstWordInLine && currentLine.number < columnLines.count {
-                let paddedColumn = columnLines[currentLine.number].padding(toLength: columnWidth, withPad: " ", startingAt: 0)
+                let paddedColumn = columnLines[currentLine.number].rightExpandingTo(columnWidth)
                 currentLine.append(paddedColumn, length: columnWidth)
             }
             
@@ -204,7 +204,7 @@ extension String {
         
         if !currentWord.content.isEmpty {
             if currentLine.length == 0 && currentLine.number < columnLines.count {
-                let paddedColumn = columnLines[currentLine.number].padding(toLength: columnWidth, withPad: " ", startingAt: 0)
+                let paddedColumn = columnLines[currentLine.number].rightExpandingTo(columnWidth)
                 currentLine.append(paddedColumn, length: columnWidth)
             }
             currentLine.append(currentWord.eatAll(), length: nil)

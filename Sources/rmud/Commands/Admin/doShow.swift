@@ -145,7 +145,7 @@ extension Creature {
                 if index > 0 && index % 5 == 0 {
                     output += "\n"
                 }
-                output += mode.rightExpandingTo(minimumLength: 16)
+                output += mode.rightExpandingTo(16)
             }
         } else {
             output += "Недоступно ни одного режима показа."
@@ -184,12 +184,12 @@ extension Creature {
     private func listAreas() {
         let areas = areaManager.areasByStartingVnum.sorted { $0.key < $1.key }
         for (_, area) in areas {
-            let fromRoom = String(area.vnumRange.lowerBound).leftExpandingTo(minimumLength: 5)
-            let toRoom = String(area.vnumRange.upperBound).rightExpandingTo(minimumLength: 5)
-            let roomCount = String(area.rooms.count).rightExpandingTo(minimumLength: 4)
-            let areaName = area.lowercasedName.rightExpandingTo(minimumLength: 30)
-            let age = String(area.age).leftExpandingTo(minimumLength: 2)
-            let resetInterval = String(area.resetInterval).rightExpandingTo(minimumLength: 2)
+            let fromRoom = String(area.vnumRange.lowerBound).leftExpandingTo(5)
+            let toRoom = String(area.vnumRange.upperBound).rightExpandingTo(5)
+            let roomCount = String(area.rooms.count).rightExpandingTo(4)
+            let areaName = area.lowercasedName.rightExpandingTo(30)
+            let age = String(area.age).leftExpandingTo(2)
+            let resetInterval = String(area.resetInterval).rightExpandingTo(2)
             let resetCondition = area.resetCondition.nominative
             send("\(fromRoom)-\(toRoom) (:\(roomCount)) \(areaName) Возраст: \(age)/\(resetInterval)   Сброс: \(resetCondition)")
         }

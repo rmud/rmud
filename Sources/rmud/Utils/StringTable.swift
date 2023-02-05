@@ -30,7 +30,7 @@ class StringTable: CustomStringConvertible {
                 if !cell.color.isEmpty {
                     result += cell.color
                 }
-                result += cell.text.rightExpandingTo(minimumLength: columnWidths[columnIndex])
+                result += cell.text.rightExpandingTo(columnWidths[columnIndex])
                 if !cell.color.isEmpty {
                     result += Ansi.nNrm
                 }

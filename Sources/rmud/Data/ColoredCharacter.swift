@@ -27,7 +27,7 @@ extension Array where Element == ColoredCharacter {
         self = string.map { ColoredCharacter($0, color) }
     }
 
-    public func padding(toLength length: Int, withPad pad: ColoredCharacter) -> [ColoredCharacter] {
+    public func rightExpandingTo(_ length: Int, withPad pad: ColoredCharacter) -> [ColoredCharacter] {
         var result: [ColoredCharacter] = self
         let delta = length - result.count
         if delta > 0 {
