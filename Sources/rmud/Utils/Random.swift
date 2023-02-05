@@ -23,4 +23,9 @@ class Random {
         return uniformInt(0...1) != 0
     }
 
+    static func probability(_ percentage: Int) -> Bool {
+        guard percentage < 100 else { return true }
+        guard percentage > 0 else  { return false }
+        return percentage >= uniformInt(1...100)
+    }
 }

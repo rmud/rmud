@@ -38,6 +38,17 @@ enum Direction: UInt8 {
        return Set([.north, .east, .south, .west])
     }()
     
+    var inverse: Direction {
+        switch self {
+        case .north: return .south
+        case .east: return .west
+        case .south: return .north
+        case .west: return .east
+        case .up: return .down
+        case .down: return .up
+        }
+    }
+    
     var singleLetter: String {
         switch self {
         case .north: return "с"
@@ -83,6 +94,17 @@ enum Direction: UInt8 {
         case .west:  return "на запад"
         case .up:    return "наверх"
         case .down:  return "вниз"
+        }
+    }
+    
+    var whereFrom: String {
+        switch self {
+        case .north: return "с севера"
+        case .east:  return "с востока"
+        case .south: return "с юга"
+        case .west:  return "с запада"
+        case .up:    return "сверху"
+        case .down:  return "снизу"
         }
     }
 

@@ -9,6 +9,10 @@ extension Creature {
         return isAffected(by: .hold) && !isAffected(by: .freeAction)
     }
     
+    func isFlying() -> Bool {
+        return isAffected(by: .fly)
+    }
+    
     func isCharmed() -> Bool {
         return isAffected(by: .charm)
     }

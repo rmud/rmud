@@ -2,7 +2,9 @@ import Foundation
 
 extension Mobile {
     func mobileActivity() {
-        moveAlongPath()
+        if !creature.isFighting {
+            moveAlongPath()
+        }
     }
     
     func checkForTargets() {
@@ -39,9 +41,10 @@ extension Mobile {
     }
     
     private func moveAlongPath() {
+        guard creature.movementPath.isEmpty else { return }
         guard !pathName.isEmpty else { return }
         guard let room = creature.inRoom else { return }
-        guard let path = room.area?.prototype.paths[pathName] else { return }
+        guard let path = homeArea?.prototype.paths[pathName] else { return }
         let possibleDirections = Direction.allDirections.filter { direction in
             guard let exit = room.exits[direction] else { return false }
             guard let toVnum = exit.toVnum else { return false }
@@ -51,6 +54,8 @@ extension Mobile {
             return true
         }
         guard let direction = possibleDirections.randomElement() else { return }
+        guard Random.probability(20) else { return }
         creature.performMove(direction: direction)
+        creature.handlePostponedMovement()
     }
 }

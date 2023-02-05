@@ -18,6 +18,22 @@ extension Creature {
             nRed()
     }
     
+    func arrivalVerb(actIndex index: Int) -> String {
+        guard !isFlying() else {
+            return "прилетел\(index)(,а,о,и)"
+        }
+        let movementType = mobile?.movementType ?? .walk
+        return movementType.arrivalVerb(actIndex: index)
+    }
+
+    func leavingVerb(actIndex index: Int) -> String {
+        guard !isFlying() else {
+            return "улетел\(index)(,а,о,и)"
+        }
+        let movementType = mobile?.movementType ?? .walk
+        return movementType.leavingVerb(actIndex: index)
+    }
+    
     func statusHitPointsColor() -> String {
         return pointColor(currentValue: hitPoints, maximumValue: affectedMaximumHitPoints())
     }

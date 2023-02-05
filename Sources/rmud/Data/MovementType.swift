@@ -25,9 +25,9 @@ enum MovementType: UInt8 {
         ])
     }
     
-    func arrivalVerb(_ index: Int) -> String {
+    func arrivalVerb(actIndex index: Int) -> String {
         switch self {
-        case .walk:   return "приш\(index)(ел,ла,ло,ли)"
+        case .walk:   return "приш\(index)(ёл,ла,ло,ли)"
         case .run:    return "прибежал\(index)(,а,о,и)"
         case .crawl:  return "приполз\(index)(,ла,ло,ли)"
         case .gallop: return "прискакал\(index)(,а,о,и)"
@@ -38,9 +38,9 @@ enum MovementType: UInt8 {
         }
     }
     
-    func leavingVerb(_ index: Int) -> String {
+    func leavingVerb(actIndex index: Int) -> String {
         switch self {
-        case .walk: return "уш\(index)(ел,ла,ло,ли)"
+        case .walk: return "уш\(index)(ёл,ла,ло,ли)"
         case .run:  return "убежал\(index)(,а,о,и)"
         case .crawl: return "уполз\(index)(,ла,ло,ли)"
         case .gallop: return "ускакал\(index)(,а,о,и)"
