@@ -64,7 +64,7 @@ extension Creature {
         var output = ""
         
         if case .number(let index) = index {
-            let indexPadded = String(index).rightExpandingTo(3)
+            let indexPadded = String(index).leftExpandingTo(3)
             output += "П\(indexPadded). \(item.nameNominative.full) "
         } else {
             output += "".rightExpandingTo(37)
@@ -72,7 +72,8 @@ extension Creature {
         
         if let inRoom = item.inRoom {
             let roomVnum = Format.leftPaddedVnum(inRoom.vnum)
-            send("\(cVnum())[\(roomVnum)]\(nNrm()) \(inRoom.name)")
+            output += "\(cVnum())[\(roomVnum)]\(nNrm()) \(inRoom.name)"
+            send(output)
         } else if let carriedBy = item.carriedBy {
             output += "в руках у \(carriedBy.nameGenitive)"
             send(output)
