@@ -1,15 +1,4 @@
-import Foundation
-
 extension Creature {
-    func doInventory(context: CommandContext) {
-        guard !carrying.isEmpty else {
-            send("У Вас в руках ничего нет.")
-            return
-        }
-        send("У Вас в руках:")
-        sendDescriptions(of: carrying, withGroundDescriptionsOnly: false, bigOnly: false)
-    }
-    
     func doDrop(context: CommandContext) {
         guard !context.items1.isEmpty else {
             send("Что Вы хотите выбросить?")

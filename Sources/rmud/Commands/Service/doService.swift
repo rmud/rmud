@@ -1,4 +1,3 @@
-import Foundation
 import OrderedCollections
 
 private struct NameAndPrice: Hashable {

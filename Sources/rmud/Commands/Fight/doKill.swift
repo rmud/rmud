@@ -1,5 +1,3 @@
-import Foundation
-
 extension Creature {
     func doKill(context: CommandContext) {
         guard let victim = context.creature1 else {
