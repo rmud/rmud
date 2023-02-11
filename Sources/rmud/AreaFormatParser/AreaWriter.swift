@@ -15,16 +15,8 @@ class AreaWriter {
     
     func saveAreaPrototypes() {
         let areaDirectory = filenames.directoryName(forAreaName: areaName, startVnum: prototype.vnumRange.lowerBound)
-        
-        let fileManager = FileManager.default
-        var isDirectory = ObjCBool(true)
-        if !fileManager.fileExists(atPath: areaDirectory, isDirectory: &isDirectory) {
-            do {
-                try fileManager.createDirectory(atPath: areaDirectory, withIntermediateDirectories: false, attributes: nil)
-            } catch {
-                logFatal(error: error)
-            }
-        }
+
+        FileUtils.createDirectoryIfNotExists(areaDirectory)
 
         do {
             let output = prototype.save(for: .areaFile, with: definitions)

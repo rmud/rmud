@@ -505,7 +505,8 @@ func sendStatePrompt(_ d: Descriptor) {
     case .qClass:
         d.send("")
         classMenuShow(d)
-        d.send("(Для справки перед номером поставьте знак вопроса, например: ?1)")
+        d.send("")
+        d.send("Для справки перед номером поставьте знак вопроса, например: ?1")
         d.sendPrompt("Выберите профессию Вашего персонажа: ")
     case .qRace:
         d.send("")

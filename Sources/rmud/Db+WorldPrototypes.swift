@@ -85,7 +85,7 @@ extension Db {
         let dotExtensions = extensions.map { ".\($0)" }
         var areaFileCount = 0
         var counters = [Int](repeating: 0, count: extensions.count)
-        enumerateFiles(atPath: filenames.worldPrefix, flags: .sortAlphabetically) { filename, stop in
+        FileUtils.enumerateFiles(atPath: filenames.worldPrefix, flags: .sortAlphabetically) { filename, stop in
             let directory = URL(fileURLWithPath: filenames.worldPrefix, isDirectory: true)
             let fullName = directory.appendingPathComponent(filename, isDirectory: false).relativePath
 

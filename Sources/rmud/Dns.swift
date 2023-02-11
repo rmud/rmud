@@ -13,7 +13,7 @@ class Dns {
         dnsCache.removeAll(keepingCapacity: true)
         var dictionary: [String: String]
         do {
-            dictionary = try loadDictionary(fromFilename: filenames.dns)
+            dictionary = try FileUtils.loadDictionary(fromFilename: filenames.dns)
         } catch {
             logError("While loading DNS cache: \(error.userFriendlyDescription)")
             return
@@ -35,7 +35,7 @@ class Dns {
             dictionary[cacheEntry.key] = "\(cacheEntry.value.name) \(cacheEntry.value.timeout)"
         }
         do {
-            try saveDictionary(dictionary, toFilename: filenames.dns)
+            try FileUtils.saveDictionary(dictionary, toFilename: filenames.dns)
         } catch {
             logError("While saving DNS cache: \(error.userFriendlyDescription)")
         }

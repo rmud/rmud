@@ -10,7 +10,7 @@ class Players {
 
     // Generate index table for player files
     func load() {
-        enumerateFiles(atPath: filenames.playersPrefix, withExtension: "plr", flags: .sortAlphabetically) { filename, stop in
+        FileUtils.enumerateFiles(atPath: filenames.playersPrefix, withExtension: "plr", flags: .sortAlphabetically) { filename, stop in
             let playerName = getPlayerName(fromFilename: filename)
             let (isValid, _) = validateName(name: playerName, isNominative: true)
             guard isValid else {
@@ -24,7 +24,7 @@ class Players {
         
         guard !byLowercasedName.isEmpty || settings.isPwipeMode else {
             logFatal("buildPlayerIndex: directory '\(filenames.playersPrefix)' doesn't contain any files with 'plr' extension. " +
-                "If they were deleted deliberately, please rerun the game with parameter '-pwipe'.")
+                "If they were deleted intentionally, please rerun the game with parameter '--pwipe'.")
         }
         
         let playerCount = byLowercasedName.count
@@ -33,6 +33,8 @@ class Players {
     
     func save() {
         guard !scheduledForSaving.isEmpty else { return }
+        
+        FileUtils.createDirectoryIfNotExists(filenames.playersPrefix)
         
         let savedCount = scheduledForSaving.count
         for creature in scheduledForSaving {

@@ -13,7 +13,7 @@ class Accounts {
     func load() {
         let directory = URL(fileURLWithPath: filenames.accountsPrefix, isDirectory: true)
         
-        enumerateFiles(atPath: filenames.accountsPrefix, withExtension: "acc", flags: []) { filename, stop in
+        FileUtils.enumerateFiles(atPath: filenames.accountsPrefix, withExtension: "acc", flags: []) { filename, stop in
 
             do {
                 let fullName = directory.appendingPathComponent(filename, isDirectory: false).relativePath
@@ -41,6 +41,8 @@ class Accounts {
     
     func save() {
         guard !scheduledForSaving.isEmpty else { return }
+        
+        FileUtils.createDirectoryIfNotExists(filenames.accountsPrefix)
         
         let savedCount = scheduledForSaving.count
         for account in scheduledForSaving {
