@@ -123,17 +123,40 @@ extension Creature {
         }
         return false
     }
+
+    private func isMatchingItem(_ item: Item, context: FetchArgumentContext, cases: GrammaticalCases) -> Bool {
+        guard context.targetName.isEmpty ||
+                context.targetName.words.allSatisfy({ word in
+                    isVnum(word, of: item) ||
+                    item.isAbbrevOfNameOrSynonym(word, cases: cases)
+                }) else {
+                    return false
+                }
+        guard /* extra.contains(.notOnlyVisible) || */ canSee(item) else { return false }
+        return true
+    }
     
     func fetchItemsInInventory(context: inout FetchArgumentContext, into: inout [Item], cases: GrammaticalCases) -> Bool {
         for item in carrying {
-            guard context.targetName.isEmpty ||
-                    context.targetName.words.allSatisfy({ word in
-                        isVnum(word, of: item) ||
-                        item.isAbbrevOfNameOrSynonym(word, cases: cases)
-                    }) else {
-                        continue
-                    }
-            guard /* extra.contains(.notOnlyVisible) || */ canSee(item) else { continue }
+            guard isMatchingItem(item, context: context, cases: cases) else { continue }
+
+            defer { context.currentIndex += 1 }
+            guard context.currentIndex >= context.targetStartIndex else { continue }
+            
+            context.objectsAdded += 1
+            into.append(item)
+            
+            if case .count(let maxObjects) = context.targetAmount {
+                guard context.objectsAdded < maxObjects else { return true }
+            }
+        }
+        return false
+    }
+
+    func fetchItems(context: inout FetchArgumentContext, from items: [Item], into: inout [Item], cases: GrammaticalCases) -> Bool {
+        for item in items {
+            guard isMatchingItem(item, context: context, cases: cases) else { continue }
+
             defer { context.currentIndex += 1 }
             guard context.currentIndex >= context.targetStartIndex else { continue }
             
@@ -147,7 +170,7 @@ extension Creature {
         return false
     }
     
-    private func isMatchingCreature(creature: Creature, context: FetchArgumentContext, cases: GrammaticalCases, isPlayersOnly: Bool) -> Bool {
+    private func isMatchingCreature(_ creature: Creature, context: FetchArgumentContext, cases: GrammaticalCases, isPlayersOnly: Bool) -> Bool {
         guard creature.isPlayer || !isPlayersOnly else { return false }
         guard context.targetName.isEmpty ||
                 context.targetName.words.allSatisfy({ word in
@@ -164,7 +187,7 @@ extension Creature {
         guard let roomCreatures = inRoom?.creatures else { return false }
         
         for creature in roomCreatures {
-            guard isMatchingCreature(creature: creature, context: context, cases: cases, isPlayersOnly: isPlayersOnly) else { continue }
+            guard isMatchingCreature(creature, context: context, cases: cases, isPlayersOnly: isPlayersOnly) else { continue }
             
             defer { context.currentIndex += 1 }
             guard context.currentIndex >= context.targetStartIndex else { continue }
@@ -184,7 +207,7 @@ extension Creature {
         for creature in db.creaturesInGame {
             if skipInSameRoom && inRoom == creature.inRoom { continue }
             guard inRoom?.area?.lowercasedName == creature.inRoom?.area?.lowercasedName else { continue }
-            guard isMatchingCreature(creature: creature, context: context, cases: cases, isPlayersOnly: isPlayersOnly) else { continue }
+            guard isMatchingCreature(creature, context: context, cases: cases, isPlayersOnly: isPlayersOnly) else { continue }
 
             defer { context.currentIndex += 1 }
             guard context.currentIndex >= context.targetStartIndex else { continue }
@@ -204,7 +227,7 @@ extension Creature {
         for creature in db.creaturesInGame {
             if skipInSameRoom && inRoom == creature.inRoom { continue }
             if skipInSameArea && inRoom?.area?.lowercasedName == creature.inRoom?.area?.lowercasedName { continue }
-            guard isMatchingCreature(creature: creature, context: context, cases: cases, isPlayersOnly: isPlayersOnly) else { continue }
+            guard isMatchingCreature(creature, context: context, cases: cases, isPlayersOnly: isPlayersOnly) else { continue }
 
             defer { context.currentIndex += 1 }
             guard context.currentIndex >= context.targetStartIndex else { continue }

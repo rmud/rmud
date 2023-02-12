@@ -20,12 +20,7 @@ extension Item {
                 firstItem.put(into: container)
             } else if let carriedBy = carriedBy {
                 if carriedBy.canTake(item: firstItem, isSilent: true) {
-                    if let money: ItemExtraData.Money = firstItem.extraData() {
-                        carriedBy.gold += money.amount
-                        firstItem.extract(mode: .purgeAllContents)
-                    } else {
-                        firstItem.give(to: carriedBy)
-                    }
+                    firstItem.give(to: carriedBy)
                 } else if !carriedBy.dropAccidentally(item: firstItem) {
                     firstItem.extract(mode: mode)
                 }
@@ -144,16 +139,27 @@ extension Item {
     func give(to recipient: Creature) {
         assert(inRoom == nil)
 
+        defer {
+            if let player = recipient.player {
+                player.flags.insert(.saveme)
+            }
+        }
+        
+        if let money: ItemExtraData.Money = extraData() {
+            recipient.gold += money.amount
+            if money.amount > 1 {
+                act("Там был#(а,и,о) # стальн#(ая,ые,ых) монет#(а,ы,).", .to(recipient), .number(money.amount))
+            }
+            extract(mode: .purgeAllContents)
+            return
+        }
+
         recipient.carrying.insert(self, at: 0)
         carriedBy = recipient
 
         guard !recipient.zapOnAlignmentMismatch(with: self) else { return }
 
-        // Set flag for crash-save system, but not on mobs!
-        if let player = recipient.player {
-            player.flags.insert(.saveme)
-        }
-        if recipient.isPlayer || (recipient.isFollowing && recipient.isCharmed()) {
+        if recipient.isPlayer || recipient.isCharmed() {
             setDecayTimerRecursively(activate: true)
         }
     }
