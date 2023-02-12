@@ -8,6 +8,21 @@ extension Scanner {
         try closure()
     }
     
+    public func scanWord(skippingFillWords: Bool = false) -> String? {
+        var word: String?
+        while true {
+            guard let nextWord = scanUpToCharacters(from: .whitespaces) else {
+                return nil
+            }
+            guard !skippingFillWords || !isFillWord(nextWord) else {
+                continue
+            }
+            word = nextWord
+            break
+        }
+        return word
+    }
+    
     @discardableResult
     public func skipInteger() -> Bool {
         return scanInteger() != nil

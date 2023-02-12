@@ -28,9 +28,8 @@ struct CommandContext {
         self.scanner = scanner
     }
     
-    func scanWord(ignoringFillWords: Bool = false) -> String? {
-        // FIXME: ignoringFillWords
-        return scanner.scanUpToCharacters(from: CharacterSet.whitespaces)
+    func scanWord(skippingFillWords: Bool = false) -> String? {
+        return  scanner.scanWord(skippingFillWords: skippingFillWords)
     }
 
     func restOfString() -> String {

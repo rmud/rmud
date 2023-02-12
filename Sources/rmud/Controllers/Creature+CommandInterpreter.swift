@@ -92,6 +92,7 @@ extension Creature {
                           what: command.arg1What,
                           where: command.arg1Where,
                           cases: command.arg1Cases,
+                          skippingFillWords: false,
                           intoCreatures: &context.creatures1,
                           intoItems: &context.items1,
                           intoRoom: &context.room1,
@@ -100,6 +101,7 @@ extension Creature {
                           what: command.arg2What,
                           where: command.arg2Where,
                           cases: command.arg2Cases,
+                          skippingFillWords: true,
                           intoCreatures: &context.creatures2,
                           intoItems: &context.items2,
                           intoRoom: &context.room2,
@@ -277,13 +279,14 @@ extension Creature {
     }
     
     func fetchArgument(from scanner: Scanner,
-                               what: CommandArgumentFlags.What,
-                               where whereAt: CommandArgumentFlags.Where,
-                               cases: GrammaticalCases,
-                               intoCreatures: inout [Creature],
-                               intoItems: inout [Item],
-                               intoRoom: inout Room?,
-                               intoString: inout String) {
+                       what: CommandArgumentFlags.What,
+                       where whereAt: CommandArgumentFlags.Where,
+                       cases: GrammaticalCases,
+                       skippingFillWords: Bool,
+                       intoCreatures: inout [Creature],
+                       intoItems: inout [Item],
+                       intoRoom: inout Room?,
+                       intoString: inout String) {
         // Exit early if no argument was requested
         guard what.contains(anyOf: [.creature, .item, .word, .restOfString]) else {
             return
@@ -303,7 +306,7 @@ extension Creature {
         
         // Creatures, items and words are described by single word, so try to read one from input:
         let originalScannerIndex = scanner.currentIndex // in case we need to undo word read later
-        guard let word = scanner.scanUpToCharacters(from: .whitespaces) else {
+        guard let word = scanner.scanWord(skippingFillWords: skippingFillWords) else {
             return
         }
         

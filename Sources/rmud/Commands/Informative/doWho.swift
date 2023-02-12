@@ -3,7 +3,7 @@ extension Creature {
         var showTitledOnly = false
         var namesToSearchLowercased: [String] = []
         
-        while let word = context.scanWord(ignoringFillWords: false) {
+        while let word = context.scanWord(skippingFillWords: false) {
             switch word.lowercased() {
             case "титулованные": showTitledOnly = true
             default: namesToSearchLowercased.append(word)
