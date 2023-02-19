@@ -37,7 +37,7 @@ extension Creature {
 
         let args = context.restOfString().components(separatedBy: .whitespaces).filter { !$0.isEmpty }
         for arg in args {
-            if arg.isEqualCI(toAny: ["все", "всё", "all"]) {
+            if arg.isEqualCI(toAny: ["все", "all"]) {
                 showPlane = .all
             } else if let plane = Int(arg) {
                 showPlane = .specific(plane)

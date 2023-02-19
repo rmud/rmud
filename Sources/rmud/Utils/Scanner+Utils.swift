@@ -8,15 +8,13 @@ extension Scanner {
         try closure()
     }
     
-    public func scanWord(skippingFillWords: Bool = false) -> String? {
+    public func scanWord(condition: ((String) -> Bool)? = nil) -> String? {
         var word: String?
         while true {
             guard let nextWord = scanUpToCharacters(from: .whitespaces) else {
                 return nil
             }
-            guard !skippingFillWords || !isFillWord(nextWord) else {
-                continue
-            }
+            guard condition?(nextWord) ?? true else { continue }
             word = nextWord
             break
         }

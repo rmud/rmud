@@ -6,6 +6,10 @@ func clamping<T>(_ value: T, to range: ClosedRange<T>) -> T {
     return min(max(value, range.lowerBound), range.upperBound)
 }
 
+func isFillWordBeforeFirstArg(_ word: String) -> Bool {
+    return fillWordsBeforeFirstArgLowercased.contains(word.lowercased())
+}
+
 func isFillWord(_ word: String) -> Bool {
     return fillWordsLowercased.contains(word.lowercased())
 }

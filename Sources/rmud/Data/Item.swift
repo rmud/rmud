@@ -82,6 +82,19 @@ class Item {
     var inContainer: Item? // In what item?
     var isInContainer: Bool { return inContainer != nil }
     var contains: [Item] = [] // Contains items
+    
+    var location: String {
+        if isCarried {
+            return "в руках"
+        } else if isInRoom {
+            return "в комнате"
+        } else if isWorn {
+            return "в экипировке"
+        } else if let container = inContainer {
+            return "в \(container.namePrepositional.full)"
+        }
+        return "неизвестно где"
+    }
 
     init(prototype: ItemPrototype, uid: UInt64 /*, in area: Area?*/) {
         self.prototype = prototype

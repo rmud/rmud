@@ -147,11 +147,40 @@ enum Direction: UInt8 {
         }
         return maxLength
     }()
-    
-    init?(_ name: String, allowAbbreviating: Bool) {
+
+    init?(fullName: String) {
         for direction in Direction.orderedDirections {
-            if allowAbbreviating ? direction.name.hasPrefixCI(name) :
-                    direction.name.isEqualCI(to: name) {
+            if direction.name.isEqualCI(to: fullName) {
+                self = direction
+                return
+            }
+        }
+        if "подняться".isEqualCI(to: fullName) {
+            self = .up
+        } else if "опуститься".isEqualCI(to: fullName) {
+            self = .down
+        }
+        return nil
+    }
+    
+    init?(abbreviatedName: String) {
+        for direction in Direction.orderedDirections {
+            if direction.name.hasPrefixCI(abbreviatedName) {
+                self = direction
+                return
+            }
+        }
+        if "подняться".hasPrefixCI(abbreviatedName) {
+            self = .up
+        } else if "опуститься".hasPrefixCI(abbreviatedName) {
+            self = .down
+        }
+        return nil
+    }
+
+    init?(singleLetterName: String) {
+        for direction in Direction.orderedDirections {
+            if direction.singleLetter == singleLetterName {
                 self = direction
                 return
             }

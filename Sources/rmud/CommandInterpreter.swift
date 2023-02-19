@@ -44,7 +44,7 @@ private let commandInfo: [Command] = [
     Command(["карта", "map"], group: .information, Creature.doMap,
             minPosition: .resting,
             arg1: .restOfString),
-    Command(["смотреть", "look"], group: .information, Creature.doLook,
+    Command(["смотреть", "осмотреть", "look"], group: .information, Creature.doLook,
             minPosition: .resting,
             arg1: [.creature, .item, .word], cases1: [.accusative], where1: [.equipment, .inventory, .room]),
     Command(["взглянуть", "glance"], group: .information, notImplemented),

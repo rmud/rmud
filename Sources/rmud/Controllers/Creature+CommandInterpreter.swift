@@ -92,7 +92,7 @@ extension Creature {
                           what: command.arg1What,
                           where: command.arg1Where,
                           cases: command.arg1Cases,
-                          skippingFillWords: false,
+                          condition: { !isFillWordBeforeFirstArg($0) },
                           intoCreatures: &context.creatures1,
                           intoItems: &context.items1,
                           intoRoom: &context.room1,
@@ -101,7 +101,7 @@ extension Creature {
                           what: command.arg2What,
                           where: command.arg2Where,
                           cases: command.arg2Cases,
-                          skippingFillWords: true,
+                          condition: { !isFillWord($0) },
                           intoCreatures: &context.creatures2,
                           intoItems: &context.items2,
                           intoRoom: &context.room2,
@@ -282,7 +282,7 @@ extension Creature {
                        what: CommandArgumentFlags.What,
                        where whereAt: CommandArgumentFlags.Where,
                        cases: GrammaticalCases,
-                       skippingFillWords: Bool,
+                       condition: ((String) -> Bool)?,
                        intoCreatures: inout [Creature],
                        intoItems: inout [Item],
                        intoRoom: inout Room?,
@@ -306,7 +306,7 @@ extension Creature {
         
         // Creatures, items and words are described by single word, so try to read one from input:
         let originalScannerIndex = scanner.currentIndex // in case we need to undo word read later
-        guard let word = scanner.scanWord(skippingFillWords: skippingFillWords) else {
+        guard let word = scanner.scanWord(condition: condition) else {
             return
         }
         

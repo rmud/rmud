@@ -28,8 +28,8 @@ struct CommandContext {
         self.scanner = scanner
     }
     
-    func scanWord(skippingFillWords: Bool = false) -> String? {
-        return  scanner.scanWord(skippingFillWords: skippingFillWords)
+    func scanWord(condition: ((String) -> Bool)? = nil) -> String? {
+        return scanner.scanWord(condition: condition)
     }
 
     func restOfString() -> String {

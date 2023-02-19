@@ -1,22 +1,17 @@
 import Foundation
 
 extension Creature {
-    // Parg1 is unmodified argument here (see special directive in interpreter).
-    // Do_look order: 1. Look direction 2. Look at character 3. Look at object
-    // 4. Edesc in room 6. Edesc in eq 7. Edesc in inv 8. Edesc of obj in room
-    //
+    // context.argument1 is unmodified argument here
+    // doLook order:
+    // - Look direction (full match or single letter)
+    // - Look at creature
+    // - Look at/in item
+    // - Edesc in room
+    // - Edesc in equipment
+    // - Edesc in inventory
+    // - Edesc of object in room
+    // - Look direction (abbreviated)
     func doLook(context: CommandContext) {
-        //act("&1Вы нарушили правила игры!&2", "!Мтт", self, bRed(), nNrm())
-        
-        // Sample
-        //act("&11и нарушил1(,а,о,и) правила игры!&2", .toSleeping,
-        //    .to(self), .text(bRed()), .text(nNrm()))
-        
-        //        if context.line.isEmpty {
-        //            lookAtRoom(ignoreBrief: true)
-        //            return
-        //        }
-        
         guard context.hasArguments else {
             lookAtRoom(ignoreBrief: true)
             return
@@ -24,24 +19,36 @@ extension Creature {
 
         // First, test for full direction name match
         // Allow abbreviating directions only after handling creatures and items
-        if !context.argument1.isEmpty, let direction = Direction(context.argument1, allowAbbreviating: false) {
-            look(inDirection: direction)
-            return
+        if !context.argument1.isEmpty {
+            if let direction = Direction(fullName: context.argument1) {
+                look(inDirection: direction)
+                return
+            }
+            if let direction = Direction(singleLetterName: context.argument1) {
+                look(inDirection: direction)
+                return
+            }
         }
         
-        if let creature1 = context.creature1 {
-            look(atCreature: creature1)
-            if self != creature1 {
-                act("1*и посмотрел1(,а,о,и) на Вас.", .excluding(self), .to(creature1))
-                act("1*и посмотрел1(,а,о,и) на 2в.", .toRoom, .excluding(self), .excluding(creature1))
+        if let creature = context.creature1 {
+            look(atCreature: creature)
+            if self != creature {
+                act("1*и посмотрел1(,а,о,и) на Вас.", .excluding(self), .to(creature))
+                act("1*и посмотрел1(,а,о,и) на 2в.", .toRoom, .excluding(self), .excluding(creature))
             } else {
                 act("1*и посмотрел1(,а,о,и) на себя.", .toRoom, .excluding(self))
             }
             return
         }
         
+        if let item = context.item1 {
+            look(atItem: item)
+            return
+        }
+        
         // Lastly, test for abbreviated direction name
-        if !context.argument1.isEmpty, let direction = Direction(context.argument1, allowAbbreviating: true) {
+        if !context.argument1.isEmpty,
+           let direction = Direction(abbreviatedName: context.argument1) {
             look(inDirection: direction)
             return
         }
@@ -49,170 +56,7 @@ extension Creature {
         send("Здесь нет ничего с таким названием или именем.")
     }
     
-    func doScan(context: CommandContext) {
-        guard !isAffected(by: .blindness) else {
-            act(spells.message(.blindness, "СЛЕП"), .to(self))
-            return
-        }
-        
-        guard let room = inRoom else {
-            send(messages.noRoom)
-            return
-        }
-
-        let holylight = { self.preferenceFlags?.contains(.holylight) ?? false }
-
-        var found = false
-        for direction in Direction.orderedDirections {
-            guard let exit = room.exits[direction] else { continue }
-            
-            let isHiddenExit = exit.flags.contains(.hidden) && !holylight()
-            if (isHiddenExit || exit.toRoom() == nil) && exit.description.isEmpty {
-                continue
-            }
-            
-            found = true
-            // FIXME: spins
-            look(inDirection: direction)
-        }
-        if !found {
-            send("Вы не обнаружили ничего особенного.")
-        }
-    }
-    
-    func lookAtRoom(ignoreBrief: Bool /* = false */) {
-        guard isAwake else { return }
-        
-        guard !isAffected(by: .blindness) else {
-            act(spells.message(.blindness, "СЛЕП"), .to(self))
-            return
-        }
-
-        guard let room = inRoom else {
-            send(messages.noRoom)
-            return
-        }
-        
-        let autostat = preferenceFlags?.contains(.autostat) ?? false
-        if autostat {
-            act("&1[&2] &3 &4<&5> &6[&7]&8",
-                .to(self),
-                .text(bCyn()),
-                .text(String(room.vnum)),
-                .text(room.name),
-                .text(nGrn()),
-                .text(room.terrain.name.uppercased()),
-                .text(nYel()),
-                .text(room.flags.description),
-                .text(nNrm()))
-        } else {
-            act("&1&2&3",
-                .to(self), .text(bCyn()), .text(room.name), .text(nNrm()))
-        }
-        
-        let mapWidth = Int(player?.mapWidth ?? defaultMapWidth)
-        let mapHeight = Int(player?.mapHeight ?? defaultMapHeight)
-        
-        let map: [[ColoredCharacter]]
-        if preferenceFlags?.contains(.map) ?? false {
-            map = player?.renderMap()?.fragment(near: room, playerRoom: room, horizontalRooms: mapWidth, verticalRooms: mapHeight) ?? []
-        } else {
-            map = []
-        }
-        let indent = "     "
-        let description = indent + room.description.joined()
-        let wrapped = description.wrapping(withIndent: indent, aroundTextColumn: map, totalWidth: Int(pageWidth), rightMargin: 1, bottomMargin: 0)
-        
-        send(wrapped.renderedAsString(withColor: true))
-        
-        send(bYel(), terminator: "")
-        sendDescriptions(of: room.items, withGroundDescriptionsOnly: true, bigOnly: false)
-        send(bRed(), terminator: "")
-        sendDescriptions(of: room.creatures)
-        send(nNrm(), terminator: "")
-    }
-    
-    // argument - направление, куда игрок пытается смотреть
-    // actual - куда реально смотрит
-    func look(inDirection direction: Direction) {
-        guard let inRoom = inRoom else {
-            send(messages.noRoom)
-            return
-        }
-        
-        guard let exit = inRoom.exits[direction] else {
-            send("\(direction.whereAtCapitalizedAndRightAligned): \(bGra())ничего особенного\(nNrm())")
-            return
-        }
-
-        let toRoom = exit.toRoom()
-        
-        let autostat = preferenceFlags?.contains(.autostat) ?? false
-
-        var roomVnumString = ""
-        if autostat, let room = toRoom {
-            roomVnumString = "[\(Format.leftPaddedVnum(room.vnum))] "
-        }
-        
-        let holylight = { self.preferenceFlags?.contains(.holylight) ?? false }
-        
-        let isMisty = toRoom?.flags.contains(.mist) ?? false
-        
-        var exitDescription = exit.description
-        if !exitDescription.isEmpty {
-            if let lastScalar = exitDescription.unicodeScalars.last,
-                    !CharacterSet.punctuationCharacters.contains(lastScalar) {
-                exitDescription += "."
-            }
-        } else if let toRoom = toRoom,
-            holylight() || !exit.flags.contains(anyOf: [.hidden, .closed]) {
-            if canSee(toRoom) {
-                exitDescription = toRoom.name
-            } else if isMisty {
-                exitDescription = "ничего невозможно разглядеть."
-            } else {
-                exitDescription = "слишком темно."
-            }
-        } else {
-            exitDescription = "ничего особенного."
-        }
-        
-        send("\(direction.whereAtCapitalizedAndRightAligned): \(roomVnumString)\(bGra())\(exitDescription)\(nNrm())")
-        
-        if exit.type != .none {
-            if (exit.flags.contains(.hidden) && exit.flags != exit.prototype.flags) ||
-                    !exit.flags.contains(anyOf: [.closed, .isDoor]) {
-                return
-            }
-            let padding = autostat ? "         " : ""
-            let openClosed = exit.flags.contains(.closed) ? "закрыт" : "открыт"
-            send("\(padding)            \(nCyn())\(exit.type.nominative) \(openClosed)\(exit.type.adjunctiveEnd).\(nNrm())")
-        }
-        
-        // arilou: для самозацикленных комнат не показывать, кто там, а то это легко опознаётся
-        if let toRoom = toRoom, toRoom != inRoom &&
-                !exit.flags.contains(.closed) {
-            if canSee(toRoom) &&
-                    (!exit.flags.contains(anyOf: [.hidden, .opaque]) || holylight()) {
-                send(bYel(), terminator: "")
-                sendDescriptions(of: toRoom.items, withGroundDescriptionsOnly: true, bigOnly: true)
-                send(bRed(), terminator: "")
-                sendDescriptions(of: toRoom.creatures)
-                send(nNrm(), terminator: "")
-            } else if isMisty {
-                var size = 0
-                for creature in toRoom.creatures {
-                    size += Int(creature.size)
-                    if size >= 100 {
-                        send("\(bGra())...Смутные тени мелькают в тумане...\(nNrm())")
-                        break
-                    }
-                }
-            }
-        }
-    }
-    
-    func look(atCreature target: Creature) {
+    private func look(atCreature target: Creature) {
         guard !descriptors.isEmpty else { return }
         
         let description = target.description.joined()
@@ -228,6 +72,30 @@ extension Creature {
         }
         
         diagnose(target: target, showAppearance: true)
+    }
+    
+    private func look(atItem item: Item) {
+        let description = item.description.joined()
+        if !description.isEmpty {
+            let wrapped = description.wrapping(totalWidth: Int(pageWidth))
+            send(wrapped)
+        }
+        
+        if item.hasType(.container) || item.hasType(.fountain) || item.hasType(.vessel) {
+            look(inContainer: item)
+        }
+        
+        if let note: ItemExtraData.Note = item.extraData() {
+            act("1*и внимательно проч1(ел,ла,ло,ли) @1в.", .toRoom, .excluding(self), .item(item))
+            act("В @1п написано следующее:", .to(self), .item(item))
+            let text = note.text.joined()
+            let wrapped = text.wrapping(totalWidth: Int(pageWidth))
+            send(wrapped)
+        }
+        
+        if item.hasType(.receipt) {
+            look(atReceipt: item)
+        }
     }
     
     // FIXME: move to data/races

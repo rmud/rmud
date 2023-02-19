@@ -14,6 +14,24 @@ enum Liquid: UInt8 {
     case coffee = 10
     case blood = 11
     case saltWater = 12
+
+    var kind: String {
+        switch self {
+        case .water:     return "кристально прозрачная жидкость"
+        case .beer:      return "жидкость желто-коричневого цвета"
+        case .wine:      return "бесцветная жидкость с пузырьками"
+        case .ale:       return "жидкость коричневатого цвета"
+        case .vodka:     return "мутная жидкость"
+        case .juice:     return "жидкость желто-зеленого цвета"
+        case .spirit:    return "прозрачная жидкость"
+        case .slime:     return "жидкость зеленого цвета"
+        case .milk:      return "жидкость белого цвета"
+        case .tea:       return "коричневая жидкость"
+        case .coffee:    return "жидкость темно-коричневого цвета"
+        case .blood:     return "жидкость кровавого цвета"
+        case .saltWater: return "бесцветная жидкость"
+        }
+    }
     
     var instrumental: String {
         switch self {

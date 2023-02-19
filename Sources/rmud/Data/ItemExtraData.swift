@@ -137,7 +137,14 @@ struct ItemExtraData {
         var liquid: Liquid = .water // ЖИДКОСТЬ (ЗНАЧ2)
         var poisonLevel: UInt8 = 0 // ЯД (ЗНАЧ3)
         
+        func fillPercentage() -> Int {
+            guard totalCapacity > 0 else {
+                return usedCapacity > 0 ? 100 : 0
+            }
+            return 100 * Int(usedCapacity) / Int(totalCapacity)
+        }
         var isEmpty: Bool { return usedCapacity == 0 }
+        var isFull: Bool { return usedCapacity == totalCapacity }
         var isPoisoned: Bool { return poisonLevel != 0 }
     }
 

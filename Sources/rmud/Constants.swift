@@ -117,10 +117,14 @@ let creatureMenu = """
     0) Назад в меню учетной записи.
     """
 
-let fillWordsLowercased: [String] = [
+let fillWordsBeforeFirstArgLowercased = Set<String>([
+    "в", "in"
+])
+
+let fillWordsLowercased = Set<String>([
     "в", "из", "от", "с", "о", "со", "на", "за", "к", "для",
     "from", "with", "in", "on", "at", "to", "for", "a", "an", "the"
-]
+])
 
 let maximumMortalLevel: UInt8 = 30
 
