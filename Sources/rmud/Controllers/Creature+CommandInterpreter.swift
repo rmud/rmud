@@ -33,14 +33,14 @@ extension Creature {
             
             let scanner = Scanner(string: word)
             var startIndex = 1
-            var amount = 1
+            var amount: TargetAmount = .count(1)
             while true {
                 let scannerStartIndex = scanner.string.startIndex
                 if scanner.skipString("все.") || scanner.skipString("all.") {
-                    amount = Int.max
+                    amount = .infinite
                 } else if let number = scanner.scanInteger() {
                     if scanner.skipString("*") {
-                        amount = number
+                        amount = .count(number)
                     } else if scanner.skipString(".") {
                         startIndex = number
                     } else {
@@ -53,7 +53,14 @@ extension Creature {
                     break
                 }
             }
-            return (scanner.textToParse.trimmingCharacters(in: .whitespaces), max(startIndex, 1), .count(max(amount, 1)))
+            if case .count(let value) = amount, value < 1 {
+                amount = .count(1)
+            }
+            return (
+                scanner.textToParse.trimmingCharacters(in: .whitespaces),
+                max(startIndex, 1),
+                amount
+            )
         }
     }
     
