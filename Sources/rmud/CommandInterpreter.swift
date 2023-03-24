@@ -96,6 +96,9 @@ private let commandInfo: [Command] = [
     Command(["вооружиться", "wield"], group: .items, Creature.doWield,
             flags: .highPriority, minPosition: .resting,
             arg1: [.item], cases1: .instrumental, where1: .inventory),
+    Command(["двуручник", "twohand"], group: .items, Creature.doTwoHand,
+            minPosition: .resting,
+            arg1: [.item], cases1: .instrumental, where1: .inventory),
     Command(["держать", "hold"], group: .items, notImplemented),
     Command(["убрать", "remove"], group: .items, notImplemented),
 
