@@ -93,7 +93,9 @@ private let commandInfo: [Command] = [
     Command(["бросить", "drop"], group: .items, Creature.doDrop,
             minPosition: .resting,
             arg1: [.item, .many], cases1: .accusative, where1: .inventory),
-    Command(["вооружиться", "wield"], group: .items, notImplemented),
+    Command(["вооружиться", "wield"], group: .items, Creature.doWield,
+            flags: .highPriority, minPosition: .resting,
+            arg1: [.item], cases1: .instrumental, where1: .inventory),
     Command(["держать", "hold"], group: .items, notImplemented),
     Command(["убрать", "remove"], group: .items, notImplemented),
 

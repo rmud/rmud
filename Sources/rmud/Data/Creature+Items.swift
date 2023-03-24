@@ -178,6 +178,13 @@ extension Creature {
         }
     }
     
+    var canUseWeapons: Bool {
+        if race == .animal || race == .insect || race == .amorphous {
+            guard mobile?.flags.contains(.canWield) ?? false else { return false }
+        }
+        return true
+    }
+    
     // (0%: will always miss) ... (100%: no strength penalty)
     func weaponEfficiencyPercents(for item: Item, in position: EquipmentPosition) -> Int {
         let strength = affectedStrength()
