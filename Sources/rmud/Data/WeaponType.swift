@@ -16,7 +16,11 @@ enum WeaponType: UInt16 {
     // TODO: а всякие "клюнув" и т.д. почему не разрешить?
     case staves = 15
     
-    static let aliases = ["удар", "оружие.удар"] // TODO: это все-таки тип оружия, а не удар
+    static let aliases = [
+        "оружие.тип",
+        "оружие.удар", // deprecated
+        "удар" // deprecated
+    ]
 
     var skill: Skill {
         switch self {

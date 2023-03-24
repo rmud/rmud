@@ -53,7 +53,7 @@ enum Material: UInt8 {
         tinMetal, bronzeMetal, copperMetal, ironMetal, steelMetal, otherMetal, silverMetal,  goldMetal, platinumMetal, mithrilMetal, adamantiteMetal, preciousMetal ]
 
     static let preciousMetals: Set<Material> = [
-        silverMetal,  goldMetal, platinumMetal, mithrilMetal, adamantiteMetal, preciousMetal
+        silverMetal, goldMetal, platinumMetal, mithrilMetal, adamantiteMetal, preciousMetal
     ]
     
     var isMetallic: Bool {

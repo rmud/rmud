@@ -53,7 +53,60 @@ enum Skill: UInt16 {
     case staves                = 390
     
     static let aliases = ["умения"]
-
+    
+    var name: String {
+        switch self {
+        case .backstab: return "заколоть"
+        case .bash: return "сбить"
+        case .hide: return "прятаться"
+        case .kick: return "пнуть"
+        case .pick: return "взломать"
+        case .overcome: return "преодолеть"
+        case .rescue: return "спасти"
+        case .sneak: return "красться"
+        case .steal: return "украсть"
+        case .track: return "выследить"
+        case .swing: return "вращать"
+        case .parry: return "парировать"
+        case .disarm: return "обезоружить"
+        case .caseSkill: return "приглядеться"
+        case .haggle: return "торговаться"
+        case .dodge: return "уклониться"
+        case .detect: return "найти"
+        case .listen: return "слушать"
+        case .doublecross: return "замести"
+        case .envenom: return "отравить"
+        case .trip: return "подсечь"
+        case .berserk: return "озвереть"
+        case .blindfight: return "вслепую"
+        case .prepare: return "разделать"
+        case .tame: return "приручить"
+        case .orient: return "ориентироваться"
+        case .lay: return "возложить"
+        case .bandage: return "перевязать"
+        case .intimidate: return "запугать"
+        case .maneuvre: return "маневрировать"
+        case .encamp: return "расположиться"
+        case .shieldblock: return "блокировать"
+        case .distract: return "отвлечь"
+        case .failedHide: return "не-прятаться"
+        case .target: return "переключиться"
+        case .turn: return "изгнать"
+        case .meditate: return "отрешиться"
+            // Weapon skills
+        case .bare: return "рукопашный бой (ГЛЮК)"
+        case .piercing: return "колющее оружие"
+        case .cutting: return "режущее оружие"
+        case .twoHanded: return "двуручное оружие"
+        case .pole: return "древковое оружие"
+        case .slashing: return "рубящее оружие"
+        case .crushing: return "ударное оружие"
+        case .throwing: return "стрелковое оружие"
+            //case .misc: return "прочее оружие (ГЛЮК)"
+        case .staves: return "посохи"
+        }
+    }
+    
     static var definitions: Enumerations.EnumSpec.NamesByValue = [
         301: "заколоть",
         302: "сбить",

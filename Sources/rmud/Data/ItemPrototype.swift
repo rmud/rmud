@@ -742,8 +742,8 @@ class ItemPrototype {
                     content += "    ВРЕД \(Value(dice: weapon.damage).formatted(for: style))\n"
                 }
                 if weapon.weaponType != ItemExtraData.Weapon.defaults.weaponType {
-                    let enumSpec = definitions.enumerations.enumSpecsByAlias["оружие.удар"]
-                    content += "    УДАР \(Value(enumeration: weapon.weaponType).formatted(for: style, enumSpec: enumSpec))\n"
+                    let enumSpec = definitions.enumerations.enumSpecsByAlias["оружие.тип"]
+                    content += "    ТИП \(Value(enumeration: weapon.weaponType).formatted(for: style, enumSpec: enumSpec))\n"
                 }
                 if weapon.poisonLevel != ItemExtraData.Weapon.defaults.poisonLevel {
                     content += "    ЯД \(Value(number: weapon.poisonLevel).formatted(for: style))\n"

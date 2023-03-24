@@ -80,6 +80,15 @@ extension Creature {
             let wrapped = description.wrapping(totalWidth: Int(pageWidth))
             send(wrapped)
         }
+
+        if let container: ItemExtraData.Container = item.extraData() {
+            guard !container.flags.contains(.corpse) else { return }
+            
+            showItemCondition()
+            showItemQuality()
+            showItemRequiredSkill(item: item)
+            showItemWear()
+        }
         
         if item.hasType(.container) || item.hasType(.fountain) || item.hasType(.vessel) {
             look(inContainer: item)
@@ -213,5 +222,25 @@ extension Creature {
         result += "."
         
         act(result, .excluding(target), .to(self), .text(conditionString))
+    }
+    
+    private func showItemCondition() {
+       // TODO
+    }
+    
+    private func showItemQuality() {
+       // TODO
+    }
+    
+    private func showItemRequiredSkill(item: Item) {
+        if let weapon: ItemExtraData.Weapon = item.extraData() {
+            let skillName = weapon.weaponType.skill.name
+            act("Для использования @1р требуется обладать умением \"&\".",
+                .to(self), .item(item), .text(skillName))
+        }
+    }
+    
+    private func showItemWear() {
+        // TODO
     }
 }
