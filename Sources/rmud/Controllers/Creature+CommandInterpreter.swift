@@ -95,6 +95,7 @@ extension Creature {
 
             var context = CommandContext(command: command, scanner: scanner)
             context.subcommand = command.subcommand
+
             fetchArgument(from: scanner,
                           what: command.arg1What,
                           where: command.arg1Where,
@@ -104,6 +105,11 @@ extension Creature {
                           intoItems: &context.items1,
                           intoRoom: &context.room1,
                           intoString: &context.argument1)
+            guard !command.arg1What.isGameObject || context.hasArgument1 else {
+                sendNothingFound(of: command.arg1What, where: command.arg1Where)
+                return
+            }
+
             fetchArgument(from: scanner,
                           what: command.arg2What,
                           where: command.arg2Where,
@@ -113,6 +119,11 @@ extension Creature {
                           intoItems: &context.items2,
                           intoRoom: &context.room2,
                           intoString: &context.argument2)
+            guard !command.arg2What.isGameObject || context.hasArgument2 else {
+                sendNothingFound(of: command.arg2What, where: command.arg2Where)
+                return
+            }
+
             if let handler = command.handler {
                 handler(self)(context)
             } else {
@@ -387,6 +398,26 @@ extension Creature {
             scanner.currentIndex = originalScannerIndex // undo word read
             intoString = scanner.textToParse.trimmingCharacters(in: .whitespaces)
             return
+        }
+    }
+    
+    func sendNothingFound(of what: CommandArgumentFlags.What, where whereAt: CommandArgumentFlags.Where) {
+        if what.contains(.creature) && what.contains(.item) {
+            send("Здесь нет ничего с таким именем.")
+        } else if what.contains(.creature) {
+            send("Здесь нет никого с таким именем.")
+        } else if what.contains(.item) {
+            if whereAt.contains(.room) || whereAt.contains(.world) {
+                send("Здесь нет такого предмета.")
+            } else if whereAt.contains(.inventory) && !whereAt.contains(.equipment) {
+                send("У Вас в руках нет такого предмета.")
+            } else {
+                send("У Вас нет такого предмета.")
+            }
+        } else if what.contains(.room) {
+            send("Такой комнаты не существует.")
+        } else {
+            send("Здесь нет ничего с таким именем.")
         }
     }
 }

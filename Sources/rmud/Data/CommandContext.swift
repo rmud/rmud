@@ -16,11 +16,16 @@ struct CommandContext {
     var room1: Room?
     var room2: Room?
     var subcommand: SubCommand = .none
+    var hasArgument1: Bool {
+        return !creatures1.isEmpty || !items1.isEmpty ||
+            room1 != nil || !argument1.isEmpty
+    }
+    var hasArgument2: Bool {
+        return !creatures2.isEmpty || !items2.isEmpty ||
+            room2 != nil || !argument2.isEmpty
+    }
     var hasArguments: Bool {
-        return !creatures1.isEmpty || !creatures2.isEmpty ||
-            !items1.isEmpty || !items2.isEmpty ||
-            room1 != nil || room2 != nil ||
-            !argument1.isEmpty || !argument2.isEmpty
+        return hasArgument1 || hasArgument2
     }
 
     init(command: Command, scanner: Scanner) {
