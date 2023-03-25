@@ -161,9 +161,9 @@ extension Creature {
             case .twoHand, .wield:
                 act("1т нельзя вооружиться, поскольку у Вас заняты руки.", .to(self), .item(item))
             case .hold, .light:
-                act("1и нельзя взять во вторую руку, поскольку она занята.", .to(self), .item(item))
+                act("1в нельзя взять во вторую руку, поскольку она занята.", .to(self), .item(item))
             case .shield:
-                act("1и нельзя пристегнуть на руку, поскольку она занята.", .to(self), .item(item))
+                act("1в нельзя пристегнуть на руку, поскольку она занята.", .to(self), .item(item))
             default:
                 send("У Вас заняты руки.")
             }
