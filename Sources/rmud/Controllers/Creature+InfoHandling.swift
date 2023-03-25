@@ -182,4 +182,146 @@ extension Creature {
     func look(atReceipt item: Item) {
         
     }
+    
+    func sendDescriptions(of items: [Item], withGroundDescriptionsOnly: Bool, bigOnly: Bool) {
+        let shouldStack = preferenceFlags?.contains(.stackItems) ?? false
+        var stackedItemsCount = 0
+        var lastItem: Item?
+        var lastItemDescription = ""
+        
+        let showLastDescriptionIfAny = {
+            guard stackedItemsCount > 0 else { return } // nothing to show
+            if stackedItemsCount > 1 {
+                self.send("\(lastItemDescription) [\(stackedItemsCount)]")
+            } else {
+                self.send(lastItemDescription)
+            }
+        }
+        defer { showLastDescriptionIfAny() }
+        
+        for item in items {
+            guard !bigOnly || item.extraFlags.contains(.big) else { continue }
+            guard !withGroundDescriptionsOnly || !item.groundDescription.isEmpty else { continue }
+            guard canSee(item) else { continue }
+            
+            let description = describe(item: item)
+            
+            guard shouldStack else {
+                send(description)
+                continue
+            }
+            
+            if stackedItemsCount > 0,
+                    let lastItem = lastItem,
+                    item.vnum == lastItem.vnum &&
+                        description == lastItemDescription {
+                stackedItemsCount += 1
+            } else {
+                showLastDescriptionIfAny()
+                lastItem = item
+                lastItemDescription = description
+                stackedItemsCount = 1
+            }
+        }
+    }
+    
+    // Lists chars in room, with char stacking routine
+    func sendDescriptions(of people: [Creature]) {
+        let shouldShow: (_ creature: Creature)->Bool = { creature in
+            let holylight = { self.preferenceFlags?.contains(.holylight) ?? false }
+            let canSeeCreatureAndItsNotHiding: (_ creature: Creature)->Bool = { creature in
+                self.canSee(creature) &&
+                (!creature.runtimeFlags.contains(.hiding) || self.isAffected(by: .senseLife) || holylight()) }
+            let creatureIsRidingAndCanSeeWhomItsRiding: (_ creature: Creature)->Bool = { creature in
+                if let riding = creature.riding, self.canSee(riding) {
+                    return true
+                }
+                return false
+            }
+            let isRiddenBySomeoneExceptMe: (_ creature: Creature)->Bool = { creature in
+                if let creatureRiddenBy = creature.riddenBy,
+                        creatureRiddenBy.inRoom == creature.inRoom,
+                        creatureRiddenBy != self {
+                    return true
+                }
+                return false
+            }
+            return (
+                canSeeCreatureAndItsNotHiding(creature) ||
+                self.riding == creature ||
+                creature.hasDetectableItems() ||
+                creatureIsRidingAndCanSeeWhomItsRiding(creature)
+            ) && !isRiddenBySomeoneExceptMe(creature)
+        }
+        
+        let shouldStack = preferenceFlags?.contains(.stackMobiles) ?? false
+        var stackedCreaturesCount = 0
+        var lastCreature: Creature?
+        var lastCreatureDescription = ""
+
+        let showLastDescriptionIfAny = {
+            guard stackedCreaturesCount > 0 else { return } // nothing to show
+            if stackedCreaturesCount > 1 {
+                self.send("\(lastCreatureDescription) [\(stackedCreaturesCount)]")
+            } else {
+                self.send(lastCreatureDescription)
+            }
+        }
+        defer { showLastDescriptionIfAny() }
+
+        for creature in people {
+            guard self != creature && shouldShow(creature) else { continue }
+
+            let creatureMirrorImagesCount = creature.isAffected(by: .mirrorImage) ? creature.mirrorImagesCount() : 0
+            
+            let description = describe(creature: creature)
+            
+            guard shouldStack else {
+                for _ in 0..<(1 + creatureMirrorImagesCount) {
+                    send(description)
+                }
+                continue
+            }
+
+            if stackedCreaturesCount > 0,
+                    let lastCreature = lastCreature,
+                    let creatureMobile = creature.mobile,
+                    let lastCreatureMobile = lastCreature.mobile,
+                    creatureMobile.vnum == lastCreatureMobile.vnum &&
+                    description == lastCreatureDescription {
+                stackedCreaturesCount += (1 + creatureMirrorImagesCount)
+            } else {
+                showLastDescriptionIfAny()
+                lastCreature = creature
+                lastCreatureDescription = description
+                stackedCreaturesCount = 1 + creatureMirrorImagesCount
+            }
+        }
+    }
+    
+    func sendPoofIn() {
+        if let player = player,
+            !player.poofin.isEmpty,
+            let room = inRoom {
+            for to in room.creatures {
+                guard to != self && to.canSee(self) else { continue }
+                to.send(player.poofin)
+            }
+        } else {
+            act("1*и появил1(ся,ась,ось,ись) в клубах дыма.", .toRoom, .excluding(self))
+        }
+    }
+    
+    func sendPoofOut() {
+        if let player = player,
+                !player.poofout.isEmpty,
+                let room = inRoom {
+            for to in room.creatures {
+                guard to != self && to.canSee(self) else { continue }
+                to.send(player.poofout)
+            }
+        } else {
+            act("1*и исчез1(,ла,ло,ли) в клубах дыма.", .toRoom, .excluding(self))
+        }
+    }
 }

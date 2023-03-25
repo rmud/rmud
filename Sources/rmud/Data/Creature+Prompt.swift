@@ -11,7 +11,6 @@ extension Creature {
         }
 
         if (preferenceFlags?.contains(.displayHitPointsInPrompt) ?? false) && berserkRounds == 0 {
-            
             if hitPoints != affectedMaximumHitPoints() || !nohpmvWhenMax {
                 promptElements.append("\(statusHitPointsColor())\(hitPoints)ж\(nNrm())")
             }
