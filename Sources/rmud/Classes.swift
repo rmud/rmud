@@ -302,11 +302,17 @@ class Classes {
                 logFatal("\(filenames.classes): экипировка \(classId): expected 2 values separated by ':'")
             }
             guard let vn = Int(elements[0]),
-            let posId = Int8(elements[1]),
-            let equipmentPosition = EquipmentPosition(rawValue: posId) else {
+                  let posId = Int8(elements[1]) else {
                 logFatal("\(filenames.classes): экипировка \(classId): invalid format")
             }
-            let eqSlot = ClassInfo.EquipmentSlot(vn: vn, pos: equipmentPosition)
+            var position: EquipmentPosition? = nil
+            if posId != -1 {
+                position = EquipmentPosition(rawValue: posId)
+                if position == nil {
+                    logFatal("\(filenames.classes): экипировка \(classId): invalid equipment slot")
+                }
+            }
+            let eqSlot = ClassInfo.EquipmentSlot(vn: vn, pos: position)
             classInfo.newbieEquipment.append(eqSlot)
         }
     }

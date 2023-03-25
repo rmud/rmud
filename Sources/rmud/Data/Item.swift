@@ -43,6 +43,8 @@ class Item {
     var extraFlags: ItemExtraFlags = [] // If it hums, glows, etc. bitv
     var restrictFlags: ItemAccessFlags = [] // Item restrictions
     var stateFlags: ItemStateFlags = [] // Item states: noaffects, bow string etc.
+    
+    var isCursed: Bool { return extraFlags.contains(.cursed) && !extraFlags.contains(.uncursed) }
 
     var weight = 0 // Weight
     func weightWithContents() -> Int {
@@ -78,7 +80,7 @@ class Item {
     var isCarried: Bool { return carriedBy != nil }
     var wornBy: Creature? // Worn by?
     var isWorn: Bool { return wornBy != nil }
-    var wornOn: EquipmentPosition = .nowhere // Worn where?
+    var wornPosition: EquipmentPosition? = nil
     var inContainer: Item? // In what item?
     var isInContainer: Bool { return inContainer != nil }
     var contains: [Item] = [] // Contains items

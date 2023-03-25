@@ -3,8 +3,7 @@ import Foundation
 // Character equipment positions: used as index for char_data.equipment[]
 // NOTE: Don't confuse these constants with the ITEM_ bitvectors
 // which control the valid places you can wear a piece of equipment.
-enum EquipmentPosition: Int8 {
-    case nowhere     = -1
+enum EquipmentPosition: Int8, CaseIterable {
     case light       = 0
     case fingerRight = 1
     case fingerLeft  = 2
@@ -43,9 +42,6 @@ enum EquipmentPosition: Int8 {
     //TODO сделать подстановку в сообщение названия надетого предмета!
     var alreadyWearing: String {
         switch self {
-        case .nowhere:
-            logError("alreadyWearingMessage: attempt to reference 'nowhere' position")
-            return "У вас уже что-то надето в этой позиции."
         case .light: return "Вы уже держите в руке источник света."
         // FIXME: it's bad to assume here that both fingers are in use
         case .fingerRight: return "У Вас уже что-то надето на пальцах обеих рук."
@@ -75,9 +71,6 @@ enum EquipmentPosition: Int8 {
     
     var wearToActor: String {
         switch self {
-        case .nowhere:
-            logError("wearToActor: called for 'nowhere' position")
-            return "Вы куда-то надели @1в."
         case .light: return "Вы зажгли @1в и взяли @1ев в руку."
         case .fingerRight: return "Вы надели @1в на палец правой руки."
         case .fingerLeft: return "Вы надели @1в на палец левой руки."
@@ -105,9 +98,6 @@ enum EquipmentPosition: Int8 {
 
     var unableToWearToActor: String {
         switch self {
-        case .nowhere:
-            logError("unableToWearToActor: called for 'nowhere' position")
-            return "Вы не смогли надеть @1в."
         case .light: return "Вы не смогли зажечь @1в."
         case .fingerRight: return "Вы не смогли надеть @1в на палец правой руки."
         case .fingerLeft: return "Вы не смогли надеть @1в на палец левой руки."
@@ -135,9 +125,6 @@ enum EquipmentPosition: Int8 {
 
     var wearToRoom: String {
         switch self {
-        case .nowhere:
-            logError("wearToRoom: called for 'nowhere' position")
-            return "1*и куда-то надел1(,а,о,и) @1в."
         case .light: return "1*и заж1(ег,гла,гло,гли) @1в и взял1(,а,о,и) @1ев в руку."
         case .fingerRight: return "1*и надел1(,а,о,и) @1в на палец правой руки."
         case .fingerLeft: return "1*и надел1(,а,о,и) @1в на палец левой руки."
@@ -165,9 +152,6 @@ enum EquipmentPosition: Int8 {
 
     var unableToWearToRoom: String {
         switch self {
-        case .nowhere:
-            logError("unableToWearToRoom: called for 'nowhere' position")
-            return "1*и не смог1(,ла,ло,ли) надеть @1в."
         case .light: return "1*и не смог1(,ла,ло,ли) зажечь @1в."
         case .fingerRight: return "1*и не смог1(,ла,ло,ли) надеть @1в на палец правой руки."
         case .fingerLeft: return "1*и не смог1(,ла,ло,ли) надеть @1в на палец левой руки."

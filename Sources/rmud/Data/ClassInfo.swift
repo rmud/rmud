@@ -2,7 +2,7 @@ import Foundation
 
 class ClassInfo {
     typealias SlotsPerCircle = [Int: Int]
-    typealias EquipmentSlot = (vn: Int, pos: EquipmentPosition)
+    typealias EquipmentSlot = (vn: Int, pos: EquipmentPosition?)
     
     var abbreviation = ""
     var namesByGender: [Gender: String] = [:]

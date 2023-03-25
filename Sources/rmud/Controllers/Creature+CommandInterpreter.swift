@@ -155,22 +155,16 @@ extension Creature {
         guard /* extra.contains(.notOnlyVisible) || */ canSee(item) else { return false }
         return true
     }
+
+    func fetchItemsInEquipment(context: inout FetchArgumentContext, into: inout [Item], cases: GrammaticalCases) -> Bool {
+        let items: [Item] = EquipmentPosition.allCases.map { position in
+            equipment[position]
+        }.compactMap({ $0 })
+        return fetchItems(context: &context, from: items, into: &into, cases: cases)
+    }
     
     func fetchItemsInInventory(context: inout FetchArgumentContext, into: inout [Item], cases: GrammaticalCases) -> Bool {
-        for item in carrying {
-            guard isMatchingItem(item, context: context, cases: cases) else { continue }
-
-            defer { context.currentIndex += 1 }
-            guard context.currentIndex >= context.targetStartIndex else { continue }
-            
-            context.objectsAdded += 1
-            into.append(item)
-            
-            if case .count(let maxObjects) = context.targetAmount {
-                guard context.objectsAdded < maxObjects else { return true }
-            }
-        }
-        return false
+        return fetchItems(context: &context, from: carrying, into: &into, cases: cases)
     }
 
     func fetchItems(context: inout FetchArgumentContext, from items: [Item], into: inout [Item], cases: GrammaticalCases) -> Bool {
@@ -342,7 +336,11 @@ extension Creature {
         var context = FetchArgumentContext(word: word, isCountable: isCountable, isMany: isMany)
 
         // - items worn / equipped
-        // TODO
+        if what.contains(.item) && whereAt.contains(anyOf: [.equipment, .world]) {
+            if fetchItemsInEquipment(context: &context, into: &intoItems, cases: cases) {
+                return
+            }
+        }
         
         // - items in inventory
         if what.contains(.item) && whereAt.contains(anyOf: [.inventory, .world]) {

@@ -18,7 +18,7 @@ extension Creature {
         
         equipment[position] = item
         item.wornBy = self
-        item.wornOn = position
+        item.wornPosition = position
         
         guard !zapOnAlignmentMismatch(with: item) else { return }
         
@@ -41,7 +41,7 @@ extension Creature {
         guard let item = equipment[position] else { return nil }
         
         item.wornBy = nil
-        item.wornOn = .nowhere
+        item.wornPosition = nil
         
         equipment[position] = nil
         
@@ -187,6 +187,47 @@ extension Creature {
             }
         }
     }
+    
+    func performRemove(position: EquipmentPosition)
+    {
+        guard let item = equipment[position] else {
+            send("У Вас ничего не надето в этой позиции.")
+            return
+        }
+
+        if !isGodMode() {
+            if item.isCursed {
+                act("Вы попытались снять с себя @1в, но не смогли!",
+                    .to(self), .item(item))
+                return
+            } else if !canCarryOneMoreItem() {
+                act("У Вас в руках слишком много предметов, Вы не можете удержать @1в.",
+                    .to(self), .item(item))
+                return
+            } else if !canLift(item: item) {
+                act("Вы не смогли поднять @1в.", .to(self), .item(item))
+                return
+            }
+        }
+
+        if item.hasType(.armor) ||
+                item.hasType(.worn) ||
+                item.hasType(.container) ||
+                item.hasType(.vessel) ||
+                item.hasType(.key) {
+            act("Вы сняли @1в.", .to(self), .item(item))
+            act("1*и снял1(,а,о,и) @1в.", .toRoom, .excluding(self), .item(item))
+        } else {
+            act("Вы прекратили использовать @1в.", .to(self), .item(item))
+            act("1*и прекратил1(,а,о,и) использовать @1в.",
+                .toRoom, .excluding(self), .item(item))
+        }
+        item.extraFlags.remove(.uncursed)
+
+        if let item = unequip(position: position) {
+            item.give(to: self)
+        }
+    }
 
     func dropAllEquipment() {
         guard let inRoom = inRoom else {
@@ -228,8 +269,8 @@ extension Creature {
             return false
         }
         
-        if let wornBy = item.wornBy {
-            if wornBy.unequip(position: item.wornOn) != item {
+        if let wornBy = item.wornBy, let position = item.wornPosition {
+            if wornBy.unequip(position: position) != item {
                 logError("dropAccidentally: inconsistent wornBy and wornOn")
             }
         } else if item.isCarried {
@@ -263,8 +304,8 @@ extension Creature {
         act("Вас ударило током, и Вы выпустили @1в из рук.", .toSleeping, .to(self), .item(item))
         act("1+в ударило током, и 1еи выпустил1(,а,о,и) @1+в из рук.", .toRoom, .excluding(self), .item(item))
         
-        if let wornBy = item.wornBy {
-            if wornBy.unequip(position: item.wornOn) != item {
+        if let wornBy = item.wornBy, let position = item.wornPosition {
+            if wornBy.unequip(position: position) != item {
                 logError("zapOnAlignmentMismatch: inconsistent wornBy and wornOn")
             }
         } else if item.isCarried {

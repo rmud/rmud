@@ -41,7 +41,7 @@ extension Item {
             }
         }
         
-        if let wornBy = wornBy, wornBy.unequip(position: wornOn) != self {
+        if let wornBy = wornBy, let position = wornPosition, wornBy.unequip(position: position) != self {
             logError("extract(mode:): inconsistent wornBy and wornOn")
         }
 

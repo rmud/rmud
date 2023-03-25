@@ -87,7 +87,9 @@ private let commandInfo: [Command] = [
             arg1: [.item, .many], cases1: .accusative, where1: .inventory,
             arg2: [.item], cases2: .accusative, where2: [.equipment, .inventory, .room]),
     Command(["надеть", "wear"], group: .items, notImplemented),
-    Command(["снять", "remove"], group: .items, notImplemented),
+    Command(["снять", "remove"], group: .items, Creature.doRemove,
+            flags: .highPriority, minPosition: .resting,
+            arg1: [.item, .many], cases1: .accusative, where1: .equipment),
     Command(["дать", "give"], group: .items, notImplemented),
     Command(["делить", "split"], group: .items, notImplemented),
     Command(["бросить", "drop"], group: .items, Creature.doDrop,
@@ -102,7 +104,9 @@ private let commandInfo: [Command] = [
     Command(["держать", "hold"], group: .items, Creature.doHold,
             flags: .highPriority, minPosition: .resting,
             arg1: [.item], cases1: .accusative, where1: .inventory),
-    Command(["убрать", "remove"], group: .items, notImplemented),
+    Command(["убрать", "remove"], group: .items, Creature.doRemove,
+            flags: .highPriority, minPosition: .resting,
+            arg1: [.item, .many], cases1: .accusative, where1: .equipment),
 
     // DoorsAndContainers
     Command(["закрыть", "close"], group: .doorsAndContainers, notImplemented),
