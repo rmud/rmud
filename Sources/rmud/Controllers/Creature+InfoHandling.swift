@@ -183,6 +183,12 @@ extension Creature {
         
     }
     
+    func send(_ text: String, terminator: String = "\n") {
+        descriptors.forEach { descriptor in
+            descriptor.send(text, terminator: terminator)
+        }
+    }
+    
     func sendDescriptions(of items: [Item], withGroundDescriptionsOnly: Bool, bigOnly: Bool) {
         let shouldStack = preferenceFlags?.contains(.stackItems) ?? false
         var stackedItemsCount = 0

@@ -1,6 +1,149 @@
 import Foundation
 
 extension Creature {
+    enum ExtractMode {
+        case leaveItemsOnGround
+        case keepItems
+        //case destroyItemsPreservingMaximums
+        //case deprecated_destroyItemsModifyingMaximums
+    }
+    
+    /// Extract a creature completely from the world
+    func extract(mode: ExtractMode) {
+        if self.inRoom == nil {
+            logError("extract(mode:): creature \(nameNominative) is not in any rooms")
+            guard let fallbackRoom = areaManager.areasInResetOrder.first?.rooms.first else {
+                fatalError("No rooms in game")
+            }
+            teleportTo(room: fallbackRoom)
+            inRoom = self.inRoom!
+        }
+        
+        while let follower = followers.first {
+            follower.stopFollowing()
+        }
+        
+        if isFollowing {
+            stopFollowing()
+        }
+
+        dismount() // она сама проверяет riding и ridden_by
+
+        // Get rid of equipment and inventory
+        switch mode {
+        case .leaveItemsOnGround:
+            dropAllEquipment()
+            dropAllInventory()
+        case .keepItems:
+            break
+        }
+
+        removeFromRoom()
+        
+        db.creaturesInGame = db.creaturesInGame.filter { $0 != self }
+        
+        if isPlayer {
+            descriptors.forEach { descriptor in
+                descriptor.state = .creatureMenu
+                sendStatePrompt(descriptor)
+            }
+        }
+    }
+    
+    func removeFromRoom() {
+        if isFighting || position.isStunnedOrWorse {
+            redirectAttentions() // make opponents find another victims
+        }
+        if isFighting {
+            stopFighting()
+        }
+        
+        if let previousRoom = inRoom {
+            previousRoom.creatures =
+                previousRoom.creatures.filter { $0 !== self }
+        }
+        inRoom = nil
+    }
+    
+    func put(in room: Room) {
+        assert(inRoom == nil)
+        room.creatures.insert(self, at: 0)
+        inRoom = room
+        
+        if let player = player {
+            player.exploredRooms.insert(room.vnum)
+        }
+        
+        arrivedAtGamePulse = gameTime.gamePulse
+    }
+    
+    func teleportTo(room: Room) {
+        removeFromRoom()
+        put(in: room)
+    }
+    
+    func goto(room: Room) {
+        sendPoofOut()
+        teleportTo(room: room)
+        sendPoofIn()
+        lookAtRoom(ignoreBrief: false)
+    }
+
+    // Call this to stop following or charm spells
+    // FIXME: this function is doing too much unrelated things
+    func stopFollowing() {
+        guard let master = following else {
+            logError("stopFollowing: \(nameNominative) has no leader")
+            return
+        }
+        
+        if isCharmed() {
+            // FIXME
+        } else {
+            act("Вы прекратили следовать за 2т.",
+                .toSleeping, .to(self), .excluding(master))
+            act("1*и прекратил1(,а,о,и) следовать за Вами.",
+                .toSleeping, .excluding(self), .to(master))
+            act("1+и прекратил1(,а,о,и) следовать за 2+т.",
+                .toRoom, .excluding(self), .excluding(master))
+        }
+        
+        removeFollower()
+    }
+    
+    // Start following leader
+    func follow(leader: Creature, silent: Bool) {
+        leader.followers.insert(self, at: 0)
+        following = leader
+        if !silent {
+            act("Теперь Вы будете следовать за 2т.", .toSleeping,
+                .to(self), .excluding(leader))
+            act("1*и начал1(,а,о,и) следовать за Вами.",
+                .excluding(self), .to(leader))
+            act("1+и начал1(,а,о,и) следовать за 2+т.", .toRoom,
+                .excluding(self), .excluding(leader))
+        }
+    }
+    
+    // Remove the follower from his master's follower list and null his master
+    private func removeFollower() {
+        if let master = following {
+            master.followers = master.followers.filter { $0 != self }
+        }
+        following = nil
+    }
+    
+    func dismount() {
+        if let riding = riding {
+            riding.riddenBy = nil
+            self.riding = nil
+        }
+        if let riddenBy = riddenBy {
+            riddenBy.riding = nil
+            self.riddenBy = nil
+        }
+    }
+
     func handlePostponedMovement() {
         handlePostponedMovement(interactive: false)
     }
