@@ -19,6 +19,6 @@ extension Creature {
             return
         }
         
-        performWear(item: weapon, position: .twoHand, isSilent: false)
+        performWear(item: weapon, positions: [.twoHand], isSilent: false)
     }
 }

@@ -72,28 +72,28 @@ extension Creature {
             return
         }
         
-        let flagsAndPositions: [(flag: ItemWearFlags, position: EquipmentPosition)] = [
-            (.finger, .fingerRight),
-            (.neck, .neck),
-            (.neckAbout, .neckAbout),
-            (.body, .body),
-            (.head, .head),
-            (.face, .face),
-            (.legs, .legs),
-            (.feet, .feet),
-            (.hands, .hands),
-            (.arms, .arms),
-            (.shield, .shield),
-            (.about, .about),
-            (.back, .back),
-            (.waist, .waist),
-            (.ears, .ears),
-            (.wrist, .wristRight)
+        let flagsAndPositions: [(flag: ItemWearFlags, positions: [EquipmentPosition])] = [
+            (.finger, [.fingerRight, .fingerLeft]),
+            (.neck, [.neck]),
+            (.neckAbout, [.neckAbout]),
+            (.body, [.body]),
+            (.head, [.head]),
+            (.face, [.face]),
+            (.legs, [.legs]),
+            (.feet, [.feet]),
+            (.hands, [.hands]),
+            (.arms, [.arms]),
+            (.shield, [.shield]),
+            (.about, [.about]),
+            (.back, [.back]),
+            (.waist, [.waist]),
+            (.ears, [.ears]),
+            (.wrist, [.wristRight, .wristLeft])
         ]
 
-        for (flag, position) in flagsAndPositions {
+        for (flag, positions) in flagsAndPositions {
             guard item.wearFlags.contains(flag) else { continue }
-            performWear(item: item, position: position, isSilent: isSilent)
+            performWear(item: item, positions: positions, isSilent: isSilent)
             if item.isWorn { break }
         }
     }
@@ -112,38 +112,42 @@ extension Creature {
     // вторую руку, нам нужно в этом векторе на позиции WEAR_HOLD ставить ITEM_WEAR_TAKE
     // надо либо явно требовать ставить это держание таким предметам, либо просто в
     // парcере автоматически добавлять его.
-    func performWear(item: Item, position: EquipmentPosition, isSilent: Bool) {
+    func performWear(item: Item, positions: [EquipmentPosition], isSilent: Bool) {
         let sendCantWear = {
+            if isSilent { return }
             act("@1в надеть на эту часть тела нельзя.",
                 .to(self), .item(item))
         }
         
         // first, make sure that the wear position is valid
-        guard let bodypart = bodypartInfoByEquipmentPosition[position] else {
-            logError("performWear(): invalid bodypart \(position.rawValue)")
-            sendCantWear()
-            return
-        }
-        if !item.wearFlags.contains(bodypart.itemWearFlags) {
-            if let mobile = mobile {
-                logError("Mobile \(mobile.vnum) (\(nameNominative)) is trying to wear item  \(item.vnum) (\(item.nameNominative)) in position \(position.rawValue)")
+        for position in positions {
+            guard let bodypart = bodypartInfoByEquipmentPosition[position] else {
+                logError("performWear(): invalid bodypart \(position.rawValue)")
+                sendCantWear()
+                return
             }
-            sendCantWear()
-            return
+            if !item.wearFlags.contains(bodypart.itemWearFlags) {
+                if let mobile = mobile {
+                    logError("Mobile \(mobile.vnum) (\(nameNominative)) is trying to wear item  \(item.vnum) (\(item.nameNominative)) in position \(position.rawValue)")
+                }
+                sendCantWear()
+                return
+            }
         }
         
         // For neck, finger, and wrist, try pos 2 if pos 1 is already full
-        var position = position
-        if equipment[position] != nil {
-            if position == .fingerRight {
-                position = .fingerLeft
-            } else if position == .wristRight {
-                position = .wristLeft
-            }
+        var position = positions.first(where: { position in
+            equipment[position] == nil
+        }) ?? positions.first
+        
+        guard let position else {
+            logError("performWear(): invalid positions \(positions)")
+            sendCantWear()
+            return
         }
         
         guard equipment[position] == nil else {
-            send(position.alreadyWearing)
+            act(position.alreadyWearing, .to(self), .item(item))
             return
         }
         
@@ -153,7 +157,16 @@ extension Creature {
             position == .light ||
             position == .shield
         if useTake && !canWear(item: item, at: position) {
-            send("У Вас заняты руки.")
+            switch position {
+            case .twoHand, .wield:
+                act("1т нельзя вооружиться, поскольку у Вас заняты руки.", .to(self), .item(item))
+            case .hold, .light:
+                act("1и нельзя взять во вторую руку, поскольку она занята.", .to(self), .item(item))
+            case .shield:
+                act("1и нельзя пристегнуть на руку, поскольку она занята.", .to(self), .item(item))
+            default:
+                send("У Вас заняты руки.")
+            }
             return
         }
 

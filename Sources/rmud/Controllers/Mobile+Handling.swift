@@ -111,9 +111,9 @@ extension Mobile {
             case .equipAnywhere:
                 creature.wear(item: item, isSilent: true)
                 if !item.isWorn {
-                    if !tryWearing(item: item, ifHasFlags: .wield, at: .wield) {
-                        if !tryWearing(item: item, ifHasFlags: .hold, at: .hold) {
-                            if !tryWearing(item: item, ifHasFlags: .twoHand, at: .twoHand) {
+                    if !tryWearing(item: item, ifHasFlags: .wield, at: [.wield]) {
+                        if !tryWearing(item: item, ifHasFlags: .hold, at: [.hold]) {
+                            if !tryWearing(item: item, ifHasFlags: .twoHand, at: [.twoHand]) {
                                 logError("Unable to equip mobile \(self.vnum) with item \(vnum) on load")
                                 item.extract(mode: .purgeAllContents)
                                 continue
@@ -140,9 +140,9 @@ extension Mobile {
 
     }
     
-    private func tryWearing(item: Item, ifHasFlags flags: ItemWearFlags, at position: EquipmentPosition) -> Bool {
+    private func tryWearing(item: Item, ifHasFlags flags: ItemWearFlags, at positions: [EquipmentPosition]) -> Bool {
         if item.wearFlags.contains(anyOf: flags) {
-            creature.performWear(item: item, position: position, isSilent: true)
+            creature.performWear(item: item, positions: positions, isSilent: true)
         }
         return item.isWorn
     }
