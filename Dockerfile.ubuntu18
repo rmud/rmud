@@ -5,31 +5,31 @@
 
 # Build image
 
-FROM ubuntu:20.04 as builder
+FROM ubuntu:18.04 as builder
 ENV TZ=Etc/UTC
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 RUN apt-get -qq update && apt-get -y install \
-  binutils \
-  git \
-  gnupg2 \
-  libc6-dev \
-  libcurl4 \
+  libatomic1 \
   libedit2 \
-  libgcc-9-dev \
-  libpython2.7 \
   libsqlite3-0 \
-  libstdc++-9-dev \
+  libcurl4 \
   libxml2 \
-  libz3-dev \
-  pkg-config \
+  libbsd0 \
+  libc6-dev \
+  binutils \
+  libgcc-5-dev \
+  libstdc++-5-dev \
+  libpython2.7 \
+  curl \
   tzdata \
-  uuid-dev \
-  zlib1g-dev \
+  git \
+  pkg-config \
+  \
+  lsb-release \
   \
   libbsd-dev \
-  \
-  curl \
-  \
+  libssl-dev \
+  zlib1g-dev \
   && rm -r /var/lib/apt/lists/*
 
 ENV SWIFTENV_ROOT /usr/local
@@ -38,7 +38,7 @@ ENV SWIFTENV_ROOT /usr/local
 RUN curl -L -o /tmp/swiftenv.tar.gz https://github.com/kylef/swiftenv/archive/1.4.0.tar.gz
 RUN tar -xzf /tmp/swiftenv.tar.gz -C /usr/local/ --strip 1
 ENV PATH /usr/local/shims:$PATH
-RUN swiftenv install https://download.swift.org/swift-5.7.2-release/ubuntu2004/swift-5.7.2-RELEASE/swift-5.7.2-RELEASE-ubuntu20.04.tar.gz
+RUN swiftenv install https://download.swift.org/swift-5.7.2-release/ubuntu1804/swift-5.7.2-RELEASE/swift-5.7.2-RELEASE-ubuntu18.04.tar.gz
 
 WORKDIR /app
 COPY . .
@@ -48,11 +48,12 @@ RUN cp -R Tools /build/bin/
 
 # Production image
 
-FROM ubuntu:20.04
+FROM ubuntu:18.04
 ENV TZ=Etc/UTC
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 RUN apt-get -qq update && apt-get -y install \
-  php7.4 php7.4-common php7.4-cli php7.4-mbstring \
+  libicu60 libxml2 libbsd0 libcurl4 libatomic1 \
+  php7.2 php7.2-common php7.2-cli php7.2-mbstring \
   locales \
   && rm -r /var/lib/apt/lists/* \
   && locale-gen ru_RU.UTF-8
