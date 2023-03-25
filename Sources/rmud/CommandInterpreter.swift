@@ -99,7 +99,9 @@ private let commandInfo: [Command] = [
     Command(["двуручник", "twohand"], group: .items, Creature.doTwoHand,
             minPosition: .resting,
             arg1: [.item], cases1: .instrumental, where1: .inventory),
-    Command(["держать", "hold"], group: .items, notImplemented),
+    Command(["держать", "hold"], group: .items, Creature.doHold,
+            flags: .highPriority, minPosition: .resting,
+            arg1: [.item], cases1: .accusative, where1: .inventory),
     Command(["убрать", "remove"], group: .items, notImplemented),
 
     // DoorsAndContainers
