@@ -136,7 +136,7 @@ extension Creature {
         }
         
         // For neck, finger, and wrist, try pos 2 if pos 1 is already full
-        var position = positions.first(where: { position in
+        let position = positions.first(where: { position in
             equipment[position] == nil
         }) ?? positions.first
         
