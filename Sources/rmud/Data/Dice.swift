@@ -95,7 +95,7 @@ struct Dice<T: FixedWidthInteger>: CustomStringConvertible {
         if size > 0 {
             var rollsLeft = number
             while rollsLeft > 0 {
-                sum += Random.uniformInt(0..<Int(size)) + 1
+                sum += Int.random(in: 0..<Int(size)) + 1
                 rollsLeft -= 1
             }
         }

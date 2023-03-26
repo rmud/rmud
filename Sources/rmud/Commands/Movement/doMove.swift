@@ -66,7 +66,7 @@ extension Creature {
         var chosen: Direction?
         for (index, direction) in constrainedTo.enumerated() {
             guard canGo(direction) else { continue }
-            if Random.uniformInt(0...index) == 0 {
+            if Int.random(in: 0...index) == 0 {
                 chosen = direction
             }
         }

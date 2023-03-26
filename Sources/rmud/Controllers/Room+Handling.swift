@@ -53,7 +53,7 @@ extension Room {
                         break
                     }
                     let loadChance = prototype.loadChancePercentage ?? 100
-                    guard Random.uniformInt(1...100) <= loadChance else { continue }
+                    guard Random.probability(loadChance) else { continue }
                     guard let creature = Creature(prototype: prototype, uid: db.createUid(), room: self) else {
                         logWarning("Unable to instantiate mobile \(vnum) from prototype")
                         continue

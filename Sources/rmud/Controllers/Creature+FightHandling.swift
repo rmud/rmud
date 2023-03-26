@@ -61,7 +61,7 @@ extension Creature {
         let attack = 0
         let defense = 0
         
-        let didHit = attack + Random.uniformInt(1...100) > defense + 50
+        let didHit = attack + Int.random(in: 1...100) > defense + 50
         guard didHit else {
             sendMissMessage(victim: victim, hitType: .hit)
             return
@@ -70,7 +70,7 @@ extension Creature {
         var damage = 0
         
         if isPlayer {
-            damage += Random.uniformInt(1...2)
+            damage += Int.random(in: 1...2)
         }
         
         damage += victim.damagePositionBonus(damage: damage)

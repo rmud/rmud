@@ -60,7 +60,7 @@ extension Creature {
         guard level >= 3 else { return }
         let rollBasicAbility = {
             UInt8(
-                Dice(number: 4, size: 4).roll() + Random.uniformInt(2...4)
+                Dice(number: 4, size: 4).roll() + Int.random(in: 2...4)
             )
         }
         

@@ -75,7 +75,7 @@ extension Mobile {
                 chance += chance / 2
             }
             
-            if Random.uniformInt(1...10000) <= chance {
+            if Int.random(in: 1...10000) <= chance {
                 guard let oldestItem = creature.carrying.last(where: { $0.vnum == itemVnum }) else { continue }
                 shopSellout(item: oldestItem)
                 itemsSold = true
@@ -122,7 +122,7 @@ extension Mobile {
             // be never sold out.
             maximumCircle = max(maximumCircle, spell.info.circlesPerClassId[creature.classId] ?? 0)
         }
-        if Random.uniformInt(1...1000) <= 5 + maximumCircle * 2 + spellsCount * 4 {
+        if Int.random(in: 1...1000) <= 5 + maximumCircle * 2 + spellsCount * 4 {
             shopSellout(item: book)
             return true
         }
@@ -131,7 +131,7 @@ extension Mobile {
     
     // продажа магазином предмета насторону
     private func shopSellout(item: Item) {
-        creature.gold += Random.uniformInt(shopSellPrice(item: item)...shopBuyPrice(item: item))
+        creature.gold += Int.random(in: shopSellPrice(item: item)...shopBuyPrice(item: item))
         item.extract(mode: .purgeNothing)
     }
 

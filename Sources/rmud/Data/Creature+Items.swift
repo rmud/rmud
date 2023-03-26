@@ -7,7 +7,7 @@ extension Creature {
         var base = baseSkill
         
         if isCarryingMetallic() {
-            base -= Random.uniformInt(1...10)  // -1к10
+            base -= Int.random(in: 1...10)  // -1к10
         }
         if isCarryingOrWearingItem(withAnyOf: .glow) {
             base = (base * 3) / 4 // 75%

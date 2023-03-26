@@ -27,8 +27,7 @@ let package = Package(
             dependencies: [
                 Target.Dependency(stringLiteral: targetCIconvName),
                 "Czlib",
-                .product(name: "Vapor", package: "vapor"),
-                "BSD"
+                .product(name: "Vapor", package: "vapor")
             ],
             swiftSettings: [
                 // Enable better optimizations when building in Release configuration. Despite the use of
@@ -39,10 +38,6 @@ let package = Package(
         ),
         .target(
             name: targetCIconvName,
-            dependencies: []
-        ),
-        .target(
-            name: "BSD",
             dependencies: []
         ),
         .target(

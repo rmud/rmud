@@ -5,7 +5,7 @@
 
 # Build image
 
-FROM ubuntu:20.04 as builder
+FROM --platform=linux/amd64 ubuntu:20.04 as builder
 ENV TZ=Etc/UTC
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 RUN apt-get -qq update && apt-get -y install \
@@ -25,8 +25,6 @@ RUN apt-get -qq update && apt-get -y install \
   tzdata \
   uuid-dev \
   zlib1g-dev \
-  \
-  libbsd-dev \
   \
   curl \
   \
@@ -48,7 +46,7 @@ RUN cp -R Tools /build/bin/
 
 # Production image
 
-FROM ubuntu:20.04
+FROM --platform=linux/amd64 ubuntu:20.04
 ENV TZ=Etc/UTC
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 RUN apt-get -qq update && apt-get -y install \

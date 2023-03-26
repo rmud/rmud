@@ -1047,7 +1047,6 @@ class ItemPrototype {
     
     private func checkLoadChances() -> Bool {
         let loadChance = loadChancePercentage ?? 100
-        guard loadChance < 100 else { return true }
-        return Random.uniformInt(1...100) <= loadChance
+        return Random.probability(loadChance)
     }
 }

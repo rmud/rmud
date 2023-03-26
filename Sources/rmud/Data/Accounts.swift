@@ -1,7 +1,4 @@
 import Foundation
-#if os(Linux)
-import BSD
-#endif
 
 class Accounts {
     static let sharedInstance = Accounts()
@@ -75,8 +72,7 @@ class Accounts {
     
     func createAccountUid() -> UInt64 {
         while true {
-            let accountUid = (UInt64(arc4random()) << 32) |
-                UInt64(arc4random())
+            let accountUid = UInt64.random()
             guard byUid[accountUid] == nil else { continue }
             return accountUid
         }

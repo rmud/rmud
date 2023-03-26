@@ -1,8 +1,4 @@
 import Foundation
-//import SwiftSMTP
-#if os(Linux)
-import BSD
-#endif
 
 enum ReconnectMode {
     case noExistingCharactersFound
@@ -62,7 +58,7 @@ func nanny(_ d: Descriptor, line: String) {
     case .confirmAccountCreation:
         let account = d.account!
         if arg.isAbbrevCI(ofAny: ["да", "yes"]) {
-            account.confirmationCode = arc4random_uniform(100000)
+            account.confirmationCode = UInt32.random(in: 0..<100000)
             sendConfirmationCodeEmail(account: d.account!)
             account.flags.insert(.confirmationEmailSent)
             account.scheduleForSaving()
