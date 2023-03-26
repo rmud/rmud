@@ -163,32 +163,6 @@ let baseLevelExperience: [Int] = [
     1000000, /* 31 */                
 ]
 
-let bodypartInfoByEquipmentPosition: [EquipmentPosition: BodypartInfo] = [
-    //                         name:           wearFlags:  armor:        fragChance: options:
-    .light:       BodypartInfo("свет",         .take,      0,            3,          []),
-    .fingerRight: BodypartInfo("на пальце",    .finger,    0,            1,          []),
-    .fingerLeft:  BodypartInfo("на пальце",    .finger,    0,            1,          []),
-    .neck:        BodypartInfo("на шее",       .neck,      0,            2,          []),
-    .neckAbout:   BodypartInfo("вокруг шеи",   .neckAbout, Armor.neck,   4,          .mageNoMetal),
-    .body:        BodypartInfo("на теле",      .body,      Armor.body,   8,          .mageNoMetal),
-    .head:        BodypartInfo("на голове",    .head,      Armor.head,   5,          .mageNoMetal),
-    .face:        BodypartInfo("на лице",      .face,      0,            4,          []),
-    .legs:        BodypartInfo("на ногах",     .legs,      Armor.limb,   6,          .mageNoMetal),
-    .feet:        BodypartInfo("как обувь",    .feet,      Armor.small,  3,          .mageNoMetal),
-    .hands:       BodypartInfo("на кистях",    .hands,     Armor.small,  3,          .mageNoMetal),
-    .arms:        BodypartInfo("на руках",     .arms,      Armor.limb,   6,          .mageNoMetal),
-    .shield:      BodypartInfo("щит",          .shield,    Armor.shield, 12,         .mageNoMetal),
-    .about:       BodypartInfo("вокруг тела",  .about,     0,            8,          []),
-    .back:        BodypartInfo("за спиной",    .back,      Armor.back,   4,          .mageNoMetal),
-    .waist:       BodypartInfo("вокруг пояса", .waist,     Armor.small,  3,          .mageNoMetal),
-    .wristRight:  BodypartInfo("на запястье",  .wrist,     0,            2,          []),
-    .wristLeft:   BodypartInfo("на запястье",  .wrist,     0,            2,          []),
-    .ears:        BodypartInfo("в ушах",       .ears,      0,            1,          []),
-    .wield:       BodypartInfo("оружие",       .wield,     0,            0,          []),
-    .hold:        BodypartInfo("в руке",       .take,      0,            3,          []),
-    .twoHand:     BodypartInfo("в руках",      .twoHand,   0,            0,          []),
-]
-
 // Two very basic tables used in many functions
 private let tableA: [Int] = [ // 0 - 36
     -50, // 0

@@ -39,6 +39,34 @@ enum EquipmentPosition: Int8, CaseIterable {
         .neckAbout, .body, .head, .face, .legs, .feet, .hands, .arms, .shield, .about, .back, .waist
     ]
     
+    var bodypartInfo: BodypartInfo {
+        //                                     name:           wearFlags:  armor:        fragChance: options:
+        switch self {
+        case .light:       return BodypartInfo("свет",         .take,      0,            3,          [])
+        case .fingerRight: return BodypartInfo("на пальце",    .finger,    0,            1,          [])
+        case .fingerLeft:  return BodypartInfo("на пальце",    .finger,    0,            1,          [])
+        case .neck:        return BodypartInfo("на шее",       .neck,      0,            2,          [])
+        case .neckAbout:   return BodypartInfo("вокруг шеи",   .neckAbout, Armor.neck,   4,          .mageNoMetal)
+        case .body:        return BodypartInfo("на теле",      .body,      Armor.body,   8,          .mageNoMetal)
+        case .head:        return BodypartInfo("на голове",    .head,      Armor.head,   5,          .mageNoMetal)
+        case .face:        return BodypartInfo("на лице",      .face,      0,            4,          [])
+        case .legs:        return BodypartInfo("на ногах",     .legs,      Armor.limb,   6,          .mageNoMetal)
+        case .feet:        return BodypartInfo("как обувь",    .feet,      Armor.small,  3,          .mageNoMetal)
+        case .hands:       return BodypartInfo("на кистях",    .hands,     Armor.small,  3,          .mageNoMetal)
+        case .arms:        return BodypartInfo("на руках",     .arms,      Armor.limb,   6,          .mageNoMetal)
+        case .shield:      return BodypartInfo("щит",          .shield,    Armor.shield, 12,         .mageNoMetal)
+        case .about:       return BodypartInfo("вокруг тела",  .about,     0,            8,          [])
+        case .back:        return BodypartInfo("за спиной",    .back,      Armor.back,   4,          .mageNoMetal)
+        case .waist:       return BodypartInfo("вокруг пояса", .waist,     Armor.small,  3,          .mageNoMetal)
+        case .wristRight:  return BodypartInfo("на запястье",  .wrist,     0,            2,          [])
+        case .wristLeft:   return BodypartInfo("на запястье",  .wrist,     0,            2,          [])
+        case .ears:        return BodypartInfo("в ушах",       .ears,      0,            1,          [])
+        case .wield:       return BodypartInfo("оружие",       .wield,     0,            0,          [])
+        case .hold:        return BodypartInfo("в руке",       .take,      0,            3,          [])
+        case .twoHand:     return BodypartInfo("в руках",      .twoHand,   0,            0,          [])
+        }
+    }
+    
     //TODO сделать подстановку в сообщение названия надетого предмета!
     var alreadyWearing: String {
         switch self {

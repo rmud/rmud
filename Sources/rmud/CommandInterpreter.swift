@@ -77,7 +77,9 @@ private let commandInfo: [Command] = [
     // Items
     Command(["вещи", "inventory", "инвентарь"], group: .items, Creature.doInventory,
             flags: .informational, minPosition: .sleeping),
-    Command(["экипировка", "equipment"], group: .items, notImplemented),
+    Command(["экипировка", "equipment"], group: .items, Creature.doEquipment,
+            flags: .informational, minPosition: .sleeping,
+            arg1: .word),
     Command(["взять", "get"], group: .items, Creature.doGet,
             flags: .highPriority, minPosition: .resting,
             arg1: .word,

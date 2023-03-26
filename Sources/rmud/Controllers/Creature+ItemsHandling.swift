@@ -121,12 +121,8 @@ extension Creature {
         
         // first, make sure that the wear position is valid
         for position in positions {
-            guard let bodypart = bodypartInfoByEquipmentPosition[position] else {
-                logError("performWear(): invalid bodypart \(position.rawValue)")
-                sendCantWear()
-                return
-            }
-            if !item.wearFlags.contains(bodypart.itemWearFlags) {
+            let bodypart = position.bodypartInfo
+            guard item.wearFlags.contains(bodypart.itemWearFlags) else {
                 if let mobile = mobile {
                     logError("Mobile \(mobile.vnum) (\(nameNominative)) is trying to wear item  \(item.vnum) (\(item.nameNominative)) in position \(position.rawValue)")
                 }
