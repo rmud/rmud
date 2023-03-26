@@ -12,6 +12,7 @@ extension Creature {
         case moons
         case multiplay
         case cases
+        case materials
         case room
         case mobile
         case item
@@ -49,7 +50,8 @@ extension Creature {
         ShowSubcommand("linkdead",  "связь",      "связь",      .admin, .linkdead ),
         ShowSubcommand("moons",     "луны",       "луны",       .admin, .moons ),
         ShowSubcommand("multiplay", "мультиплей", "мультиплей", .admin, .multiplay ),
-        ShowSubcommand("cases",     "падежи",     "падежи",     .admin, .cases)
+        ShowSubcommand("cases",     "падежи",     "падежи",     .admin, .cases),
+        ShowSubcommand("materials", "материалы",  "материалы",  .admin, .materials)
     ]
     
     func doShow(context: CommandContext) {
@@ -94,6 +96,8 @@ extension Creature {
             break
         case .cases:
             showCases()
+        case .materials:
+            showMaterials()
         case .room:
             guard !value.isEmpty else {
                 listRooms()
@@ -177,6 +181,37 @@ extension Creature {
 
             //send("\(cVnum())\(vnum)\(nNrm()) \(isAnimate ? nGrn() : nYel())\(compressed)\(nNrm()) | \(mp.nameNominative) | \(mp.nameGenitive) | \(mp.nameDative) | \(mp.nameAccusative) | \(mp.nameInstrumental) | \(mp.namePrepositional)")
             table.add(row: [String(vnum), compressed, mp.nameGenitive, mp.nameDative, mp.nameAccusative, mp.nameInstrumental, mp.namePrepositional], colors: [cVnum(), isAnimate ? nGrn() : nYel()])
+        }
+        send(table.description)
+    }
+    
+    private func showMaterials() {
+        let table = StringTable()
+        table.add(row: .init(cells: [
+            .init("название", nil, .right),
+            .init("прочность", nil, .right),
+            .init("магия", nil, .right),
+            .init("огонь", nil, .right),
+            .init("холод", nil, .right),
+            .init("кислота", nil, .right),
+            .init("электричество", nil, .right),
+            .init("маг.удар", nil, .right),
+            .init("удар", nil, .right),
+        ]))
+        for material in Material.allCases {
+            let fragChance = material.fragChance
+            
+            table.add(row: .init(cells: [
+                .init(material.name, Ansi.bYel, .right),
+                .init(material.maxCondition, Ansi.bCyn, .right),
+                .init(0, Ansi.bGrn, .right),
+                .init(fragChance.heat, Ansi.bGrn, .right),
+                .init(fragChance.cold, Ansi.bGrn, .right),
+                .init(fragChance.acid, Ansi.bGrn, .right),
+                .init(fragChance.electricity, Ansi.bGrn, .right),
+                .init(fragChance.crush, Ansi.bGrn, .right),
+                .init(fragChance.hit, Ansi.bRed, .right),
+            ]))
         }
         send(table.description)
     }

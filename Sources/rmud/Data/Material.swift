@@ -1,6 +1,6 @@
 import Foundation
 
-enum Material: UInt8 {
+enum Material: UInt8, CaseIterable {
     case tinMetal        = 1
     case bronzeMetal     = 2
     case copperMetal     = 3

@@ -1,9 +1,27 @@
 import Foundation
 
 class StringTable: CustomStringConvertible {
+    enum Alignment {
+        case left
+        case right
+    }
+    
     struct Cell {
         var text: String
-        var color: String
+        var color: String?
+        var alignment: Alignment
+        
+        init(_ text: String, _ color: String? = nil, _ alignment: Alignment = .left) {
+            self.text = text
+            self.color = color
+            self.alignment = alignment
+        }
+
+        init<T: FixedWidthInteger>(_ value: T, _ color: String? = nil, _ alignment: Alignment = .left) {
+            self.text = String(value)
+            self.color = color
+            self.alignment = alignment
+        }
     }
     
     struct Row {
@@ -27,11 +45,13 @@ class StringTable: CustomStringConvertible {
                 if columnIndex != 0 {
                     result += "  "
                 }
-                if !cell.color.isEmpty {
-                    result += cell.color
+                if let color = cell.color {
+                    result += color
                 }
-                result += cell.text.rightExpandingTo(columnWidths[columnIndex])
-                if !cell.color.isEmpty {
+                let expandFunction =
+                    cell.alignment == .left ? cell.text.rightExpandingTo : cell.text.leftExpandingTo
+                result += expandFunction(columnWidths[columnIndex], " ")
+                if cell.color != nil {
                     result += Ansi.nNrm
                 }
             }
@@ -42,11 +62,17 @@ class StringTable: CustomStringConvertible {
     init() {
     }
     
-    func add(row values: [String], colors: [String] = []) {
-        let cells = Zip2WithNilPadding(values, colors).map { Cell(text: $0 ?? "", color: $1 ?? "") }
-        let row = Row(cells: cells)
+    func add(row: StringTable.Row) {
         rows.append(row)
         isDirty = true
+    }
+    
+    func add(row values: [String], colors: [String] = [], alignment: Alignment = .left) {
+        let cells = Zip2WithNilPadding(values, colors).map {
+            Cell($0 ?? "", $1, alignment)
+        }
+        let row = Row(cells: cells)
+        add(row: row)
     }
     
     func add(row: String...) {
