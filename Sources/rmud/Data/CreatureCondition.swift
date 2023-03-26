@@ -46,20 +46,18 @@ enum CreatureCondition {
         }
     }
 
-    func shortDescription(gender: Gender, color: String, normalColor: String) -> String {
-        let condition: String
-        switch (self) {
-        case .excellent: condition = "великолепное"
-        case .veryGood: condition = "оч.хорошее"
-        case .good: condition = "хорошее"
-        case .fair: condition = "среднее"
-        case .bad: condition = "плохое"
-        case .veryBad: condition = "оч.плохое"
-        case .awful: condition = "ужасное"
-        case .stunned: condition = "оглушен\(gender.ending(",а,о,ы"))"
-        case .dying: condition = "умира\(gender.ending("ет,ет,ет,ют"))"
-        case .dead: condition = "мертв\(gender.ending(",а,о,ы"))"
+    func shortDescription(gender: Gender) -> String {
+        switch self {
+        case .excellent: return "великолепное"
+        case .veryGood:  return "оч.хорошее"
+        case .good:      return "хорошее"
+        case .fair:      return "среднее"
+        case .bad:       return "плохое"
+        case .veryBad:   return "оч.плохое"
+        case .awful:     return "ужасное"
+        case .stunned:   return "оглушен\(gender.ending(",а,о,ы"))"
+        case .dying:     return "умира\(gender.ending("ет,ет,ет,ют"))"
+        case .dead:      return "мертв\(gender.ending(",а,о,ы"))"
         }
-        return "\(color)\(condition)\(normalColor)"
     }
 }

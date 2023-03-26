@@ -15,9 +15,18 @@ extension Creature {
         }
         
         send("У Вас в экипировке:")
+        let table = StringTable()
         for (position, item) in slots {
-            let whereAt = "<\(position.bodypartInfo.name)>".rightExpandingTo(15)
-            act("&1 @1и", .to(self), .text(whereAt), .item(item))
+            let whereAt = "<\(position.bodypartInfo.name)>"
+            let itemName = item.nameNominative.full
+            let conditionPercentage = item.conditionPercentage()
+            let condition = ItemCondition(
+                conditionPercentage: conditionPercentage
+            ).shortDescription
+            let conditionColor = percentageColor(conditionPercentage)
+            table.add(row: [whereAt, itemName, condition],
+                      colors: [bGra(), nNrm(), conditionColor])
         }
+        send(table.description)
     }
 }

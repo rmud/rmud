@@ -59,9 +59,10 @@ extension Creature {
         let targetPercent = target.hitPointsPercentage()
         let statusColor = percentageColor(targetPercent)
         let targetCondition = CreatureCondition(hitPointsPercentage: targetPercent, position: target.position)
-        let conditionString = targetCondition.shortDescription(gender: genderVisible(of: target), color: statusColor, normalColor: nNrm())
+        let conditionString = targetCondition.shortDescription(gender: genderVisible(of: target))
+        let conditionStringColored = "\(statusColor)\(conditionString)\(nNrm())"
         
-        return "[\(targetName):\(conditionString)]"
+        return "[\(targetName):\(conditionStringColored)]"
     }
     
     private func statusAutoExits() -> String {

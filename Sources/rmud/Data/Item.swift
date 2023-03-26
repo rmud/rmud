@@ -73,6 +73,12 @@ class Item {
     var isGroundTimerEnabled: Bool { return groundTimerTicsLeft != nil }
     
     var qualityPercentage: UInt16 = 100 // can go over 100
+    var maxCondition: Int
+    var condition: Int
+    func conditionPercentage() -> Int {
+        return (100 * condition) / maxCondition
+    }
+
     var affects: Set<AffectType> = [] // Creature affects
     var inRoom: Room? // In what room?
     var isInRoom: Bool { return inRoom != nil }
@@ -135,6 +141,8 @@ class Item {
         decayTimerTicsLeft = prototype.decayTimerTics
         
         qualityPercentage = prototype.qualityPercentage ?? qualityPercentage
+        maxCondition = material.maxCondition * Int(qualityPercentage) / 100
+        condition = maxCondition
         
         affects = prototype.affects
         /*
