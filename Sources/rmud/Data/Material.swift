@@ -8,7 +8,7 @@ enum Material: UInt8 {
     case ironMetal       = 4
     case steelMetal      = 5
     // 6-8 резерв
-    case otherMetal      = 9  // неописанные явно недрагоценные металлы
+    case otherMetal      = 9  // other non-precious metals
     case silverMetal     = 10
     case goldMetal       = 11
     case platinumMetal   = 12
@@ -106,44 +106,52 @@ enum Material: UInt8 {
     // Frag chance on 1..200 scale
     var fragChance200: Double {
         switch self {
-        case .tinMetal:        return 20
-        case .bronzeMetal:     return 15
-        case .copperMetal:     return 15
-        case .ironMetal:       return 12
-        case .steelMetal:      return 9
-        case .otherMetal:      return 15
-        case .silverMetal:     return 10
-        case .goldMetal:       return 15
-        case .platinumMetal:   return 10
-        case .mithrilMetal:    return 3
-        case .adamantiteMetal: return 6
-        case .preciousMetal:   return 10
-        case .crystal:         return 12
-        case .ice:             return 15
-        case .thinWood:        return 25
-        case .thickWood:       return 20
-        case .ceramic:         return 30
         case .glass:           return 50
-        case .stone:           return 10
-        case .softStone:       return 25
-        case .bone:            return 18
-        case .horn:            return 10
-        case .chitin:          return 15
-        case .plume:           return 20
-        case .coral:           return 20
-        case .nacre:           return 14
         case .cloth:           return 35
-        case .thickCloth:      return 25
-        case .leather:         return 20
-        case .fineLeather:     return 30
-        case .hide:            return 20
-        case .scale:           return 18
-        case .dragonScale:     return 10
-        case .organic:         return 20
-        case .wax:             return 20
-        case .parchment:       return 5
+        case .ceramic,
+             .fineLeather:
+                               return 30
+        case .thinWood,
+             .softStone,
+             .thickCloth:
+                               return 25
+        case .tinMetal,
+             .thickWood,
+             .plume,
+             .coral,
+             .leather,
+             .hide,
+             .organic,
+             .wax:
+                               return 20
+        case .bone,
+             .scale:
+                               return 18
+        case .bronzeMetal,
+             .copperMetal,
+             .otherMetal,
+             .goldMetal,
+             .ice,
+             .chitin:
+                               return 15
+        case .nacre:           return 14
+        case .ironMetal,
+             .crystal:
+                               return 12
+        case .silverMetal,
+             .platinumMetal,
+             .preciousMetal,
+             .stone,
+             .horn,
+             .dragonScale:
+                               return 10
+        case .steelMetal:      return 9
         case .paper:           return 8
-        case .jelly:           return 3
+        case .adamantiteMetal: return 6
+        case .parchment:       return 5
+        case .mithrilMetal,
+             .jelly:
+                               return 3
         case .liquid:          return 1
         case .gasVapour:       return 0
         }
