@@ -157,6 +157,51 @@ enum Material: UInt8 {
         }
     }
     
+    var maxCondition: Int {
+        switch self {
+        case .tinMetal:        return 200
+        case .bronzeMetal:     return 320
+        case .copperMetal:     return 320
+        case .ironMetal:       return 360
+        case .steelMetal:      return 480
+        case .otherMetal:      return 350
+        case .silverMetal:     return 460
+        case .goldMetal:       return 380
+        case .platinumMetal:   return 420
+        case .mithrilMetal:    return 1440
+        case .adamantiteMetal: return 720
+        case .preciousMetal:   return 420
+        case .crystal:         return 320
+        case .ice:             return 300
+        case .thinWood:        return 192
+        case .thickWood:       return 240
+        case .ceramic:         return 144
+        case .glass:           return 60
+        case .stone:           return 540
+        case .softStone:       return 300
+        case .bone:            return 220
+        case .horn:            return 360
+        case .chitin:          return 200
+        case .plume:           return 180
+        case .coral:           return 300
+        case .nacre:           return 200
+        case .cloth:           return 96
+        case .thickCloth:      return 140
+        case .leather:         return 260
+        case .fineLeather:     return 156
+        case .hide:            return 210
+        case .scale:           return 360
+        case .dragonScale:     return 600
+        case .organic:         return 120
+        case .wax:             return 100
+        case .parchment:       return 64
+        case .paper:           return 44
+        case .jelly:           return 75
+        case .liquid:          return 40
+        case .gasVapour:       return 6
+        }
+    }
+    
     static let aliases = ["материал", "труп.материал"]
     
     static func registerDefinitions(in e: Enumerations) {
