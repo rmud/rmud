@@ -1,21 +1,22 @@
 import Foundation
 
-// Object materials
 enum Material: UInt8 {
     case tinMetal        = 1
     case bronzeMetal     = 2
     case copperMetal     = 3
     case ironMetal       = 4
     case steelMetal      = 5
-    // 6-8 резерв
+    // 6-8 reserved for non-precious metals
     case otherMetal      = 9  // other non-precious metals
+    
     case silverMetal     = 10
     case goldMetal       = 11
     case platinumMetal   = 12
     case mithrilMetal    = 13
     case adamantiteMetal = 14
     case preciousMetal   = 15
-    // 16-19 резерв
+    // 16-19 reserved for precious metals
+    
     case crystal         = 20
     case ice             = 21
     case thinWood        = 22
@@ -44,8 +45,6 @@ enum Material: UInt8 {
     case jelly           = 45
     case liquid          = 46
     case gasVapour       = 47
-    
-    static let count     = 48
     
     static let metals: Set<Material> = [
         tinMetal, bronzeMetal, copperMetal, ironMetal, steelMetal, otherMetal, silverMetal,  goldMetal, platinumMetal, mithrilMetal, adamantiteMetal, preciousMetal ]
@@ -103,56 +102,48 @@ enum Material: UInt8 {
         }
     }
     
-    var fragChance: Int {
+    var fragChance: (heat: Int, cold: Int, acid: Int, electricity: Int, crush: Int, hit: Int) {
         switch self {
-        case .glass:           return 50
-        case .cloth:           return 35
-        case .ceramic,
-             .fineLeather:
-                               return 30
-        case .thinWood,
-             .softStone,
-             .thickCloth:
-                               return 25
-        case .tinMetal,
-             .thickWood,
-             .plume,
-             .coral,
-             .leather,
-             .hide,
-             .organic,
-             .wax:
-                               return 20
-        case .bone,
-             .scale:
-                               return 18
-        case .bronzeMetal,
-             .copperMetal,
-             .otherMetal,
-             .goldMetal,
-             .ice,
-             .chitin:
-                               return 15
-        case .nacre:           return 14
-        case .ironMetal,
-             .crystal:
-                               return 12
-        case .silverMetal,
-             .platinumMetal,
-             .preciousMetal,
-             .stone,
-             .horn,
-             .dragonScale:
-                               return 10
-        case .steelMetal:      return 9
-        case .paper:           return 8
-        case .adamantiteMetal: return 6
-        case .parchment:       return 5
-        case .mithrilMetal,
-             .jelly:
-                               return 3
-        case .liquid:          return 1
-        case .gasVapour:       return 0
+        case .tinMetal:        return (30, 15, 48,  8, 20, 20)
+        case .bronzeMetal:     return (20,  4, 48,  8, 20, 15)
+        case .copperMetal:     return (20,  4, 48,  8, 20, 15)
+        case .ironMetal:       return (22,  4, 60, 10, 25, 12)
+        case .steelMetal:      return (15,  5, 36,  6, 15,  9)
+        case .otherMetal:      return (20,  5, 40,  8, 20, 15)
+        case .silverMetal:     return (10,  3, 25,  4, 10, 10)
+        case .goldMetal:       return (12,  3, 25,  6, 15, 15)
+        case .platinumMetal:   return (10,  3, 25,  4, 10, 10)
+        case .mithrilMetal:    return ( 5,  1, 11,  2,  5,  3)
+        case .adamantiteMetal: return (10,  2, 22,  4, 10,  6)
+        case .preciousMetal:   return (12,  3, 25,  8, 15, 10)
+        case .crystal:         return (20,  5, 35, 20, 55, 12)
+        case .ice:             return (70,  1, 35, 15, 55, 15)
+        case .thinWood:        return (50,  5, 40, 25, 80, 25)
+        case .thickWood:       return (30,  5, 35, 35, 42, 20)
+        case .ceramic:         return (10, 15,  5,  5, 72, 30)
+        case .glass:           return (30, 25, 10, 40, 90, 50)
+        case .stone:           return (10,  5, 10, 30, 34, 10)
+        case .softStone:       return (10,  5, 25, 40, 60, 25)
+        case .bone:            return (40,  5, 50, 10, 62, 18)
+        case .horn:            return (20,  5, 40, 10, 30, 10)
+        case .chitin:          return (40, 10, 50, 10, 45, 15)
+        case .plume:           return (60,  3, 50, 10, 30, 20)
+        case .coral:           return (30,  5, 25, 30, 45, 20)
+        case .nacre:           return (25,  5, 40, 10, 30, 14)
+        case .cloth:           return (75,  5, 55, 30,  5, 35)
+        case .thickCloth:      return (50,  5, 45, 25,  5, 25)
+        case .leather:         return (30,  8, 40, 22,  5, 20)
+        case .fineLeather:     return (60, 12, 50, 30, 10, 30)
+        case .hide:            return (45, 10, 45, 25,  5, 20)
+        case .scale:           return (20,  8, 30, 15,  5, 18)
+        case .dragonScale:     return ( 5,  8, 10,  8,  3, 10)
+        case .organic:         return (45, 25, 65, 40,  5, 20)
+        case .wax:             return (60,  5, 40, 20, 25, 20)
+        case .parchment:       return (90,  5, 70, 30, 16,  5)
+        case .paper:           return (95,  5, 80, 40, 20,  8)
+        case .jelly:           return ( 5, 10, 10,  5,  0,  3)
+        case .liquid:          return ( 1,  3,  3,  1,  0,  1)
+        case .gasVapour:       return (11,  1,  1,  1,  0,  0)
         }
     }
     
