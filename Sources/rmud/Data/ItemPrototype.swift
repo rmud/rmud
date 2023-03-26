@@ -14,8 +14,8 @@ class ItemPrototype {
     var groundDescription: String // Optional
     var description: [String] = [] // Optional
     var extraDescriptions: [ExtraDescription] = [] // Optional
-    var gender: Gender? // Optional
-    var material: Material // Required
+    var gender: Gender?
+    var material: Material
     var weight: Int // Required
 
     // The rest are optional
@@ -81,7 +81,12 @@ class ItemPrototype {
         if let gender = entity["род"]?.uint8 {
             self.gender = Gender(rawValue: gender)
         }
-        material = Material(rawValue: entity["материал"]?.uint8 ?? 0) ?? .noMaterial
+        if let material = Material(rawValue: entity["материал"]?.uint8 ?? 0) {
+            self.material = material
+        } else {
+            logError("Item \(vnum): 'материал': invalid material")
+            return nil
+        }
         weight = entity["вес"]?.int ?? 0
 
         // MARK: Item types

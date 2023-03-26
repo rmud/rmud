@@ -2,8 +2,6 @@ import Foundation
 
 // Object materials
 enum Material: UInt8 {
-    case noMaterial      = 0
-    
     case tinMetal        = 1
     case bronzeMetal     = 2
     case copperMetal     = 3
@@ -64,8 +62,6 @@ enum Material: UInt8 {
     
     static func registerDefinitions(in e: Enumerations) {
         e.add(aliases: aliases, namesByValue: [
-            // FIXME: check if it's really needed
-            0:     "нетматериала",     // Нет материала
             // металлы
             1:     "олово",            //
             2:     "бронза",           // Бронза (металл)

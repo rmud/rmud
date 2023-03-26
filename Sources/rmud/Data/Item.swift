@@ -37,7 +37,7 @@ class Item {
         return casted
     }
     
-    var material: Material = .noMaterial
+    var material: Material
 
     var wearFlags: ItemWearFlags = [] // Where you can wear it
     var extraFlags: ItemExtraFlags = [] // If it hums, glows, etc. bitv
