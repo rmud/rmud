@@ -103,8 +103,7 @@ enum Material: UInt8 {
         }
     }
     
-    // Frag chance on 1..200 scale
-    var fragChance200: Double {
+    var fragChance: Int {
         switch self {
         case .glass:           return 50
         case .cloth:           return 35
