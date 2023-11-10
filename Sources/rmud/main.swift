@@ -39,8 +39,11 @@ func main() -> Int32 {
     let wsPortsString = settings.wsPorts.map { String($0) }.joined(separator: ",")
     log("Parameters: port\(portsEnding) \(portsString); ws port\(wsPortsEnding) \(wsPortsString); data dir \(filenames.dataPrefix), game dir \(filenames.livePrefix)")
 
+#if !os(Linux)
+    // TODO: investigate why CTRL-C is not working on Linux with Vapor. Don't intercept signals for now.
     log("Setting up signal handlers")
     signals = setupSignalHandlers()
+#endif
     
     log("Opening mother sockets")
     networking.setupMotherSockets(ports: settings.mudPorts)
