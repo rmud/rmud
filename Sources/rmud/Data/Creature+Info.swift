@@ -106,13 +106,13 @@ extension Creature {
         } else {
             if let mobile = creature.mobile,
                 !mobile.groundDescription.isEmpty && !isCreatureRiddenByMe() && !isCreatureRidingSomeone() && creature.position == mobile.defaultPosition && !creature.isFighting && !creature.isCharmed() {
-                formatString += mobile.groundDescription
+                formatString += mobile.groundDescription.capitalizingFirstLetter()
             } else {
                 if creature.isMobile || isCreatureRidingSomeone() || creature.isFighting {
-                    formatString += "2и"
+                    formatString += "2^и"
                 } else if canSee(creature), let creaturePlayer = creature.player {
                     let title = creaturePlayer.titleWithFallbackToRace(order: .raceThenName)
-                    formatString += title
+                    formatString += title.capitalizingFirstLetter()
                     if title.contains(",") {
                         formatString += ","
                     }
