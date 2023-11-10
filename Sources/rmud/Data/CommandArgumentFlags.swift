@@ -17,7 +17,9 @@ struct CommandArgumentFlags {
         static let restOfString = T(rawValue: 1 << 6)
         static let many         = T(rawValue: 1 << 7)
         
-        var isGameObject: Bool { contains(.item) || contains(.creature) || contains(.room) }
+        var isGameObject: Bool {
+            return contains(.item) || contains(.creature) || contains(.room)
+        }
     }
     
     struct Where: OptionSet {

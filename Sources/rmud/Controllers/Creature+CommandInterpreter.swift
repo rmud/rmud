@@ -96,7 +96,7 @@ extension Creature {
             var context = CommandContext(command: command, scanner: scanner)
             context.subcommand = command.subcommand
 
-            fetchArgument(from: scanner,
+            let gotArg1 = fetchArgument(from: scanner,
                           what: command.arg1What,
                           where: command.arg1Where,
                           cases: command.arg1Cases,
@@ -105,23 +105,27 @@ extension Creature {
                           intoItems: &context.items1,
                           intoRoom: &context.room1,
                           intoString: &context.argument1)
-            guard !command.arg1What.isGameObject || context.hasArgument1 else {
-                sendNothingFound(of: command.arg1What, where: command.arg1Where)
-                return
-            }
-
-            fetchArgument(from: scanner,
-                          what: command.arg2What,
-                          where: command.arg2Where,
-                          cases: command.arg2Cases,
-                          condition: { !isFillWord($0) },
-                          intoCreatures: &context.creatures2,
-                          intoItems: &context.items2,
-                          intoRoom: &context.room2,
-                          intoString: &context.argument2)
-            guard !command.arg2What.isGameObject || context.hasArgument2 else {
-                sendNothingFound(of: command.arg2What, where: command.arg2Where)
-                return
+            if gotArg1 {
+                guard !command.arg1What.isGameObject || context.hasArgument1 else {
+                    sendNothingFound(of: command.arg1What, where: command.arg1Where)
+                    return
+                }
+                
+                let gotArg2 = fetchArgument(from: scanner,
+                              what: command.arg2What,
+                              where: command.arg2Where,
+                              cases: command.arg2Cases,
+                              condition: { !isFillWord($0) },
+                              intoCreatures: &context.creatures2,
+                              intoItems: &context.items2,
+                              intoRoom: &context.room2,
+                              intoString: &context.argument2)
+                if gotArg2 {
+                    guard !command.arg2What.isGameObject || context.hasArgument2 else {
+                        sendNothingFound(of: command.arg2What, where: command.arg2Where)
+                        return
+                    }
+                }
             }
 
             if let handler = command.handler {
@@ -298,10 +302,10 @@ extension Creature {
                        intoCreatures: inout [Creature],
                        intoItems: inout [Item],
                        intoRoom: inout Room?,
-                       intoString: inout String) {
+                       intoString: inout String) -> Bool {
         // Exit early if no argument was requested
-        guard what.contains(anyOf: [.creature, .item, .word, .restOfString]) else {
-            return
+        guard what.contains(anyOf: [.creature, .item, .room, .word, .restOfString]) else {
+            return false
         }
 
         // Try to process argument in following order:
@@ -319,7 +323,7 @@ extension Creature {
         // Creatures, items and words are described by single word, so try to read one from input:
         let originalScannerIndex = scanner.currentIndex // in case we need to undo word read later
         guard let word = scanner.scanWord(condition: condition) else {
-            return
+            return false
         }
         
         // - as me
@@ -327,7 +331,7 @@ extension Creature {
         // exclude them from valid names
         if what.contains(.creature) && whereAt.contains(anyOf: [.room, .world]) {
             if fetchSelf(word: word, into: &intoCreatures) {
-                return
+                return true
             }
         }
         
@@ -338,21 +342,21 @@ extension Creature {
         // - items worn / equipped
         if what.contains(.item) && whereAt.contains(anyOf: [.equipment, .world]) {
             if fetchItemsInEquipment(context: &context, into: &intoItems, cases: cases) {
-                return
+                return true
             }
         }
         
         // - items in inventory
         if what.contains(.item) && whereAt.contains(anyOf: [.inventory, .world]) {
             if fetchItemsInInventory(context: &context, into: &intoItems, cases: cases) {
-                return
+                return true
             }
         }
 
         // - creatures in room
         if what.contains(.creature) && whereAt.contains(anyOf: [.room, .world]) {
             if fetchCreaturesInRoom(context: &context, into: &intoCreatures, cases: cases, isPlayersOnly: what.contains(.playersOnly)) {
-                return
+                return true
             }
         }
 
@@ -362,14 +366,14 @@ extension Creature {
         // - creatures in area
         if what.contains(.creature) && whereAt.contains(.world) {
             if fetchCreaturesInArea(context: &context, into: &intoCreatures, cases: cases, skipInSameRoom: true, isPlayersOnly: what.contains(.playersOnly)) {
-                return
+                return true
             }
         }
         
         // - creatures in world
         if what.contains(.creature) && whereAt.contains(.world) {
             if fetchCreaturesInWorld(context: &context, into: &intoCreatures, cases: cases, skipInSameRoom: true, skipInSameArea: true, isPlayersOnly: what.contains(.playersOnly)) {
-                return
+                return true
             }
         }
         
@@ -381,22 +385,24 @@ extension Creature {
         // - rooms
         if what.contains(.room) && whereAt.contains(.world) {
             if fetchRoom(context: &context, into: &intoRoom) {
-                return
+                return true
             }
         }
 
         // - as word
         if what.contains(.word) {
             intoString = word
-            return
+            return true
         }
 
         // - as rest of string
         if what.contains(.restOfString) {
             scanner.currentIndex = originalScannerIndex // undo word read
             intoString = scanner.textToParse.trimmingCharacters(in: .whitespaces)
-            return
+            return true
         }
+        
+        return true
     }
     
     func sendNothingFound(of what: CommandArgumentFlags.What, where whereAt: CommandArgumentFlags.Where) {
