@@ -76,7 +76,7 @@ func main() -> Int32 {
     return 0
 }
 
-private func shutdownGame() {
+func shutdownGame() {
     log("Game stopped")
     //mudShutdown = true
     exit(1)

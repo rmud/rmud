@@ -13,8 +13,7 @@ class WebServerLifecycle: LifecycleHandler {
     func shutdown(_ app: Application) {
         app.logger.info("Shutting down")
         DispatchQueue.main.async {
-            log("WebServerLifecycle: shutdown: terminating")
-            exit(0)
+            shutdownGame()
         }
     }
 }
