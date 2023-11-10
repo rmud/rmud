@@ -138,7 +138,7 @@ func gameLoop() {
                     if !command.isEmpty {
                         textToSend = d.isEchoOn ? command : "<скрыто>"
                     } else {
-                        textToSend = "<ввод>"
+                        textToSend = "⏎"
                     }
                     d.sendAmendingPromptToAllDescriptors(textToSend)
                 }
