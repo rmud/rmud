@@ -80,7 +80,8 @@ func nanny(_ d: Descriptor, line: String) {
         let account = d.account!
         guard let confirmationCode = UInt32(arg),
                 confirmationCode == account.confirmationCode else {
-            d.send("Некорректный код потверждения.")
+            d.send("Некорректный код подтверждения.")
+            d.state = .close
             break
         }
         d.state = .newPassword
