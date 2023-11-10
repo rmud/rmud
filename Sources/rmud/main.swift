@@ -93,7 +93,7 @@ private func processCommandline() -> ProcessCommandlineResult {
         }
         let argSuffix = argument.suffix(argument.count - 1).lowercased()
         switch argSuffix {
-        case "--code":
+        case "-code":
             guard index < argumentsCount - 1,
                   let loginCode = UInt32(CommandLine.arguments[index + 1])
             else {
