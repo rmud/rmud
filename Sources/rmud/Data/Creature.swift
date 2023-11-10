@@ -116,7 +116,7 @@ class Creature {
         if level == 3 && !player.flags.contains(.rolled) {
             rollRealAbilities()
             player.flags.insert(.rolled)
-            log("New satistics: strength \(realStrength), dexterity \(realDexterity), constitution (\(realConstitution), intelligence: \(realIntelligence), wisdom: \(realWisdom), charisma: \(realCharisma)")
+            log("New statistics: strength \(realStrength), dexterity \(realDexterity), constitution \(realConstitution), intelligence: \(realIntelligence), wisdom: \(realWisdom), charisma: \(realCharisma)")
             logToMud("Статистики: сила \(realStrength), ловкость \(realDexterity), телосложение (\(realConstitution), разум: \(realIntelligence), мудрость: \(realWisdom), обаяние: \(realCharisma)", verbosity: .brief)
         }
         
