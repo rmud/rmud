@@ -38,7 +38,7 @@ func main() -> Int32 {
     log("Parameters: port\(portsEnding) \(portsString); ws port\(wsPortsEnding) \(wsPortsString); data dir \(filenames.dataPrefix), game dir \(filenames.livePrefix)")
 
     log("Setting up signal handlers")
-    let signalSource = setupSignalHandlers()
+    let _ = setupSignalHandlers()
     
     log("Opening mother sockets")
     networking.setupMotherSockets(ports: settings.mudPorts)
@@ -101,6 +101,7 @@ private func processCommandline() -> ProcessCommandlineResult {
                 return .exitError
             }
             settings.loginCode = loginCode
+            index += 1
         case "p", "-port", "w", "-wsport":
             guard index < argumentsCount - 1 else {
                 log("Please specify a port number, for example: -p \(settings.defaultPort).");

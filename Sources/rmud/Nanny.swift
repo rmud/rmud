@@ -490,7 +490,7 @@ func sendStatePrompt(_ d: Descriptor) {
     case .confirmAccountCreation:
         d.sendPrompt("Создать новую учетную запись (да/нет)? ")
     case .verifyConfirmationCode:
-        if let loginCode = settings.loginCode {
+        if settings.loginCode != nil {
             d.sendPrompt("Введите код подтверждения: ")
         } else {
             d.sendPrompt("Введите код подтверждения, полученный по email: ")
