@@ -38,7 +38,7 @@ func main() -> Int32 {
     log("Parameters: port\(portsEnding) \(portsString); ws port\(wsPortsEnding) \(wsPortsString); data dir \(filenames.dataPrefix), game dir \(filenames.livePrefix)")
 
     log("Setting up signal handlers")
-    setupSignalHandlers()
+    let signalSource = setupSignalHandlers()
     
     log("Opening mother sockets")
     networking.setupMotherSockets(ports: settings.mudPorts)
@@ -205,7 +205,9 @@ private func processCommandline() -> ProcessCommandlineResult {
     return .continueGameBoot
 }
 
-func setupSignalHandlers() {
+func setupSignalHandlers() -> DispatchSourceSignal {
+    signal(SIGINT, SIG_IGN)
+
     let signalQueue = DispatchQueue(label: "org.rmud.SignalHandlingQueue")
     let signalSource = DispatchSource.makeSignalSource(signal: SIGINT, queue: signalQueue)
     signalSource.setEventHandler {
@@ -214,8 +216,8 @@ func setupSignalHandlers() {
         //isTerminated.value = true
         shutdownGame()
     }
-    signal(SIGINT, SIG_IGN)
     signalSource.resume()
+    return signalSource
 }
 
 exit(main())
