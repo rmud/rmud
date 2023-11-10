@@ -26,7 +26,7 @@ let maxIdleTimeAllowedInterval = 10...30
 
 let shopMaximumItemCountOfSameTypeBeforeSellout = 5
 
-let vnumMortalStartRoom = 26573
+let vnumMortalStartRoom = 2000
 // TODO: move to area files
 let vnumSolaceInn  = 2000
 let vnumBaliforInn = 1069
