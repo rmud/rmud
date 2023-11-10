@@ -6,6 +6,8 @@ enum ProcessCommandlineResult {
     case exitError
 }
 
+var signals: [DispatchSourceSignal] = []
+
 func main() -> Int32 {
     setlocale(LC_ALL, "")
 
@@ -38,7 +40,7 @@ func main() -> Int32 {
     log("Parameters: port\(portsEnding) \(portsString); ws port\(wsPortsEnding) \(wsPortsString); data dir \(filenames.dataPrefix), game dir \(filenames.livePrefix)")
 
     log("Setting up signal handlers")
-    let _ = setupSignalHandlers()
+    signals = setupSignalHandlers()
     
     log("Opening mother sockets")
     networking.setupMotherSockets(ports: settings.mudPorts)
@@ -214,9 +216,7 @@ private func processCommandline() -> ProcessCommandlineResult {
     return .continueGameBoot
 }
 
-func setupSignalHandlers() -> DispatchSourceSignal {
-    signal(SIGINT, SIG_IGN)
-
+func setupSignalHandlers() -> [DispatchSourceSignal] {
     let signalQueue = DispatchQueue(label: "org.rmud.SignalHandlingQueue")
     let signalSource = DispatchSource.makeSignalSource(signal: SIGINT, queue: signalQueue)
     signalSource.setEventHandler {
@@ -226,7 +226,10 @@ func setupSignalHandlers() -> DispatchSourceSignal {
         shutdownGame()
     }
     signalSource.resume()
-    return signalSource
+
+    signal(SIGINT, SIG_IGN)
+    
+    return [signalSource]
 }
 
 exit(main())
