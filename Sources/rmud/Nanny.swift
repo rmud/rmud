@@ -58,15 +58,32 @@ func nanny(_ d: Descriptor, line: String) {
     case .confirmAccountCreation:
         let account = d.account!
         if arg.isAbbrevCI(ofAny: ["да", "yes"]) {
-            account.confirmationCode = UInt32.random(in: 0..<100000)
+            if let loginCode = settings.loginCode {
+                account.confirmationCode = loginCode;
+            } else {
+                account.confirmationCode = UInt32.random(in: 0..<100000)
+            }
             sendConfirmationCodeEmail(account: d.account!)
             account.flags.insert(.confirmationEmailSent)
             account.scheduleForSaving()
-            d.send("""
+            if settings.loginCode != nil {
+                d.send("""
+                   
+                   !!! В данный момент игра не работает !!!
+                   
+                   Если Вы хотите принять участие в тестировании ранних сборок,
+                   пожалуйста, получите код подтверждения в нашей Телеграм группе:
+                   
+                   ---------------------
+                   https://t.me/rmudchat
+                   ---------------------
+                   """)
+            } else {
+                d.send("""
                    На Ваш email выслано письмо с кодом подтверждения. Если оно не придёт
                    в течение 5 минут, пожалуйста, свяжитесь с тех.поддержкой игры: support@rmud.org
                    """)
-
+            }
             d.state = .verifyConfirmationCode
         } else if arg.isAbbrevCI(ofAny: ["нет", "no"]) {
             accounts.remove(account: account)
@@ -473,7 +490,11 @@ func sendStatePrompt(_ d: Descriptor) {
     case .confirmAccountCreation:
         d.sendPrompt("Создать новую учетную запись (да/нет)? ")
     case .verifyConfirmationCode:
-        d.sendPrompt("Введите код подтверждения, полученный по email: ")
+        if let loginCode = settings.loginCode {
+            d.sendPrompt("Введите код подтверждения: ")
+        } else {
+            d.sendPrompt("Введите код подтверждения, полученный по email: ")
+        }
     case .newPassword:
         d.sendPrompt("Придумайте пароль: ")
         d.echoOff()

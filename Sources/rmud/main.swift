@@ -93,6 +93,14 @@ private func processCommandline() -> ProcessCommandlineResult {
         }
         let argSuffix = argument.suffix(argument.count - 1).lowercased()
         switch argSuffix {
+        case "--code":
+            guard index < argumentsCount - 1,
+                  let loginCode = UInt32(CommandLine.arguments[index + 1])
+            else {
+                log("Please specify a code, for example: --code 123456.");
+                return .exitError
+            }
+            settings.loginCode = loginCode
         case "p", "-port", "w", "-wsport":
             guard index < argumentsCount - 1 else {
                 log("Please specify a port number, for example: -p \(settings.defaultPort).");

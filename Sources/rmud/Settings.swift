@@ -5,6 +5,8 @@ import Foundation
 
 class Settings {
     static let sharedInstance = Settings()
+    
+    var loginCode: UInt32?
 
     let defaultPort: UInt16 = 3040
     let defaultWSPort: UInt16 = 4040
