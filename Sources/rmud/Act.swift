@@ -197,8 +197,14 @@ private func tokenize(text: String) -> [Token] {
                         flushOutput()
                     }
                 } else {
-                    if c != "," && c != ":" && c != ";" && c != "-" && c != "(" && c != ")" && c != "[" && c != "]" && c != "<" && c != ">" && !c.isWhitespace && !c.isNewline {
-                        capitalizeNextLetter = true
+                    if capitalizeNextLetter {
+                        if !c.isWhitespace && !c.isNewline {
+                            capitalizeNextLetter = false
+                        }
+                    } else {
+                        if c != "," && c != ":" && c != ";" && c != "-" && c != "(" && c != ")" && c != "[" && c != "]" && c != "<" && c != ">" && !c.isNumber && !c.isWhitespace && !c.isNewline {
+                            capitalizeNextLetter = true
+                        }
                     }
                 }
                 output.append(c)
