@@ -342,7 +342,7 @@ class Descriptor {
     }
     
     func sendAmendingPromptToAllDescriptors(_ text: String) {
-        if let creature = creature, !creature.descriptors.isEmpty {
+        if state == .playing, let creature = creature, !creature.descriptors.isEmpty {
             creature.descriptors.forEach { descriptor in
                 descriptor.sendAmendingPrompt(text)
                 if descriptor !== self {
