@@ -18,11 +18,11 @@ func main() -> Int32 {
     }
     
     if settings.mudPorts.isEmpty {
-        settings.mudPorts = [settings.defaultPort]
+        settings.mudPorts = [Settings.defaultPort]
     }
     
     if settings.wsPorts.isEmpty {
-        settings.wsPorts = [settings.defaultWSPort]
+        settings.wsPorts = [Settings.defaultWSPort]
     }
     
     log("RMUD starting")
@@ -107,9 +107,16 @@ private func processCommandline() -> ProcessCommandlineResult {
             }
             settings.loginCode = loginCode
             index += 1
+        case "-wshost":
+            guard index < argumentsCount - 1 else {
+                log("Please specify a WS host name, for example: -wshost 0.0.0.0");
+                return .exitError
+            }
+            settings.wsHost = CommandLine.arguments[index + 1]
+            index += 1
         case "p", "-port", "w", "-wsport":
             guard index < argumentsCount - 1 else {
-                log("Please specify a port number, for example: -p \(settings.defaultPort).");
+                log("Please specify a port number, for example: -p \(Settings.defaultPort).");
                 return .exitError
             }
             guard let port = UInt16(CommandLine.arguments[index + 1]) else {
@@ -173,7 +180,10 @@ private func processCommandline() -> ProcessCommandlineResult {
             print("""
                 Usage: rmud [keys]
                   -h --help                    This help
-                  -p --port <port>             Port number, \(settings.defaultPort) by default.
+                  -p --port <port>             Port number, \(Settings.defaultPort) by default.
+                                               Can be specified multiple times.
+                     --wshost <host>           Websockets host, \(Settings.defaultWSHost) by default.
+                  -w --wsport <port>           Websockets port number, \(Settings.defaultWSPort) by default.
                                                Can be specified multiple times.
                   -m --mailserver              <email> <smtp address> <password>
                                                Mail server parameters, for example:

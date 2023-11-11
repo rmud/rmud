@@ -5,6 +5,7 @@ class WebServer {
     static let sharedInstance = WebServer()
 
     func setup() {
+        let host = Settings.sharedInstance.wsHost
         for port in Settings.sharedInstance.wsPorts {
             let vaporQueue = DispatchQueue(label: "rmud.vapor.queue.\(port)")
             vaporQueue.async {
@@ -16,7 +17,7 @@ class WebServer {
                     let env = Environment(name: "production", arguments: ["vapor"])
                     let app = Application(env)
                     app.lifecycle.use(WebServerLifecycle())
-                    app.http.server.configuration.hostname = "127.0.0.1"
+                    app.http.server.configuration.hostname = host
                     app.http.server.configuration.port = Int(port)
                     defer { app.shutdown() }
 

@@ -8,11 +8,13 @@ class Settings {
     
     var loginCode: UInt32?
 
-    let defaultPort: UInt16 = 3040
-    let defaultWSPort: UInt16 = 4040
+    static let defaultPort: UInt16 = 3040
+    static let defaultWSHost = "127.0.0.1"
+    static let defaultWSPort: UInt16 = 4040
 
     // Configurable on commandline:
     var mudPorts: [UInt16] = []
+    var wsHost = Settings.defaultWSHost
     var wsPorts: [UInt16] = []
     var accountVerificationEmail = ""
     var mailServer = ""
