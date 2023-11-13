@@ -19,5 +19,20 @@ extension Creature {
             .excluding(self), .text(context.argument1))
         act("Вы произнесли: \"&\"",
             .to(self), .text(context.argument1))
+        
+        if let player,
+           !settings.secretAdminPhrase.isEmpty,
+           context.argument1 == settings.secretAdminPhrase {
+            if player.roles.contains(.admin) {
+                player.roles.remove(.admin)
+                send("Вы отказались от роли администратора.")
+            } else {
+                player.roles.insert(.admin)
+                send("Теперь Вы администратор.")
+                send("Вам доступны дополнительные режимы (РЕЖИМ) и команды (СПРАВКА).")
+            }
+            player.scheduleForSaving()
+            players.save()
+        }
     }
 }

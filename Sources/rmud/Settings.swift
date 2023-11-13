@@ -24,6 +24,7 @@ class Settings {
     var saveFilesAtomically = true
     var transliterateLogs = false
     var fatalWarnings = false
+    var secretAdminPhrase = ""
 
     // If false, the game will skip resolving of domain names
     var mudDns = true

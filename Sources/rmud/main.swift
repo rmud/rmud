@@ -176,6 +176,13 @@ private func processCommandline() -> ProcessCommandlineResult {
             settings.debugDumpEndingsCompress = true
         case "-fatal-warnings":
             settings.fatalWarnings = true
+        case "-secret-admin-phrase":
+            guard index < argumentsCount - 1 else {
+                log("Please specify a secret admin phrase.");
+                return .exitError
+            }
+            settings.secretAdminPhrase = CommandLine.arguments[index + 1]
+            index += 1
         case "h", "-help":
             print("""
                 Usage: rmud [keys]
@@ -203,6 +210,7 @@ private func processCommandline() -> ProcessCommandlineResult {
                      --save-areas              Resave all areas and quit
                      --dump-endings-decompress Dump endings during decompressing stage
                      --dump-endings-compress   Dump endings during compressing stage
+                     --secret-admin-phrase     Say this phrase in game to become admin
                 On exit returns:
                   0                      Normal termination
                   1                      Error has occured
