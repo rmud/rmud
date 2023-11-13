@@ -11,10 +11,16 @@ extension Creature {
             let paddedGroupName = groupName.leftExpandingTo(groupNameMaxLength, with: " ")
             var line = "\(bCyn())\(paddedGroupName.uppercased())\(groupSuffix)\(nNrm())"
             var lineLength = groupName.count + groupSuffix.count // without ANSI codes
+            
+            var commandsInGroupCount = 0
             for commandIndexEntry in commandGroups[groupName] ?? [] {
                 guard !commandIndexEntry.command.flags.contains(.hidden) else {
                     continue
                 }
+                guard commandIndexEntry.command.canRunWithRoles(player?.roles ?? []) else {
+                    continue
+                }
+                commandsInGroupCount += 1
 
                 let commandName = commandIndexEntry.commandName
                 let restOfCommand = commandName.suffix(commandName.count - commandIndexEntry.abbreviation.count)
@@ -35,7 +41,9 @@ extension Creature {
                 }
                 lineLength += newTextLength
             }
-            send(line)
+            if commandsInGroupCount > 0 {
+                send(line)
+            }
         }
         send("\nПодробная информация доступна по команде СПРАВКА [команда]")
     }

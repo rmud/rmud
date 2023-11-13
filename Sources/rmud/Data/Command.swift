@@ -54,4 +54,12 @@ struct Command {
         self.arg2Cases = arg2Cases
         self.handler = handler
     }
+    
+    func canRunWithRoles(_ creatureRoles: Roles) -> Bool {
+        guard roles.isEmpty ||
+                !roles.intersection(creatureRoles).isEmpty else {
+            return false
+        }
+        return true
+    }
 }

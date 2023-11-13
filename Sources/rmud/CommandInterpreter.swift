@@ -247,10 +247,7 @@ class CommandInterpreter {
                 default: break
                 }
                 
-                guard command.roles.isEmpty ||
-                        !command.roles.intersection(roles).isEmpty else {
-                    continue
-                }
+                guard command.canRunWithRoles(roles) else { continue }
                 
                 var foundAlias = false
                 for alias in command.aliases {
