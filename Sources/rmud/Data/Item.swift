@@ -22,21 +22,8 @@ class Item {
     var extraDescriptions: [ExtraDescription] = []
 
     var gender: Gender = .neuter
-    private var extraDataByItemType: [ItemType: ItemExtraDataType] = [:]
+    var extraDataByItemType: [ItemType: ItemExtraDataType] = [:]
 
-    func hasType(_ itemType: ItemType) -> Bool {
-        return extraDataByItemType[itemType] != nil
-    }
-
-    func extraData<T: ItemExtraDataType>() -> T? {
-        guard let data = extraDataByItemType[T.itemType] else { return nil }
-        guard let casted = data as? T else {
-            assertionFailure()
-            return nil
-        }
-        return casted
-    }
-    
     var material: Material
 
     var wearFlags: ItemWearFlags = [] // Where you can wear it
@@ -51,10 +38,10 @@ class Item {
         var totalWeight = weight
         
         // Process liquids:
-        if let vessel: ItemExtraData.Vessel = extraData() {
+        if let vessel = asVessel() {
             totalWeight += Int(vessel.usedCapacity)
         }
-        if let fountain: ItemExtraData.Fountain = extraData() {
+        if let fountain = asFountain() {
             totalWeight += Int(fountain.usedCapacity)
         }
         
@@ -85,7 +72,7 @@ class Item {
     var carriedBy: Creature? // Carried by?
     var isCarried: Bool { return carriedBy != nil }
     var wornBy: Creature? // Worn by?
-    var isWorn: Bool { return wornBy != nil }
+    var isWornBySomeone: Bool { return wornBy != nil }
     var wornPosition: EquipmentPosition? = nil
     var inContainer: Item? // In what item?
     var isInContainer: Bool { return inContainer != nil }
@@ -96,7 +83,7 @@ class Item {
             return "в руках"
         } else if isInRoom {
             return "в комнате"
-        } else if isWorn {
+        } else if isWornBySomeone {
             return "в экипировке"
         } else if let container = inContainer {
             return "в \(container.namePrepositional.full)"

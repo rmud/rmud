@@ -110,7 +110,7 @@ extension Mobile {
                 creature.equip(item: item, position: position)
             case .equipAnywhere:
                 creature.wear(item: item, isSilent: true)
-                if !item.isWorn {
+                if !item.isWornBySomeone {
                     if !tryWearing(item: item, ifHasFlags: .wield, at: [.wield]) {
                         if !tryWearing(item: item, ifHasFlags: .hold, at: [.hold]) {
                             if !tryWearing(item: item, ifHasFlags: .twoHand, at: [.twoHand]) {
@@ -144,6 +144,6 @@ extension Mobile {
         if item.wearFlags.contains(anyOf: flags) {
             creature.performWear(item: item, positions: positions, isSilent: true)
         }
-        return item.isWorn
+        return item.isWornBySomeone
     }
 }

@@ -94,7 +94,7 @@ class Mobile {
     }
     
     func isAcceptableReceipt(item: Item) -> Bool {
-        guard let receipt: ItemExtraData.Receipt = item.extraData() else { return false }
+        guard let receipt = item.asReceipt() else { return false }
         // FIXME: Not sure if this is a good default:
         guard !receipt.stablemanVnums.isEmpty else { return true }
         return receipt.stablemanVnums.contains(vnum) || item.vnum == stablemanNoteVnum

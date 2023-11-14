@@ -81,7 +81,7 @@ extension Creature {
             send(wrapped)
         }
 
-        if let container: ItemExtraData.Container = item.extraData() {
+        if let container = item.asContainer() {
             guard !container.flags.contains(.corpse) else { return }
             
             showItemCondition()
@@ -90,11 +90,11 @@ extension Creature {
             showItemWear()
         }
         
-        if item.hasType(.container) || item.hasType(.fountain) || item.hasType(.vessel) {
+        if item.isContainer() || item.isFountain() || item.isVessel() {
             look(inContainer: item)
         }
         
-        if let note: ItemExtraData.Note = item.extraData() {
+        if let note = item.asNote() {
             act("1*и внимательно проч1(ел,ла,ло,ли) @1в.", .toRoom, .excluding(self), .item(item))
             act("В @1п написано следующее:", .to(self), .item(item))
             let text = note.text.joined()
@@ -102,7 +102,7 @@ extension Creature {
             send(wrapped)
         }
         
-        if item.hasType(.receipt) {
+        if item.isReceipt() {
             look(atReceipt: item)
         }
     }
@@ -233,7 +233,7 @@ extension Creature {
     }
     
     private func showItemRequiredSkill(item: Item) {
-        if let weapon: ItemExtraData.Weapon = item.extraData() {
+        if let weapon = item.asWeapon() {
             let skillName = weapon.weaponType.skill.name
             act("Для использования @1р требуется обладать умением \"&\".",
                 .to(self), .item(item), .text(skillName))

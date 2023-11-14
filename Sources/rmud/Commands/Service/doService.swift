@@ -132,7 +132,7 @@ extension Creature {
             let item = items.first!
             let indexString = String(index + 1).leftExpandingTo(3)
             let liquid: String
-            if let vessel: ItemExtraData.Vessel = item.extraData(), !vessel.isEmpty {
+            if let vessel = item.asVessel(), !vessel.isEmpty {
                 liquid = " \(vessel.liquid.instrumentalWithPreposition)"
             } else {
                 liquid = ""
@@ -225,7 +225,7 @@ extension Creature {
                 stacker.collect(target: target, line: output)
             }
             
-            if item.hasType(.spellbook) {
+            if item.isSpellbook() {
                 if let decay = item.decayTimerTicsLeft, decay < 5 {
                     item.decayTimerTicsLeft = 5
                 }

@@ -134,7 +134,7 @@ extension Creature {
     }
     
     func look(inContainer item: Item) {
-        if let container: ItemExtraData.Container = item.extraData() {
+        if let container = item.asContainer() {
             if container.flags.contains(.closed) {
                 act("@1и (&1) закрыт@1(,а,о,ы).",
                     .to(self), .item(item), .text(item.location))
@@ -147,7 +147,7 @@ extension Creature {
             }
         }
         
-        if let fountain: ItemExtraData.Fountain = item.extraData() {
+        if let fountain = item.asFountain() {
             if fountain.isEmpty {
                 act("@1и (&1) иссяк@1(,ла,ло,ли).",
                     .to(self), .item(item), .text(item.location))
@@ -158,7 +158,7 @@ extension Creature {
             }
         }
         
-        if let vessel: ItemExtraData.Vessel = item.extraData() {
+        if let vessel = item.asVessel() {
             if vessel.isEmpty {
                 act("@1и (&1) пуст@1(,а,о,ы).",
                     .to(self), .item(item), .text(item.location))

@@ -22,9 +22,9 @@ extension Creature {
             if item.extraFlags.contains(anyOf: .glow) {
                 return true
             }
-            if item.isWorn,
-                let light: ItemExtraData.Light = item.extraData(),
-                light.ticsLeft > 0 {
+            if item.isWornBySomeone,
+               let light = item.asLight(),
+               light.ticsLeft > 0 {
                 return true
             }
             return false
@@ -121,14 +121,14 @@ extension Creature {
         // Boats in inventory will do it
         for item in carrying {
             // item.type == .boat {
-            if item.hasType(.boat) {
+            if item.isBoat() {
                 return true
             }
         }
         
         // And any boat you're wearing will do it too
         for (_, item) in equipment {
-            if item.hasType(.boat) {
+            if item.isBoat() {
                 return true
             }
         }

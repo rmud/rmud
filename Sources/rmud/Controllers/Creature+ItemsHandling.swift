@@ -58,14 +58,14 @@ extension Creature {
         wearFlags.remove(.take)
         wearFlags.remove(.hold)
         
-        guard !wearFlags.isEmpty && !item.hasType(.weapon) else {
+        guard !wearFlags.isEmpty && !item.isWeapon() else {
             if !isSilent {
                 act("@1и никуда не надевается.", .to(self), .item(item))
             }
             return
         }
 
-        guard !item.isWorn else {
+        guard !item.isWornBySomeone else {
             if !isSilent {
                 act("@1и уже надет.", .to(self), .item(item))
             }
@@ -94,7 +94,7 @@ extension Creature {
         for (flag, positions) in flagsAndPositions {
             guard item.wearFlags.contains(flag) else { continue }
             performWear(item: item, positions: positions, isSilent: isSilent)
-            if item.isWorn { break }
+            if item.isWornBySomeone { break }
         }
     }
     
@@ -187,7 +187,7 @@ extension Creature {
                 item.removeFromCreature()
             }
             equip(item: item, position: position)
-            if item.hasType(.weapon) && weaponEfficiencyPercent(for: item) < 100 {
+            if item.isWeapon() && weaponEfficiencyPercent(for: item) < 100 {
                 act("Вы почувствовали, что @1и слишком тяжел@1(,а,о,ы) для Вас.", .to(self), .item(item))
             }
             if item.extraFlags.contains(.stringed) {
@@ -219,11 +219,7 @@ extension Creature {
             }
         }
 
-        if item.hasType(.armor) ||
-                item.hasType(.worn) ||
-                item.hasType(.container) ||
-                item.hasType(.vessel) ||
-                item.hasType(.key) {
+        if item.isArmor() || item.isWorn() || item.isContainer() || item.isVessel() || item.isKey() {
             act("Вы сняли @1в.", .to(self), .item(item))
             act("1*и снял1(,а,о,и) @1в.", .toRoom, .excluding(self), .item(item))
         } else {

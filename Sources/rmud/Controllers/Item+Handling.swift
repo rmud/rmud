@@ -14,7 +14,7 @@ extension Item {
             firstItem.removeFromContainer()
             
             if mode == .purgeAllContents ||
-                    (mode == .purgeOnlyMoney && firstItem.hasType(.money)) {
+                    (mode == .purgeOnlyMoney && firstItem.isMoney()) {
                 firstItem.extract(mode: mode)
             } else if let container = inContainer {
                 firstItem.put(into: container)
@@ -145,7 +145,7 @@ extension Item {
             }
         }
         
-        if let money: ItemExtraData.Money = extraData() {
+        if let money = asMoney() {
             recipient.gold += money.amount
             if money.amount > 1 {
                 act("Там был#(а,и,о) # стальн#(ая,ые,ых) монет#(а,ы,).", .to(recipient), .number(money.amount))

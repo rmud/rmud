@@ -3,7 +3,7 @@ import Foundation
 extension Creature {
     func primaryWeapon() -> Item? {
         for position in EquipmentPosition.primaryWeapon {
-            if let item = equipment[position], item.hasType(.weapon) {
+            if let item = equipment[position], item.isWeapon() {
                 return item
             }
         }

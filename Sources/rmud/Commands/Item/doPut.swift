@@ -6,7 +6,7 @@ extension Creature {
             return
         }
         
-        guard let container: ItemExtraData.Container = whereTo.extraData() else {
+        guard let container = whereTo.asContainer() else {
             act("@1и не является контейнером.", .to(self), .item(whereTo))
             return
         }

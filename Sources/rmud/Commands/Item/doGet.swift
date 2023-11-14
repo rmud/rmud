@@ -16,7 +16,7 @@ extension Creature {
     private func performGet(itemNames: String, from containers: [Item]) {
         for container in containers {
             guard canSee(container) else { continue }
-            guard container.hasType(.container) else {
+            guard container.isContainer() else {
                 act("@1и не является контейнером.", .to(self), .item(container))
                 continue
             }

@@ -10,13 +10,13 @@ extension Creature {
             return
         }
         
-        if item.hasType(.light) {
+        if item.isLight() {
             performWear(item: item, positions: [.light], isSilent: false)
         } else if !item.wearFlags.contains(.hold) &&
-                !item.hasType(.wand) &&
-                !item.hasType(.staff) &&
-                !item.hasType(.scroll) &&
-                    !item.hasType(.potion) {
+                !item.isWand() &&
+                !item.isStaff() &&
+                !item.isScroll() &&
+                !item.isPotion() {
             act("@1в держать в руке нельзя.", .to(self), .item(item))
         } else {
             performWear(item: item, positions: [.hold], isSilent: false)

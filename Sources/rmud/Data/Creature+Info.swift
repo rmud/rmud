@@ -202,7 +202,7 @@ extension Creature {
             formatString.append(item.groundDescription)
         } else {
             formatString += "@1и"
-            if let vessel: ItemExtraData.Vessel = item.extraData(),
+            if let vessel = item.asVessel(),
                     !vessel.isEmpty &&
                     (item.carriedBy == self || item.wornBy == self) {
                 formatString += " \(vessel.liquid.instrumentalWithPreposition)"
@@ -225,18 +225,10 @@ extension Creature {
             formatString += " (голубая аура)"
         }
         if isAffected(by: .detectPoison) {
-            let isPoisonedVessel = {
-                (item.extraData() as ItemExtraData.Vessel?)?.isPoisoned ?? false
-            }
-            let isPoisonedFountain = {
-                (item.extraData() as ItemExtraData.Fountain?)?.isPoisoned ?? false
-            }
-            let isPoisonedFood = {
-                (item.extraData() as ItemExtraData.Food?)?.isPoisoned ?? false
-            }
-            let isPoisonedWeapon = {
-                (item.extraData() as ItemExtraData.Weapon?)?.isPoisoned ?? false
-            }
+            let isPoisonedVessel = { item.asVessel()?.isPoisoned ?? false }
+            let isPoisonedFountain = { item.asFountain()?.isPoisoned ?? false }
+            let isPoisonedFood = { item.asFood()?.isPoisoned ?? false }
+            let isPoisonedWeapon = { item.asWeapon()?.isPoisoned ?? false }
             if isPoisonedVessel() || isPoisonedFountain() || isPoisonedFood() || isPoisonedWeapon() {
                 formatString += " (зеленая аура)"
             }

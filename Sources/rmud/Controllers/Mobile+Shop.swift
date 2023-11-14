@@ -114,7 +114,7 @@ extension Mobile {
     }
     
     private func shopTrySelloutBook(_ book: Item) -> Bool {
-        guard let spellbook: ItemExtraData.Spellbook = book.extraData() else { return false }
+        guard let spellbook = book.asSpellbook() else { return false }
         let spellsCount = spellbook.spellsAndChances.count
         var maximumCircle = 0
         for (spell, _) in spellbook.spellsAndChances {
@@ -151,7 +151,7 @@ extension Mobile {
     func shopBuyPrice(item: Item) -> Int {
         guard let shopkeeper = shopkeeper,
             let sellProfit = shopkeeper.sellProfit else { return 1 }
-        let spellbookMultiplier = item.hasType(.spellbook) ? 4 : 1
+        let spellbookMultiplier = item.isSpellbook() ? 4 : 1
         let qualityMultiplier = 50 + Int(item.qualityPercentage)
         let buyPrice = (spellbookMultiplier * item.cost * qualityMultiplier * sellProfit) / (150 * 100)
         return max(1, buyPrice)
@@ -159,7 +159,7 @@ extension Mobile {
     
     private func shopIsNotMyReceipt(item: Item) -> Bool {
         guard let shopkeeper = shopkeeper else { return false }
-        return item.hasType(.receipt) &&
+        return item.isReceipt() &&
             !(shopkeeper.isProducing(item: item) || isAcceptableReceipt(item: item))
     }
     

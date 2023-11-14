@@ -98,12 +98,12 @@ extension Creature {
     }
     
     func hitOnce(victim: Creature) {
-        let weapon = primaryWeapon()
-        let hitType: HitType = if let weapon: ItemExtraData.Weapon = weapon?.extraData() {
+        let weaponItem = primaryWeapon()
+        let hitType: HitType = if let weapon = weaponItem?.asWeapon() {
             weapon.weaponType.hitType
         } else { .hit }
         
-        guard hasLandedHit(with: weapon) else {
+        guard hasLandedHit(with: weaponItem) else {
             sendMissMessage(victim: victim, hitType: hitType)
             return
         }

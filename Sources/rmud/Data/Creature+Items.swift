@@ -49,7 +49,7 @@ extension Creature {
         // do not count weapons,light,finger,neck,ears
         for position in EquipmentPosition.wearBody {
             guard let item = equipment[position] else { continue }
-            if item.hasType(.light) && item.material.isMetallic {
+            if item.isLight() && item.material.isMetallic {
                 return true
             }
         }
@@ -102,9 +102,7 @@ extension Creature {
             return false
         }
         
-        if item.wearFlags.contains(.take),
-                let money: ItemExtraData.Money = item.extraData(),
-                money.amount > 0 {
+        if item.wearFlags.contains(.take), let money = item.asMoney(), money.amount > 0 {
             return true
         }
         
@@ -158,13 +156,13 @@ extension Creature {
         case .hold:
             if equipment[.twoHand] != nil ||
                     equipment[.light] != nil ||
-                    (item.hasType(.weapon) && equipment[.shield] != nil) {
+                    (item.isWeapon() && equipment[.shield] != nil) {
                 return false
             }
             return true
         case .shield:
             if equipment[.twoHand] != nil ||
-                    (equipment[.hold]?.hasType(.weapon) ?? false) {
+                (equipment[.hold]?.isWeapon() ?? false) {
                 return false
             }
             return true
