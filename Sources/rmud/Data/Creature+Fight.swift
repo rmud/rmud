@@ -1,6 +1,15 @@
 import Foundation
 
 extension Creature {
+    func primaryWeapon() -> Item? {
+        for position in EquipmentPosition.primaryWeapon {
+            if let item = equipment[position], item.hasType(.weapon) {
+                return item
+            }
+        }
+        return nil
+    }
+    
     // Два свободных монстра всегда за одно, если только
     //они не дерутся друг с другом.
     //FIXME arilou: к сожалению, из-за этого монстры-агрессоры будут считать своими

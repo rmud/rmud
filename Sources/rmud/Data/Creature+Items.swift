@@ -185,28 +185,6 @@ extension Creature {
         return true
     }
     
-    // (0%: will always miss) ... (100%: no strength penalty)
-    func weaponEfficiencyPercents(for item: Item, in position: EquipmentPosition) -> Int {
-        let strength = affectedStrength()
-        let weaponWeight = item.weightWithContents()
-        
-        var actualStrength: Int
-        
-        switch position {
-        case .wield:
-            actualStrength = strength
-        case .twoHand:
-            actualStrength = strength * 2
-        case .hold:
-            actualStrength = 2 + (strength / 2)
-        default:
-            logError("ОШИБКА: canUseAsWeapon: unknown weapon position")
-            actualStrength = strength
-        }
-
-        return max(0, 100 - (max(0, weaponWeight - actualStrength) * 10))
-    }
-
     func isAlignmentMismatched(with item: Item) -> Bool {
         if isGodMode() { return false }
         

@@ -57,13 +57,54 @@ extension Creature {
         hitOnce(victim: victim)
     }
     
-    func hitOnce(victim: Creature) {
+    // (0%: will always miss) ... (100%: no strength penalty)
+    func weaponEfficiencyPercent(for weapon: Item) -> Int {
+        let strength = affectedStrength()
+        let weaponWeight = weapon.weightWithContents()
+        
+        var actualStrength: Int
+        
+        switch weapon.wornPosition {
+        case .wield:
+            actualStrength = strength
+        case .twoHand:
+            actualStrength = strength * 2
+        case .hold:
+            actualStrength = strength / 2 + 2
+        default:
+            logError("ОШИБКА: weaponEfficiencyPercent: unknown weapon position")
+            actualStrength = strength
+        }
+
+        let excessWeight = weaponWeight - actualStrength
+        let penaltyPercents = excessWeight * 10
+        
+        return clamping(100 - penaltyPercents, to: 0...100)
+    }
+    
+    private func hasLandedHit(with weapon: Item?) -> Bool {
         let attack = 0
         let defense = 0
         
-        let didHit = attack + Int.random(in: 1...100) > defense + 50
-        guard didHit else {
-            sendMissMessage(victim: victim, hitType: .hit)
+        // 1...50 = miss, 51...100 = hit. 50% chance
+        let isAttackThrowSuccesful =
+            attack + Int.random(in: 1...100) > defense + 50
+        
+        let isWeaponThrowSuccesful = if let weapon {
+            weaponEfficiencyPercent(for: weapon) >= Int.random(in: 1...100)
+        } else { true }
+        
+        return isAttackThrowSuccesful && isWeaponThrowSuccesful
+    }
+    
+    func hitOnce(victim: Creature) {
+        let weapon = primaryWeapon()
+        let hitType: HitType = if let weapon: ItemExtraData.Weapon = weapon?.extraData() {
+            weapon.weaponType.hitType
+        } else { .hit }
+        
+        guard hasLandedHit(with: weapon) else {
+            sendMissMessage(victim: victim, hitType: hitType)
             return
         }
         

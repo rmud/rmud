@@ -38,6 +38,7 @@ enum EquipmentPosition: Int8, CaseIterable {
     static let nocast: Set<EquipmentPosition> = [
         .neckAbout, .body, .head, .face, .legs, .feet, .hands, .arms, .shield, .about, .back, .waist
     ]
+    static let primaryWeapon: Set<EquipmentPosition> = [.wield, .twoHand]
     
     var bodypartInfo: BodypartInfo {
         //                                     name:           wearFlags:  armor:        fragChance: options:

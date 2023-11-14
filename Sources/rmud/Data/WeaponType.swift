@@ -36,6 +36,20 @@ enum WeaponType: UInt16 {
         }
     }
     
+    var hitType: HitType {
+        switch self {
+        case .bareHand: return .hit
+        case .piercing: return .pierce
+        case .cutting: return .slash
+        case .twoHanded: return .slice
+        case .pole: return .impale
+        case .slashing: return .cleave
+        case .crushing: return .crush
+        case .throwing: return .shoot
+        case .staves: return .knock
+        }
+    }
+    
     static func registerDefinitions(in e: Enumerations) {
         e.add(aliases: aliases, namesByValue: [
             0:  "рукопашныйбой", // Рукопашный бой
