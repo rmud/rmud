@@ -326,6 +326,31 @@ extension Creature {
         return true
     }
     
+    func restoreTrainingEquipment(restoreInventory: Bool) {
+        for slot in classId.info.newbieEquipment {
+            guard restoreInventory || slot.position != nil else { continue }
+            
+            guard let prototype = db.itemPrototypesByVnum[slot.vnum] else {
+                logError("Restore training eq: item \(slot.vnum) does not exist")
+                logToMud("Предмет \(slot.vnum) не существует", verbosity: .complete)
+                continue
+            }
+            let item = Item(prototype: prototype, uid: db.createUid())
+            if let position = slot.position {
+                if canWear(item: item, at: position) {
+                    equip(item: item, position: position)
+                } else {
+                    logError("Restore training eq: unable to wear \(slot.vnum)")
+                    logToMud("Ошибка при попытке надеть предмет \(slot.vnum)", verbosity: .complete)
+                    item.extract(mode: .purgeAllContents)
+                }
+            } else {
+                item.give(to: self)
+            }
+            item.loadContents(from: prototype)
+        }
+    }
+    
     func sendWearMessage(item: Item, position: EquipmentPosition, shouldCancelAction: inout Bool) {
         shouldCancelAction = false
         

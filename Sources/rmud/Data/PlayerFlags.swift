@@ -14,5 +14,7 @@ struct PlayerFlags: OptionSet {
                           = PlayerFlags(rawValue: 1 << 14) // Player enters game wizinvis (fixme)
     static let logged     = PlayerFlags(rawValue: 1 << 16) // Player's actions are logged to file
     static let rolled     = PlayerFlags(rawValue: 1 << 17) // Player's stats are finally rolled
-    static let restoreme  = PlayerFlags(rawValue: 1 << 20) // Restore hits and moves on entry
+    static let deprecated_unused_restoreme = PlayerFlags(rawValue: 1 << 20) // Restore hits and moves on entry
+    static let reequip    = PlayerFlags(rawValue: 1 << 21) // Restore training equipment when entering game
+    static let newPlayer  = PlayerFlags(rawValue: 1 << 22) // Just created
 }

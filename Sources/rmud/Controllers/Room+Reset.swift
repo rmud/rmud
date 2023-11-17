@@ -132,11 +132,10 @@ extension Room {
                     item.extract(mode: .purgeAllContents)
                     continue
                 }
-                
                 // TODO передавать ему ссылку на objs_with_trig
-                item.loadContents(from: prototype)
-            
                 item.put(in: self, activateDecayTimer: false, activateGroundTimer: false)
+
+                item.loadContents(from: prototype)
             }
         }
     }

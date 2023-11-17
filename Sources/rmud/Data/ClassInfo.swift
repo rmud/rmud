@@ -2,7 +2,7 @@ import Foundation
 
 class ClassInfo {
     typealias SlotsPerCircle = [Int: Int]
-    typealias EquipmentSlot = (vn: Int, pos: EquipmentPosition?)
+    typealias EquipmentSlot = (vnum: Int, position: EquipmentPosition?)
     
     var abbreviation = ""
     var namesByGender: [Gender: String] = [:]
@@ -29,9 +29,9 @@ class ClassInfo {
     var intelligence = 0
     var wisdom = 0
     
-    var minimumLevelForSkill = [Skill: UInt8]()
-    var slotsPerCirclePerLevel = [Int: SlotsPerCircle]()
-    var newbieEquipment = [EquipmentSlot]()
+    var minimumLevelForSkill: [Skill: UInt8] = [:]
+    var slotsPerCirclePerLevel: [Int: SlotsPerCircle] = [:]
+    var newbieEquipment: [EquipmentSlot] = []
     
     func experience(forLevel level: UInt8) -> Int {
         guard let baseValue = baseLevelExperience[validating: Int(level)] else {

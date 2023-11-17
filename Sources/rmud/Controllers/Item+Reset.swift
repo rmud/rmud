@@ -14,10 +14,9 @@ extension Item {
                 guard prototype.checkLoadChances() else { continue }
                 
                 let item = Item(prototype: prototype, uid: db.createUid())
+                item.put(into: self)
                 
                 item.loadContents(from: prototype)
-                
-                item.put(into: self)
             }
         }
     }

@@ -359,7 +359,8 @@ func nanny(_ d: Descriptor, line: String) {
             creature.drunk = nil
         } else {
             targetLevel = 1
-            player.preferenceFlags.insert(.reequip)
+            player.flags.insert(.newPlayer)
+            player.flags.insert(.reequip)
 
             creature.thirst = 24
             creature.hunger = 24
@@ -793,10 +794,24 @@ private func stateCreatureMenu(_ d: Descriptor, _ arg: String) {
             //}
             creature.teleportTo(room: loadRoom)
             
-            creature.hitPoints = creature.affectedMaximumHitPoints()
-            creature.movement = creature.affectedMaximumMovement()
-            
             db.creaturesInGame.append(creature)
+            
+            if let player = creature.player {
+                let isNewOrDied = player.flags.contains(anyOf: [.newPlayer, .died])
+                
+                if isNewOrDied {
+                    creature.hitPoints = creature.affectedMaximumHitPoints()
+                    creature.movement = creature.affectedMaximumMovement()
+                }
+            
+                if player.flags.contains(.reequip) {
+                    creature.restoreTrainingEquipment(restoreInventory: isNewOrDied)
+                }
+
+                player.flags.remove(.newPlayer)
+                player.flags.remove(.reequip)
+                player.flags.remove(.died)
+            }
         }
         d.state = .playing
         creature.lookAtRoom(ignoreBrief: false)
@@ -804,6 +819,11 @@ private func stateCreatureMenu(_ d: Descriptor, _ arg: String) {
     case "2":
         d.state = .chooseCreature
 
+    case "4":
+        d.creature?.player?.flags.insert(.reequip)
+        d.send("\nПри входе в игру Вашему персонажу будет выдана стартовая экипировка.")
+        break
+        
     case "5":
         d.state = .deleteCreatureConfirmation1
         

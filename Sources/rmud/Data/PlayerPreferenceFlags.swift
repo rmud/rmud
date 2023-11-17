@@ -48,7 +48,6 @@ struct PlayerPreferenceFlags: OptionSet {
     static let split          = T(rawValue: 1 << 35) // Split any text longest than page_width
     static let displag        = T(rawValue: 1 << 36) // Display lag state in prompt
     static let unusedCurs     = T(rawValue: 1 << 37)
-    static let reequip        = T(rawValue: 1 << 38) // Reequip char when he enters the game
     static let nohpmvWhenMax  = T(rawValue: 1 << 39) // Don't show HP&MV in status when max
     static let map            = T(rawValue: 1 << 40) // Карта
     static let goIntoUnknownRooms = T(rawValue: 1 << 41)

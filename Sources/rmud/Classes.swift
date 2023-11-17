@@ -301,7 +301,7 @@ class Classes {
             guard elements.count == 2 else {
                 logFatal("\(filenames.classes): экипировка \(classId): expected 2 values separated by ':'")
             }
-            guard let vn = Int(elements[0]),
+            guard let vnum = Int(elements[0]),
                   let posId = Int8(elements[1]) else {
                 logFatal("\(filenames.classes): экипировка \(classId): invalid format")
             }
@@ -312,7 +312,7 @@ class Classes {
                     logFatal("\(filenames.classes): экипировка \(classId): invalid equipment slot")
                 }
             }
-            let eqSlot = ClassInfo.EquipmentSlot(vn: vn, pos: position)
+            let eqSlot = ClassInfo.EquipmentSlot(vnum: vnum, position: position)
             classInfo.newbieEquipment.append(eqSlot)
         }
     }
