@@ -119,7 +119,7 @@ public class RedBlackTree<T: Comparable> {
 // MARK: - Equatable protocol
 
 extension RBTreeNode {
-  static public func == <T>(lhs: RBTreeNode<T>, rhs: RBTreeNode<T>) -> Bool {
+  static public func ==(lhs: RBNode, rhs: RBNode) -> Bool {
     return lhs.key == rhs.key
   }
 }
