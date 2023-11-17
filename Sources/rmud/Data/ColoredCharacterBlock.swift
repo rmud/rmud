@@ -51,7 +51,6 @@ class ColoredCharacterBlock {
                   
     func newLine(_ cursor: inout Cursor) {
         cursor = Cursor(x: 0, y: cursor.y + 1)
-        ensureHeight(cursor.y + 1)
     }
     
     func printAt(x: Int, y: Int, text: String, color: String) {
