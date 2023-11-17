@@ -78,7 +78,7 @@ extension Creature {
         guard !roomLegends.isEmpty else { return block }
 
         var cursor = ColoredCharacterBlock.Cursor()
-        block.printLine(&cursor, text: "Легенда", color: self.nNrm())
+        block.printLine(&cursor, text: "Обозначения:", color: self.nNrm())
         block.newLine(&cursor)
         
         let isHolylight = self.preferenceFlags?.contains(.holylight) ?? false
