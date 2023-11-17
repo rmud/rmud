@@ -1,30 +1,5 @@
 extension Creature {
     func doMap(context: CommandContext) {
-        let sendMap: (_ mapString: String)->() = { mapString in
-            guard !mapString.isEmpty else {
-                self.send("На этом уровне карта отсутствует.")
-                return
-            }
-            self.send(mapString)
-        }
-        
-        let sendLegends: (_ roomLegends: [RenderedAreaMap.RoomLegendWithMetadata])->() = { legendsWithMetadata in
-            if !legendsWithMetadata.isEmpty {
-                self.send("Легенда:")
-            }
-            let isHolylight = self.preferenceFlags?.contains(.holylight) ?? false
-
-            legendsWithMetadata.forEach { legendWithMetadata in
-                let legend = legendWithMetadata.finalLegend
-                var line = "\(self.nYel())\(legend.symbol)\(self.nNrm()) \(legend.name)"
-                if isHolylight {
-                    let room = legendWithMetadata.room
-                    line += " \(self.cVnum())[\(room.vnum)]\(self.nNrm())"
-                }
-                self.send(line)
-            }
-        }
-        
         enum ShowPlane {
             case current
             case specific(Int)
@@ -56,33 +31,68 @@ extension Creature {
             return
         }
         
+        let legendBlock = prepareLegendBlock(renderedMap.roomLegends)
+        
+        let outputBlock = ColoredCharacterBlock()
+        var cursor = ColoredCharacterBlock.Cursor()
+        
         switch showPlane {
         case .all:
-            sendLegends(renderedMap.roomLegends)
             let planes = renderedMap.planes.sorted(by: >)
             for plane in planes {
-                send("Уровень \(plane):")
+                outputBlock.printLine(&cursor, text: "Уровень \(plane):", color: nNrm())
                 let map = renderedMap.fragment(wholePlane: plane, playerRoom: room)
-                sendMap(map.renderedAsString(withColor: true))
+                let mapBlock = ColoredCharacterBlock(from: map)
+                outputBlock.printLine(&cursor, block: mapBlock)
             }
+            outputBlock.appendRight(block: legendBlock, spacing: 1)
+            send(outputBlock.renderedAsString(withColor: true))
             return
         case .specific(let plane):
-            sendLegends(renderedMap.roomLegends)
-            send("Уровень \(plane):")
+            outputBlock.printLine(&cursor, text: "Уровень \(plane):", color: nNrm())
             let map = renderedMap.fragment(wholePlane: plane, playerRoom: room)
-            sendMap(map.renderedAsString(withColor: true))
+            let mapBlock = ColoredCharacterBlock(from: map)
+            outputBlock.printLine(&cursor, block: mapBlock)
+            outputBlock.appendRight(block: legendBlock, spacing: 1)
+            send(outputBlock.renderedAsString(withColor: true))
             return
         case .current:
             if let plane = renderedMap.plane(forRoom: room) {
-                sendLegends(renderedMap.roomLegends)
                 let map = renderedMap.fragment(wholePlane: plane, playerRoom: room)
-                sendMap(map.renderedAsString(withColor: true))
+                let mapBlock = ColoredCharacterBlock(from: map)
+                outputBlock.printLine(&cursor, block: mapBlock)
+                outputBlock.appendRight(block: legendBlock, spacing: 1)
+                send(outputBlock.renderedAsString(withColor: true))
                 return
             }
             // Unable to determine current plane
         }
         log("Room \(room.vnum) not found on map.")
         logToMud("Комната \(room.vnum) не найдена на карте.", verbosity: .brief)
+    }
+
+    private func prepareLegendBlock(
+        _ roomLegends: [RenderedAreaMap.RoomLegendWithMetadata]
+    ) -> ColoredCharacterBlock {
+        let block = ColoredCharacterBlock()
+        guard !roomLegends.isEmpty else { return block }
+
+        var cursor = ColoredCharacterBlock.Cursor()
+        block.printLine(&cursor, text: "Легенда", color: self.nNrm())
+        block.newLine(&cursor)
+        
+        let isHolylight = self.preferenceFlags?.contains(.holylight) ?? false
+        roomLegends.forEach { legendWithMetadata in
+            let legend = legendWithMetadata.finalLegend
+            block.print(&cursor, text: "\(legend.symbol)", color: self.nYel())
+            block.print(&cursor, text: " \(legend.name)", color: self.nNrm())
+            if isHolylight {
+                let room = legendWithMetadata.room
+                block.print(&cursor, text: " [\(room.vnum)]", color: self.cVnum())
+            }
+            block.newLine(&cursor)
+        }
+        return block
     }
     
     private func processFilter(_ arg: String) -> (highlightRooms: Set<Int>, markRooms: Set<Int>)? {

@@ -13,7 +13,7 @@ extension Area {
     }
 
     func reset() {
-        log("Reset area \"\(lowercasedName)\")")
+        log("Reset area \"\(lowercasedName)\"")
         defer { age = 0 }
     
         let message = "Сброс области \"\(lowercasedName)\" (\(description))."
@@ -33,5 +33,17 @@ extension Area {
             }
         }
         return false
+    }
+    
+    func allPlayers() -> [Creature] {
+        var players: [Creature] = []
+        for room in rooms {
+            for creature in room.creatures {
+                if creature.isPlayer {
+                    players.append(creature)
+                }
+            }
+        }
+        return players
     }
 }

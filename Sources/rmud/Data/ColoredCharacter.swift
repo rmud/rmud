@@ -27,6 +27,10 @@ extension Array where Element == ColoredCharacter {
         self = string.map { ColoredCharacter($0, color) }
     }
 
+    public func trimmedRight() -> Self {
+        reversed().drop(while: { c in c.character.isWhitespace }).reversed()
+    }
+
     public func rightExpandingTo(_ length: Int, withPad pad: ColoredCharacter) -> [ColoredCharacter] {
         var result: [ColoredCharacter] = self
         let delta = length - result.count
@@ -40,6 +44,22 @@ extension Array where Element == ColoredCharacter {
 }
 
 extension Array where Element == Array<ColoredCharacter> {
+    public func trimmedRight() -> Self {
+        map { row in row.trimmedRight() }
+    }
+    
+    public func appendingRight(
+        _ second: [[ColoredCharacter]],
+        separator: ColoredCharacter = .init(extendedGraphemeClusterLiteral: " ")
+    ) -> [[ColoredCharacter]] {
+        return zip(self, second).map { (left, right) -> [ColoredCharacter] in
+            var result: [ColoredCharacter] = left
+            result.append(separator)
+            result += right
+            return result
+        }
+    }
+
     public func renderedAsString(withColor: Bool) -> String {
         var lastColor = Ansi.nNrm
         let renderedLines: [String]

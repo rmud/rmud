@@ -7,7 +7,7 @@ class Area {
     var resetCondition: AreaResetCondition = .never
     var resetInterval: Int = 30
     var age: Int = 0
-    var vnumRange: ClosedRange<Int>
+    var vnumRange: ClosedRange<Int> { prototype.vnumRange }
     var originVnum: Int?
     var paths: [String: Set<Int>] { prototype.paths }
     
@@ -18,7 +18,6 @@ class Area {
         self.prototype = prototype
         
         lowercasedName = prototype.lowercasedName
-        vnumRange = prototype.vnumRange
         
         description = prototype.description ?? "Без описания"
         resetCondition = prototype.resetCondition ?? resetCondition

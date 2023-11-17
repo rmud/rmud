@@ -114,7 +114,7 @@ class AreaMapper {
                 if fragments.isEmpty {
                     fragments = mapWithTitle
                 } else {
-                    fragments = self.mergeFragments(fragments, mapWithTitle)
+                    fragments = fragments.appendingRight(mapWithTitle)
                 }
             }
             return fragments.renderedAsString(withColor: false)
@@ -291,14 +291,5 @@ class AreaMapper {
         }
         
         return areaMap
-    }
-    
-    private func mergeFragments(_ first: [[ColoredCharacter]], _ second: [[ColoredCharacter]]) -> [[ColoredCharacter]] {
-        return zip(first, second).map { (left, right) -> [ColoredCharacter] in
-            var result: [ColoredCharacter] = left
-            result.append(" ")
-            result += right
-            return result
-        }
     }
 }

@@ -31,7 +31,7 @@ class AreaWriter {
         do {
             let roomPrototypes = prototype.roomPrototypesByVnum.sorted { $0.key < $1.key }.map { $0.value }
             let output = saveRoomPrototypes(roomPrototypes, fieldDefinitions: definitions.roomFields)
-            let filename = filenames.areaFilename(forAreaName: areaName, startVnum: prototype.vnumRange.lowerBound, fileExtension: "rooms")
+            let filename = filenames.areaFilename(forAreaName: areaName, startVnum: prototype.vnumRange.lowerBound, fileExtension: "rooms_")
             do {
                 try output.write(toFile: filename, atomically: settings.saveFilesAtomically, encoding: .utf8)
             } catch {
@@ -42,7 +42,7 @@ class AreaWriter {
         do {
             let mobilePrototypes = prototype.mobilePrototypesByVnum.sorted { $0.key < $1.key }.map { $0.value }
             let output = saveMobilePrototypes(mobilePrototypes, fieldDefinitions: definitions.mobileFields)
-            let filename = filenames.areaFilename(forAreaName: areaName, startVnum: prototype.vnumRange.lowerBound, fileExtension: "mobiles")
+            let filename = filenames.areaFilename(forAreaName: areaName, startVnum: prototype.vnumRange.lowerBound, fileExtension: "mobiles_")
             do {
                 try output.write(toFile: filename, atomically: settings.saveFilesAtomically, encoding: .utf8)
             } catch {
@@ -53,7 +53,7 @@ class AreaWriter {
         do {
             let itemPrototypes = prototype.itemPrototypesByVnum.sorted { $0.key < $1.key }.map { $0.value }
             let output = saveItemPrototypes(itemPrototypes, fieldDefinitions: definitions.itemFields)
-            let filename = filenames.areaFilename(forAreaName: areaName, startVnum: prototype.vnumRange.lowerBound, fileExtension: "items")
+            let filename = filenames.areaFilename(forAreaName: areaName, startVnum: prototype.vnumRange.lowerBound, fileExtension: "items_")
             do {
                 try output.write(toFile: filename, atomically: settings.saveFilesAtomically, encoding: .utf8)
             } catch {
