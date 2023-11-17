@@ -39,8 +39,11 @@ extension Creature {
                     send(messages.noRoom)
                     return
                 }
-                item.put(in: room, activateDecayTimer: true)
-                item.groundTimerTicsLeft = nil // disable ground timer
+                item.put(
+                    in: room,
+                    activateDecayTimer: true,
+                    activateGroundTimer: false
+                )
             }
         } else {
             send("Неизвестный тип объекта: \(context.argument1)")

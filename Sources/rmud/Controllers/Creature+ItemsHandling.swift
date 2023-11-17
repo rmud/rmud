@@ -241,7 +241,7 @@ extension Creature {
         }
         for (position, _) in equipment {
             let item = unequip(position: position)
-            item?.put(in: inRoom, activateDecayTimer: true)
+            item?.put(in: inRoom, activateDecayTimer: true, activateGroundTimer: true)
         }
     }
     
@@ -252,7 +252,7 @@ extension Creature {
         }
         for item in carrying {
             item.removeFromCreature()
-            item.put(in: inRoom, activateDecayTimer: true)
+            item.put(in: inRoom, activateDecayTimer: true, activateGroundTimer: true)
         }
     }
     
@@ -284,7 +284,7 @@ extension Creature {
         
         act("Не удержав в руках, Вы уронили @1в на землю!", .toSleeping, .to(self), .item(item))
         act("Не удержав в руках, 1+и уронил1(,а,о,и) @1+в на землю!", .toRoom, .excluding(self), .item(item))
-        item.put(in: inRoom, activateDecayTimer: true)
+        item.put(in: inRoom, activateDecayTimer: true, activateGroundTimer: true)
         
         return true
     }
@@ -321,7 +321,7 @@ extension Creature {
             player.flags.insert(.saveme) // Probably unnecessary, but...
         }
         
-        item.put(in: inRoom, activateDecayTimer: true)
+        item.put(in: inRoom, activateDecayTimer: true, activateGroundTimer: true)
         
         return true
     }

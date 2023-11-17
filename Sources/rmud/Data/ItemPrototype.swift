@@ -1038,20 +1038,4 @@ class ItemPrototype {
         extraDataByItemType[T.itemType] = extraData
         return extraData
     }
-    
-    func checkMaximumAndLoadChances() -> Bool {
-        return canLoadMoreItems() && checkLoadChances()
-    }
-    
-    private func canLoadMoreItems() -> Bool {
-        guard let loadMaximum = maximumCountInWorld else {
-            return true
-        }
-        return (db.itemsCountByVnum[vnum] ?? 0) < loadMaximum
-    }
-    
-    private func checkLoadChances() -> Bool {
-        let loadChance = loadChancePercentage ?? 100
-        return Random.probability(loadChance)
-    }
 }

@@ -11,6 +11,7 @@ let passesPerSec = 1000000 / optUsec
 let pulseViolence = 3 * passesPerSec
 let pulseMobile = pulseViolence
 let pulseMobileOffset = pulseViolence / 2
+let pulseTick =  60 * passesPerSec
 
 let playerNameAllowedLettersLowercased = CharacterSet(charactersIn: "абвгдеёжзийклмнопрстуфхцчшщъыьэюя")
 let playerMaxNameLength = 20 // Player's name length

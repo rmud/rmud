@@ -53,8 +53,25 @@ class AreaManager {
         }
     }
     
-    func resetAreas() {
+    func incrementAreasAge() {
         for area in areasInResetOrder {
+            area.age += 1
+        }
+    }
+    
+    func resetAreas(condition: (_ area: Area) -> Bool = { _ in true }) {
+        for area in areasInResetOrder {
+            guard condition(area) else { continue }
+            
+            switch area.resetCondition {
+            case .always:
+                break
+            case .withoutPlayers:
+                guard !area.hasPlayers() else { continue }
+            case .never:
+                continue
+            }
+            
             area.reset()
         }
     }

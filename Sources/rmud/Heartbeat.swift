@@ -16,6 +16,13 @@ func heartbeat() throws {
         }
     }
     
+    if gameTime.gamePulse % UInt64(pulseTick) == 0 {
+        areaManager.incrementAreasAge()
+        areaManager.resetAreas { area in
+            area.age >= area.resetInterval
+        }
+    }
+    
     if !players.quitting.isEmpty {
         players.quitting.forEach {
             $0.runtimeFlags.remove(.suppressPrompt)

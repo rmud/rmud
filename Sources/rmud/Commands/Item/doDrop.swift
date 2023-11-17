@@ -58,7 +58,11 @@ extension Creature {
         }
         
         item.removeFromCreature()
-        item.put(in: inRoom, activateDecayTimer: true)
+        item.put(
+            in: inRoom,
+            activateDecayTimer: true,
+            activateGroundTimer: true
+        )
 
         if !item.wearFlags.contains(.take) {
             item.groundTimerTicsLeft = 0

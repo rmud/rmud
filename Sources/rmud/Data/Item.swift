@@ -13,6 +13,15 @@ class Item {
     var nameAccusative = MultiwordName("")
     var nameInstrumental = MultiwordName("")
     var namePrepositional = MultiwordName("")
+    func setNames(_ compressed: String, isAnimate: Bool) {
+        let names = endings.decompress(names: compressed, isAnimate: isAnimate)
+        nameNominative = MultiwordName(names[0])
+        nameGenitive = MultiwordName(names[1])
+        nameDative = MultiwordName(names[2])
+        nameAccusative = MultiwordName(names[3])
+        nameInstrumental = MultiwordName(names[4])
+        namePrepositional = MultiwordName(names[5])
+    }
     var synonyms: [String] = []
     var groundDescription = "" // When in room
     
@@ -58,6 +67,9 @@ class Item {
     var isDecayTimerEnabled = false
     var groundTimerTicsLeft: Int? = nil // Decay timer on ground, nil - never decays
     var isGroundTimerEnabled: Bool { return groundTimerTicsLeft != nil }
+    var isUntouchedByPlayers: Bool {
+        !isDecayTimerEnabled && !isGroundTimerEnabled
+    }
     
     var qualityPercentage: UInt16 = 100 // can go over 100
     var maxCondition: Int

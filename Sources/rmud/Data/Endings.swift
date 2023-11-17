@@ -11,6 +11,11 @@ class Endings {
     var longestInanimateEndings: [FormEndings] = []
     var longestAnimateEndings: [FormEndings] = []
 
+    func optimize(names: String, isAnimate: Bool) -> String {
+        let names = decompress(names: names, isAnimate: isAnimate)
+        return compress(names: names, isAnimate: isAnimate)
+    }
+    
     func decompress(names: String, isAnimate: Bool) -> [String] {
         let (words, separators) = splitToWords(sentence: names)
         var forms: [ [String] ] = Array(repeating: [], count: 6)

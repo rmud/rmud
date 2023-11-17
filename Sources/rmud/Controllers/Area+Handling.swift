@@ -13,9 +13,25 @@ extension Area {
     }
 
     func reset() {
+        log("Reset area \"\(lowercasedName)\")")
+        defer { age = 0 }
+    
+        let message = "Сброс области \"\(lowercasedName)\" (\(description))."
+        logToMud(message, verbosity: .complete)
+        
         for room in rooms {
             room.reset()
         }
     }
 
+    func hasPlayers() -> Bool {
+        for room in rooms {
+            for creature in room.creatures {
+                if creature.isPlayer && !creature.isGodMode() {
+                    return true
+                }
+            }
+        }
+        return false
+    }
 }

@@ -35,7 +35,11 @@ extension Item {
                     firstItem.extraFlags.insert(.stink)
                     firstItem.extraFlags.insert(.buried)
                 }
-                firstItem.put(in: inRoom, activateDecayTimer: true)
+                firstItem.put(
+                    in: inRoom,
+                    activateDecayTimer: true,
+                    activateGroundTimer: true
+                )
             } else {
                 firstItem.extract(mode: mode)
             }
@@ -164,12 +168,14 @@ extension Item {
         }
     }
     
-    func put(in room: Room, activateDecayTimer: Bool /* = false */) {
+    func put(in room: Room, activateDecayTimer: Bool, activateGroundTimer: Bool) {
         assert(carriedBy == nil)
 
         room.items.insert(self, at: 0)
         inRoom = room
-        groundTimerTicsLeft = 60
+        if activateGroundTimer {
+            groundTimerTicsLeft = 60
+        }
 
         if extraFlags.contains(.fragile) {
             if let someoneInRoom = room.creatures.first {

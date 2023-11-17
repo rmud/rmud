@@ -3,6 +3,10 @@ import Foundation
 class Db {
     static let sharedInstance = Db()
     
+    var pileOfCoinsPrototype: ItemPrototype? {
+        return itemPrototypesByVnum[1]
+    }
+    
     var areaEntitiesByLowercasedName: [String: AreaEntities] = [:]
     var areaPrototypesByLowercasedName: [String: AreaPrototype] = [:]
     var itemPrototypesByVnum: [Int: ItemPrototype] = [:]

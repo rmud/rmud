@@ -172,7 +172,7 @@ class RoomPrototype {
             }
         }
         
-        coinsToLoad = entity["деньги"]?.int ?? 0 // FIXME: use this field
+        coinsToLoad = entity["деньги"]?.int ?? 0
 
         for i in entity.structureIndexes("кперехват") {
             guard let eventIdValue = entity["кперехват.событие", i]?.uint16,
