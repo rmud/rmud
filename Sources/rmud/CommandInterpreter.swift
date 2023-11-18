@@ -148,9 +148,11 @@ private let commandInfo: [Command] = [
     Command(["появиться", "appear"], group: .skillsAndSpells, notImplemented),
 
     // Combat
-    Command(["сравнить", "consider"], group: .combat, notImplemented),
+    Command(["сравнить", "consider"], group: .combat, Creature.doConsider,
+            flags: [.informational], minPosition: .resting,
+            arg1: .creature, cases1: .accusative, where1: .room),
     Command(["убить", "kill", "ударить"], group: .combat, Creature.doKill,
-             flags: [.noFight, .highPriority], minPosition: .standing,
+            flags: [.noFight, .highPriority], minPosition: .standing,
             arg1: .creature, cases1: .accusative, where1: .room),
     Command(["бежать", "flee"], group: .combat, notImplemented),
     Command(["отступить", "retreat"], group: .combat, notImplemented),
