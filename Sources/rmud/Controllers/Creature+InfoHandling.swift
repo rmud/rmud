@@ -46,7 +46,7 @@ extension Creature {
             exitDescription = "ничего особенного."
         }
         
-        send("\(direction.whereAtCapitalizedAndRightAligned): \(roomVnumString)\(bGra())\(exitDescription)\(nNrm())")
+        send("\(direction.whereAtCapitalizedAndRightAligned): \(bGra())\(roomVnumString)\(exitDescription)\(nNrm())")
         
         if exit.type != .none {
             if (exit.flags.contains(.hidden) && exit.flags != exit.prototype.flags) ||
