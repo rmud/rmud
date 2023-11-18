@@ -57,50 +57,62 @@ extension Creature {
         let namePadded = name.rightExpandingTo(30)
         let roomVnum = Format.leftPaddedVnum(inRoom.vnum)
 
-        send("М\(indexPadded). \(bRed())[\(vnum)] \(namePadded)\(nNrm()) \(cVnum())[\(roomVnum)]\(nNrm()) \(inRoom.name)")
+        send("М\(indexPadded). \(cMobileVnum())[\(vnum)] \(bRed())\(namePadded)\(nNrm()) \(cRoomVnum())[\(roomVnum)]\(nNrm()) \(inRoom.name)")
     }
-    
+        
     private func showItemLocation(_ item: Item, index: ItemIndex) {
         var output = ""
-        
+        let offset = 46
+    
         if case .number(let index) = index {
             let indexPadded = String(index).leftExpandingTo(3)
-            output += "П\(indexPadded). \(item.nameNominative.full) "
+            let itemVnum = Format.leftPaddedVnum(item.vnum)
+            let itemName = item.nameNominative.full.rightExpandingTo(30)
+            output += "П\(indexPadded). \(cItemVnum())[\(itemVnum)] \(bYel())\(itemName)\(nNrm())"
         } else {
-            output += "".rightExpandingTo(37)
+            output += "".rightExpandingTo(offset)
         }
+        output += " "
         
         if let inRoom = item.inRoom {
             let roomVnum = Format.leftPaddedVnum(inRoom.vnum)
-            output += "\(cVnum())[\(roomVnum)]\(nNrm()) \(inRoom.name)"
+            output += "\(cRoomVnum())[\(roomVnum)] \(bCyn())\(inRoom.name)\(nNrm())"
             send(output)
         } else if let carriedBy = item.carriedBy {
-            output += "в руках у \(carriedBy.nameGenitive)"
+            if let vnum = carriedBy.mobile?.vnum {
+                output += "\(nGrn())в руках у \(cMobileVnum())[\(vnum)] \(bRed())\(carriedBy.nameGenitive)\(nNrm())"
+            } else {
+                output += "\(nGrn())в руках у \(bRed())\(carriedBy.nameGenitive)\(nNrm())"
+            }
             send(output)
             
-            output = "".rightExpandingTo(37)
+            output = "".rightExpandingTo(offset)
             if let inRoom = carriedBy.inRoom {
                 let roomVnum = Format.leftPaddedVnum(inRoom.vnum)
-                output += "\(cVnum())[\(roomVnum)]\(nNrm()) \(inRoom.name)"
+                output += "\(cRoomVnum())[\(roomVnum)]\(bCyn()) \(inRoom.name)\(nNrm())"
             } else {
                 output += "НЕИЗВЕСТНО ГДЕ!"
             }
             send(output)
         } else if let wornBy = item.wornBy {
-            output += "в экипировке \(wornBy.nameGenitive)"
+            if let vnum = wornBy.mobile?.vnum {
+                output += "\(nGrn())в экипировке \(cMobileVnum())[\(vnum)] \(bRed())\(wornBy.nameGenitive)\(nNrm())"
+            } else {
+                output += "\(nGrn())в экипировке \(bRed())\(wornBy.nameGenitive)\(nNrm())"
+            }
             send(output)
             
-            output = "".rightExpandingTo(37)
+            output = "".rightExpandingTo(offset)
             if let inRoom = wornBy.inRoom {
                 let roomVnum = Format.leftPaddedVnum(inRoom.vnum)
-                output += "\(cVnum())[\(roomVnum)]\(nNrm()) \(inRoom.name)"
+                output += "\(cRoomVnum())[\(roomVnum)] \(bCyn())\(inRoom.name)\(nNrm())"
             } else {
                 output += "НЕИЗВЕСТНО ГДЕ!"
                 
             }
             send(output)
         } else if let container = item.inContainer {
-            output += "внутри \(container.nameGenitive)"
+            output += "внутри \(cItemVnum())[\(container.vnum)] \(bYel())\(container.nameGenitive)\(nNrm())"
             send(output)
             
             showItemLocation(container, index: .none)

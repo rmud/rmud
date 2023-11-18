@@ -96,10 +96,11 @@ extension Creature {
         
         let autostat = preferenceFlags?.contains(.autostat) ?? false
         if autostat {
-            act("&1[&2] &3 &4<&5> &6[&7]&8",
+            act("&1[&2] &3&4 &5<&6> &7[&8]&9",
                 .to(self),
-                .text(bCyn()),
+                .text(cRoomVnum()),
                 .text(String(room.vnum)),
+                .text(bCyn()),
                 .text(room.name),
                 .text(nGrn()),
                 .text(room.terrain.name.uppercased()),
