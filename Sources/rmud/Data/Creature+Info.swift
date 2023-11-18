@@ -75,11 +75,11 @@ extension Creature {
         if autostat {
             if let mobile = creature.mobile {
                 let vnumString = Format.leftPaddedVnum(mobile.vnum)
-                autostatString = "[\(vnumString)] "
+                autostatString = "\(cMobileVnum())[\(vnumString)] \(bRed())"
             } else {
                 let levelString = String(creature.level).leftExpandingTo(2, with: "0")
                 let classAbbreviation = creature.classId.info.abbreviation.leftExpandingTo(3)
-                autostatString = "[\(levelString) \(classAbbreviation)] "
+                autostatString = "\(cMobileVnum())[\(levelString) \(classAbbreviation)] \(bRed())"
             }
         }
 
@@ -194,7 +194,7 @@ extension Creature {
     func describe(item: Item) -> String {
         var vnumString = ""
         if preferenceFlags?.contains(.autostat) ?? false {
-            vnumString = "[\(Format.leftPaddedVnum(item.vnum))] "
+            vnumString = "\(cItemVnum())[\(Format.leftPaddedVnum(item.vnum))] \(bYel())"
         }
         var formatString = "&1" // placeholder for vnumString
 
