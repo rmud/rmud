@@ -351,18 +351,20 @@ class Creature {
     var carrying: [Item] = []
     var equipment: [EquipmentPosition: Item] = [:]
     
-    init(uid: UInt64) {
-        self.uid = uid
+    init(uid: UInt64?, db: Db) {
+        self.uid = uid ?? db.createCreatureUid()
+        
+        db.creaturesByUid[self.uid] = self
     }
     
-    init(from playerFile: ConfigFile) {
+    init(from playerFile: ConfigFile, db: Db) {
         let s = "ОСНОВНАЯ"
         
         player = Player(from: playerFile, nameNominative: nameNominative.full, creature: self)
         player?.nameCombined = playerFile[s, "ИМЯ"] ?? "" // also inits nameNominative
 
         // Если у игрока нет UID-а, присвоить ему новый... Если есть - использовать его собственный:
-        uid = playerFile[s, "УИД"] ?? db.createUid()
+        uid = playerFile[s, "УИД"] ?? db.createCreatureUid()
         
         description = (playerFile[s, "ОПИСАНИЕ"] ?? "").components(separatedBy: .newlines)
         
@@ -496,10 +498,12 @@ class Creature {
         self.thirst = thirst != -1 ? thirst : nil
         let drunk: Int8 = playerFile[s, "ОПЬЯНЕНИЕ"] ?? 0
         self.drunk = drunk != -1 ? drunk : nil
+        
+        db.creaturesByUid[self.uid] = self
     }
     
-    init?(prototype: MobilePrototype, uid: UInt64, room: Room) {
-        self.uid = uid
+    init?(prototype: MobilePrototype, uid: UInt64?, db: Db, room: Room) {
+        self.uid = uid ?? db.createCreatureUid()
 
         guard let mobile = Mobile(prototype: prototype, creature: self) else { return nil }
         
@@ -642,6 +646,8 @@ class Creature {
         mobile.equip()
         hitPoints = affectedMaximumHitPoints()
         movement = affectedMaximumMovement()
+        
+        db.creaturesByUid[self.uid] = self
     }
     
     func save(to configFile: ConfigFile) {

@@ -2,7 +2,7 @@ import Foundation
 
 class Room {
     var prototype: RoomPrototype
-    var uid: UInt64
+    //var uid: UInt64
     weak var area: Area?
     
     var vnum: Int
@@ -18,9 +18,9 @@ class Room {
     var creatures: [Creature] = []
     var eventOverrides: [Event<RoomEventId>] = []
 
-    init?(prototype: RoomPrototype, uid: UInt64, in area: Area) {
+    init?(prototype: RoomPrototype, /* uid: UInt64, */ in area: Area) {
         self.prototype = prototype
-        self.uid = uid
+        //self.uid = uid
         self.area = area
         
         vnum = prototype.vnum

@@ -155,7 +155,7 @@ func nanny(_ d: Descriptor, line: String) {
             }
         }
         
-        let creature = Creature(uid: db.createUid())
+        let creature = Creature(uid: nil, db: db)
         creature.player = Player(creature: creature, account: d.account!)
         creature.nameNominative = MultiwordName(name)
         d.creature = creature

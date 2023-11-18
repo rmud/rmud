@@ -139,16 +139,103 @@ extension Creature {
             send("Хмм?")
         }
     }
+
+    func fetchItemsInEquipment(context: inout FetchArgumentContext, into: inout [Item], cases: GrammaticalCases) -> Bool {
+        let items: [Item] = EquipmentPosition.allCases.map { position in
+            equipment[position]
+        }.compactMap({ $0 })
+        return fetchItems(context: &context, from: items, into: &into, cases: cases, condition: { _ in true })
+    }
     
-    private func fetchSelf(word: String, into: inout [Creature]) -> Bool {
-        if word.isEqualCI(toAny: ["себя", "себе", "собой", "я", "меня", "мне", "мной", "i", "self", "me"]) {
-            into.append(self)
-            return true
-        }
-        return false
+    func fetchItemsInInventory(context: inout FetchArgumentContext, into: inout [Item], cases: GrammaticalCases) -> Bool {
+        return fetchItems(context: &context, from: carrying, into: &into, cases: cases, condition: { _ in true })
     }
 
-    private func isMatchingItem(_ item: Item, context: FetchArgumentContext, cases: GrammaticalCases) -> Bool {
+    func fetchItemsInRoom(context: inout FetchArgumentContext, into: inout [Item], cases: GrammaticalCases) -> Bool {
+        let items = inRoom?.items ?? []
+        return fetchItems(context: &context, from: items, into: &into, cases: cases, condition: { _ in true })
+    }
+     
+    func fetchItemsInArea(context: inout FetchArgumentContext, into: inout [Item], cases: GrammaticalCases) -> Bool {
+        return fetchItems(
+            context: &context,
+            from: db.itemsInGame,
+            into: &into,
+            cases: cases,
+            condition: { item in
+                guard !isSameRoom(with: item) else { return false }
+                guard isSameArea(with: item) else { return false }
+                return true
+            }
+        )
+    }
+
+    func fetchItemsInWorld(context: inout FetchArgumentContext, into: inout [Item], cases: GrammaticalCases) -> Bool {
+        return fetchItems(
+            context: &context,
+            from: db.itemsInGame,
+            into: &into,
+            cases: cases,
+            condition: { item in
+                guard !isSameRoom(with: item) else { return false }
+                guard !isSameArea(with: item) else { return false }
+                return true
+            }
+        )
+    }
+
+    func fetchCreaturesInRoom(context: inout FetchArgumentContext, into: inout [Creature], cases: GrammaticalCases, isPlayersOnly: Bool) -> Bool {
+        let roomCreatures = inRoom?.creatures ?? []
+        return fetchCreatures(
+            context: &context,
+            from: roomCreatures,
+            into: &into,
+            cases: cases,
+            condition: { creature in
+                guard isSameRoom(with: creature) else { return false }
+                guard !isPlayersOnly || creature.isPlayer else { return false }
+                return true
+            }
+        )
+    }
+    
+    func fetchCreaturesInArea(context: inout FetchArgumentContext, into: inout [Creature], cases: GrammaticalCases, isPlayersOnly: Bool) -> Bool {
+        return fetchCreatures(
+            context: &context,
+            from: db.creaturesInGame,
+            into: &into,
+            cases: cases,
+            condition: { creature in
+                guard !isSameRoom(with: creature) else { return false }
+                guard isSameArea(with: creature) else { return false }
+                guard !isPlayersOnly || creature.isPlayer else { return false }
+                return true
+            }
+        )
+    }
+
+    func fetchCreaturesInWorld(context: inout FetchArgumentContext, into: inout [Creature], cases: GrammaticalCases, isPlayersOnly: Bool) -> Bool {
+        return fetchCreatures(
+            context: &context,
+            from: db.creaturesInGame,
+            into: &into,
+            cases: cases,
+            condition: { creature in
+                guard !isSameRoom(with: creature) else { return false }
+                guard !isSameArea(with: creature) else { return false }
+                guard !isPlayersOnly || creature.isPlayer else { return false }
+                return true
+            }
+        )
+    }
+
+    private func isMatchingItem(
+        _ item: Item,
+        context: FetchArgumentContext,
+        cases: GrammaticalCases,
+        condition: (_ item: Item) -> Bool
+    ) -> Bool {
+        guard condition(item) else { return false }
         guard context.targetName.isEmpty ||
                 context.targetName.words.allSatisfy({ word in
                     isVnum(word, of: item) ||
@@ -160,20 +247,9 @@ extension Creature {
         return true
     }
 
-    func fetchItemsInEquipment(context: inout FetchArgumentContext, into: inout [Item], cases: GrammaticalCases) -> Bool {
-        let items: [Item] = EquipmentPosition.allCases.map { position in
-            equipment[position]
-        }.compactMap({ $0 })
-        return fetchItems(context: &context, from: items, into: &into, cases: cases)
-    }
-    
-    func fetchItemsInInventory(context: inout FetchArgumentContext, into: inout [Item], cases: GrammaticalCases) -> Bool {
-        return fetchItems(context: &context, from: carrying, into: &into, cases: cases)
-    }
-
-    func fetchItems(context: inout FetchArgumentContext, from items: [Item], into: inout [Item], cases: GrammaticalCases) -> Bool {
+    private func fetchItems(context: inout FetchArgumentContext, from items: [Item], into: inout [Item], cases: GrammaticalCases, condition: (_ item: Item) -> Bool) -> Bool {
         for item in items {
-            guard isMatchingItem(item, context: context, cases: cases) else { continue }
+            guard isMatchingItem(item, context: context, cases: cases, condition: condition) else { continue }
 
             defer { context.currentIndex += 1 }
             guard context.currentIndex >= context.targetStartIndex else { continue }
@@ -187,9 +263,22 @@ extension Creature {
         }
         return false
     }
-    
-    private func isMatchingCreature(_ creature: Creature, context: FetchArgumentContext, cases: GrammaticalCases, isPlayersOnly: Bool) -> Bool {
-        guard creature.isPlayer || !isPlayersOnly else { return false }
+      
+    private func fetchSelf(word: String, into: inout [Creature]) -> Bool {
+        if word.isEqualCI(toAny: ["себя", "себе", "собой", "я", "меня", "мне", "мной", "i", "self", "me"]) {
+            into.append(self)
+            return true
+        }
+        return false
+    }
+  
+    private func isMatchingCreature(
+        _ creature: Creature,
+        context: FetchArgumentContext,
+        cases: GrammaticalCases,
+        condition: (_ creature: Creature) -> Bool
+    ) -> Bool {
+        guard condition(creature) else { return false }
         guard context.targetName.isEmpty ||
                 context.targetName.words.allSatisfy({ word in
                     isVnum(word, of: creature) ||
@@ -201,51 +290,15 @@ extension Creature {
         return true;
     }
     
-    private func fetchCreaturesInRoom(context: inout FetchArgumentContext, into: inout [Creature], cases: GrammaticalCases, isPlayersOnly: Bool = false) -> Bool {
-        guard let roomCreatures = inRoom?.creatures else { return false }
-        
-        for creature in roomCreatures {
-            guard isMatchingCreature(creature, context: context, cases: cases, isPlayersOnly: isPlayersOnly) else { continue }
-            
-            defer { context.currentIndex += 1 }
-            guard context.currentIndex >= context.targetStartIndex else { continue }
-            
-            context.objectsAdded += 1
-            into.append(creature)
-            
-            if case .count(let maxObjects) = context.targetAmount {
-                guard context.objectsAdded < maxObjects else { return true }
-            }
-        }
-        
-        return false
-    }
-    
-    private func fetchCreaturesInArea(context: inout FetchArgumentContext, into: inout [Creature], cases: GrammaticalCases, skipInSameRoom: Bool, isPlayersOnly: Bool = false) -> Bool {
-        for creature in db.creaturesInGame {
-            if skipInSameRoom && inRoom == creature.inRoom { continue }
-            guard inRoom?.area?.lowercasedName == creature.inRoom?.area?.lowercasedName else { continue }
-            guard isMatchingCreature(creature, context: context, cases: cases, isPlayersOnly: isPlayersOnly) else { continue }
-
-            defer { context.currentIndex += 1 }
-            guard context.currentIndex >= context.targetStartIndex else { continue }
-            
-            context.objectsAdded += 1
-            into.append(creature)
-
-            if case .count(let maxObjects) = context.targetAmount {
-                guard context.objectsAdded < maxObjects else { return true }
-            }
-        }
-        
-        return false
-    }
-    
-    private func fetchCreaturesInWorld(context: inout FetchArgumentContext, into: inout [Creature], cases: GrammaticalCases, skipInSameRoom: Bool, skipInSameArea: Bool, isPlayersOnly: Bool = false) -> Bool {
-        for creature in db.creaturesInGame {
-            if skipInSameRoom && inRoom == creature.inRoom { continue }
-            if skipInSameArea && inRoom?.area?.lowercasedName == creature.inRoom?.area?.lowercasedName { continue }
-            guard isMatchingCreature(creature, context: context, cases: cases, isPlayersOnly: isPlayersOnly) else { continue }
+    private func fetchCreatures(
+        context: inout FetchArgumentContext,
+        from creatures: [Creature],
+        into: inout [Creature],
+        cases: GrammaticalCases,
+        condition: (_ creature: Creature) -> Bool
+    ) -> Bool {
+        for creature in creatures {
+            guard isMatchingCreature(creature, context: context, cases: cases, condition: condition) else { continue }
 
             defer { context.currentIndex += 1 }
             guard context.currentIndex >= context.targetStartIndex else { continue }
@@ -355,33 +408,49 @@ extension Creature {
 
         // - creatures in room
         if what.contains(.creature) && whereAt.contains(anyOf: [.room, .world]) {
-            if fetchCreaturesInRoom(context: &context, into: &intoCreatures, cases: cases, isPlayersOnly: what.contains(.playersOnly)) {
+            let isPlayersOnly = what.contains(.playersOnly)
+            if fetchCreaturesInRoom(context: &context, into: &intoCreatures, cases: cases, isPlayersOnly: isPlayersOnly) {
                 return true
             }
         }
 
         // - items in room
-        // TODO
-
-        // - creatures in area
-        if what.contains(.creature) && whereAt.contains(.world) {
-            if fetchCreaturesInArea(context: &context, into: &intoCreatures, cases: cases, skipInSameRoom: true, isPlayersOnly: what.contains(.playersOnly)) {
+        if what.contains(.item) && whereAt.contains(anyOf: [.room, .world]) {
+            if fetchItemsInRoom(context: &context, into: &intoItems, cases: cases) {
                 return true
             }
         }
-        
+
+        // - creatures in area
+        if what.contains(.creature) && whereAt.contains(.world) {
+            let isPlayersOnly = what.contains(.playersOnly)
+            if fetchCreaturesInArea(context: &context, into: &intoCreatures, cases: cases, isPlayersOnly: isPlayersOnly) {
+                return true
+            }
+        }
+
         // - creatures in world
         if what.contains(.creature) && whereAt.contains(.world) {
-            if fetchCreaturesInWorld(context: &context, into: &intoCreatures, cases: cases, skipInSameRoom: true, skipInSameArea: true, isPlayersOnly: what.contains(.playersOnly)) {
+            let isPlayersOnly = what.contains(.playersOnly)
+            if fetchCreaturesInWorld(context: &context, into: &intoCreatures, cases: cases, isPlayersOnly: isPlayersOnly) {
                 return true
             }
         }
         
         // - items in area
+        if what.contains(.item) && whereAt.contains(.world) {
+            if fetchItemsInArea(context: &context, into: &intoItems, cases: cases) {
+                return true
+            }
+        }
 
         // - items in world
-        // TODO
-        
+        if what.contains(.item) && whereAt.contains(.world) {
+            if fetchItemsInWorld(context: &context, into: &intoItems, cases: cases) {
+                return true
+            }
+        }
+
         // - rooms
         if what.contains(.room) && whereAt.contains(.world) {
             if fetchRoom(context: &context, into: &intoRoom) {

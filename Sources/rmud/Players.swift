@@ -64,6 +64,7 @@ class Players {
     }
     
     func delete(creature: Creature) {
+        db.creaturesByUid.removeValue(forKey: creature.uid)
         byLowercasedName.removeValue(forKey: creature.nameNominative.full.lowercased())
         creature.player?.account.creatures.remove(creature)
         scheduledForSaving.remove(creature)
@@ -100,7 +101,7 @@ class Players {
             logFatal("Playerfile for player '\(name)' is empty")
         }
 
-        let creature = Creature(from: playerFile)
+        let creature = Creature(from: playerFile, db: db)
         
         let nameNominativeLowercased = creature.nameNominative.full.lowercased()
         guard nameNominativeLowercased == name else {

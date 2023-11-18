@@ -69,7 +69,7 @@ extension Room {
                     }
                     let loadChance = prototype.loadChancePercentage ?? 100
                     guard Random.probability(loadChance) else { continue }
-                    guard let creature = Creature(prototype: prototype, uid: db.createUid(), room: self) else {
+                    guard let creature = Creature(prototype: prototype, uid: nil, db: db, room: self) else {
                         logWarning("Unable to instantiate mobile \(vnum) from prototype")
                         continue
                     }
@@ -92,7 +92,7 @@ extension Room {
             if totalCoins < prototype.coinsToLoad {
                 let coins = prototype.coinsToLoad - totalCoins
                 if let prototype = db.pileOfCoinsPrototype {
-                    let item = Item(prototype: prototype, uid: db.createUid())
+                    let item = Item(prototype: prototype, uid: nil, db: db)
                     if let money = item.asMoney() {
                         money.amount = coins
                         item.updateMoneyNameAndDescription()
@@ -125,7 +125,7 @@ extension Room {
                 guard prototype.canLoadMore() else { break }
                 guard prototype.checkLoadChances() else { continue }
             
-                let item = Item(prototype: prototype, uid: db.createUid())
+                let item = Item(prototype: prototype, uid: nil, db: db)
                 guard !item.extraFlags.contains(.fragile) else {
                     logError("Reset zone: attempt to load fragile item \(vnum) into room")
                     logToMud("Попытка загрузить самоуничтожающийся предмет \(vnum) в комнату \(self.vnum)", verbosity: .complete)

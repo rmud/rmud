@@ -26,7 +26,7 @@ extension Creature {
     }
     
     private func loadArea(name: String) {
-        guard let area = findAreaByExactName(name: name) else { return }
+//        guard let area = findAreaByExactName(name: name) else { return }
         
 //        let players = area.allPlayers()
 //        for player in players {

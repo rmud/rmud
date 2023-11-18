@@ -103,9 +103,9 @@ class Item {
         return "неизвестно где"
     }
 
-    init(prototype: ItemPrototype, uid: UInt64 /*, in area: Area?*/) {
+    init(prototype: ItemPrototype, uid: UInt64?, db: Db /*, in area: Area?*/) {
         self.prototype = prototype
-        self.uid = uid
+        self.uid = uid ?? db.createItemUid()
 
         vnum = prototype.vnum
         
@@ -144,6 +144,11 @@ class Item {
         condition = maxCondition
         
         affects = prototype.affects
+        
+        db.itemsInGame.append(self)
+        db.itemsCountByVnum[prototype.vnum]? += 1
+        db.itemsByUid[self.uid] = self
+
         /*
             {Name,         vtSTRING, vaREQUIRED, &prs_obj.name, NO_SPEC},
         {"синонимы",   vtSTRING, 0, &prs_obj.syns, NO_SPEC},

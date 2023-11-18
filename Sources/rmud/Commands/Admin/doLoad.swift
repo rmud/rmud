@@ -19,7 +19,7 @@ extension Creature {
                 send("Предмета с таким номером не существует.")
                 return
             }
-            let item = Item(prototype: itemPrototype, uid: db.createUid() /*, in: nil*/)
+            let item = Item(prototype: itemPrototype, uid: nil, db: db /*, in: nil*/)
             act("1*и сделал1(,а,о,и) волшебный жест, и появил@1(ся,ась,ось,ись) @1и!", .toRoom, .excluding(self), .item(item))
             act("Вы создали @1в.", .to(self), .item(item))
             

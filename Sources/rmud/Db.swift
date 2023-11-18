@@ -15,14 +15,12 @@ class Db {
 
     let definitions = Definitions()
 
-    // Количество выданных порядковых уникальных номеров
-    public private(set) var lastAssignedUid: UInt64 = 0
-    public private(set) var uidNeedsSaving = false
-
     var roomsByVnum: [Int: Room] = [:]
     var creaturesInGame: [Creature] = []
+    var creaturesByUid: [UInt64: Creature] = [:]
     var creaturesFighting: [Creature] = []
     var itemsInGame: [Item] = [] // FIXME: too slow, try to remove it
+    var itemsByUid: [UInt64: Item] = [:]
     var itemsCountByVnum: [Int: Int] = [:]
     var mobilesCountByVnum: [Int: Int] = [:]
 
@@ -135,13 +133,6 @@ class Db {
         
     }
     
-    func createUid() -> UInt64 {
-        // FIXME: generate uids like account ones
-        lastAssignedUid += 1
-        uidNeedsSaving = true
-        return lastAssignedUid
-    }
-    
     func registerDefinitions() throws {
         log("  enumerations")
         try db.definitions.registerEnumerations()
@@ -162,6 +153,22 @@ class Db {
         for (lowercasedName, areaEntities) in areaEntitiesByLowercasedName {
             areaEntities.areaEntity.logUntouchedFields(comment: "unused field", what: "область \(lowercasedName)")
             areaEntities.areaEntity.untouchAllFields()
+        }
+    }
+    
+    func createCreatureUid() -> UInt64 {
+        while true {
+            let creatureUid = UInt64.random()
+            guard creaturesByUid[creatureUid] == nil else { continue }
+            return creatureUid
+        }
+    }
+
+    func createItemUid() -> UInt64 {
+        while true {
+            let itemUid = UInt64.random()
+            guard itemsByUid[itemUid] == nil else { continue }
+            return itemUid
         }
     }
 }

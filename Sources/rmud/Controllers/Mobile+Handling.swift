@@ -78,7 +78,7 @@ extension Mobile {
 
             guard itemPrototype.checkMaximumAndLoadChances() else { return nil }
 
-            let item = Item(prototype: itemPrototype, uid: db.createUid() /*, in: self.homeArea */)
+            let item = Item(prototype: itemPrototype, uid: nil, db: db /*, in: self.homeArea */)
 
             //obj = read_object(*obj);
             // FIXME: load contents in Item's constructor

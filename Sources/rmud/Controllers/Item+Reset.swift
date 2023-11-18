@@ -13,7 +13,7 @@ extension Item {
                 guard prototype.canLoadMore() else { break }
                 guard prototype.checkLoadChances() else { continue }
                 
-                let item = Item(prototype: prototype, uid: db.createUid())
+                let item = Item(prototype: prototype, uid: nil, db: db)
                 item.put(into: self)
                 
                 item.loadContents(from: prototype)

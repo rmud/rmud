@@ -19,7 +19,7 @@ extension Mobile {
 
             guard itemPrototype.checkMaximumAndLoadChances() else { continue }
             
-            let item = Item(prototype: itemPrototype, uid: db.createUid() /*, in: homeArea*/)
+            let item = Item(prototype: itemPrototype, uid: nil, db: db /*, in: homeArea*/)
 
             item.give(to: creature)
             //obj_enlist_postload(obj); // FIXME: load trigger

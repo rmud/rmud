@@ -166,7 +166,7 @@ extension Creature {
                 let itemToClone = itemsToSell.last { item in shopkeeper.isProducing(item: item) }
                 if let itemToClone = itemToClone, let prototype = db.itemPrototypesByVnum[itemToClone.vnum] {
                     for _ in 0..<itemsToProduce {
-                        let item = Item(prototype: prototype, uid: db.createUid())
+                        let item = Item(prototype: prototype, uid: nil, db: db)
                         item.give(to: clerk)
                         createdItems.insert(item)
                     }
@@ -208,7 +208,7 @@ extension Creature {
                 item.give(to: self)
             } else {
                 guard let prototype = db.itemPrototypesByVnum[item.vnum] else { continue }
-                let clonedItem = Item(prototype: prototype, uid: db.createUid())
+                let clonedItem = Item(prototype: prototype, uid: nil, db: db)
                 clonedItem.give(to: self)
             }
             

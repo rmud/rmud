@@ -335,7 +335,7 @@ extension Creature {
                 logToMud("Предмет \(slot.vnum) не существует", verbosity: .complete)
                 continue
             }
-            let item = Item(prototype: prototype, uid: db.createUid())
+            let item = Item(prototype: prototype, uid: nil, db: db)
             if let position = slot.position {
                 if canWear(item: item, at: position) {
                     equip(item: item, position: position)

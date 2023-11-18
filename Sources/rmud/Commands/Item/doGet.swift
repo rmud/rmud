@@ -27,8 +27,8 @@ extension Creature {
     private func performGetFromRoom(itemNames: String) {
         var context = FetchArgumentContext(word: itemNames, isCountable: true, isMany: true)
         var items: [Item] = []
-        if let room = inRoom {
-            let _ = fetchItems(context: &context, from: room.items, into: &items, cases: .accusative)
+        if inRoom != nil {
+            let _ = fetchItemsInRoom(context: &context, into: &items, cases: .accusative)
         }
         guard !items.isEmpty else {
             send("Здесь нет такого предмета.")
