@@ -119,6 +119,9 @@ struct ItemExtraData {
         // 0..5 - ok, 6 - заклинен, 7 - взломан, 8 - разрушен
         var lockCondition: LockCondition = .ok
         var lockDamage: UInt8 = 0
+        var corpseSize: UInt8?
+        var corpseIsEdible: Bool?
+        var corpseOfVnum: Int?
     }
     
     final class Note: ItemExtraDataType {

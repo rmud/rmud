@@ -13,7 +13,7 @@ extension Creature {
         let holylight = { self.preferenceFlags?.contains(.holylight) ?? false }
 
         var found = false
-        for direction in Direction.orderedDirections {
+        for direction in Direction.allDirectionsOrdered {
             guard let exit = room.exits[direction] else { continue }
             
             let isHiddenExit = exit.flags.contains(.hidden) && !holylight()

@@ -1,6 +1,14 @@
 import Foundation
 
 extension Creature {
+    func attackedBy() -> Creature? {
+        return inRoom?.creatures.first { $0.fighting == self }
+    }
+    
+    func isAttacked() -> Bool {
+        return attackedBy() != nil
+    }
+    
     func primaryWeapon() -> Item? {
         for position in EquipmentPosition.primaryWeapon {
             if let item = equipment[position], item.isWeapon() {

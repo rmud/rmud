@@ -12,7 +12,8 @@ struct PlayerPreferenceFlags: OptionSet {
     static let busy           = T(rawValue: 1 << 3)  // Can't receive tells
     static let displayHitPointsInPrompt
                               = T(rawValue: 1 << 4)  // Display hit points in prompt (fixme)
-    static let listening      = T(rawValue: 1 << 5)  // Listening closely
+    // Deprecated in favor of CreatureRuntimeFlags.listening
+    static let deprecated_unused_listening      = T(rawValue: 1 << 5)  // Listening closely
     static let displayMovementInPrompt
                               = T(rawValue: 1 << 6)  // Display move points in prompt (fixme)
     static let autoexit       = T(rawValue: 1 << 7)  // Display exits in a room (fixme)

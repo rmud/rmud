@@ -12,10 +12,11 @@ enum Race: UInt8 {
     case minotaur     = 7
     case barbarian    = 8
     case goblin       = 9
-    static let playerRaces: [Race] = [
+    static let playerRacesOrdered: [Race] = [
         .human, .highElf, .wildElf, .halfElf, .gnome, .dwarf, .kender,
         .minotaur, .barbarian, .goblin
     ]
+    static let playerRaces = Set(playerRacesOrdered)
     
     // NPC races:
     case person       = 20
@@ -32,7 +33,11 @@ enum Race: UInt8 {
     static let playerRacesCount = 10
     static let allRacesCount  = 30
 
+    var isPerson: Bool {
+        return self == .person || Self.playerRaces.contains(self)
+    }
     var isElf: Bool { return self == .highElf || self == .wildElf }
+    var canCry: Bool { isPerson || self == .dragon || self == .animal || self == .giant }
     
     var canTalk: Bool {
         switch self {

@@ -26,7 +26,7 @@ struct ExitFlags: OptionSet {
     static let torn       = T(rawValue: 1 << 16) // Комнаты по краям прохода не на одной линии (разорваны)
     
     static let aliases = ["проход.признаки"] +
-        Direction.orderedDirections.map({ "\($0.nameForAreaFile).признаки" })
+        Direction.allDirectionsOrdered.map({ "\($0.nameForAreaFile).признаки" })
     
     static func registerDefinitions(in e: Enumerations) {
         e.add(aliases: aliases, namesByValue: [

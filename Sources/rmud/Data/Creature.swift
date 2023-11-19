@@ -9,6 +9,7 @@ class Creature {
     
     var uid: UInt64 = 0
     var descriptors: Set<Descriptor> = []
+    var isConnected: Bool { return !descriptors.isEmpty }
     
     var nameNominative: MultiwordName = MultiwordName("")
     var nameGenitive: MultiwordName = MultiwordName("")

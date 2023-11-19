@@ -28,7 +28,7 @@ extension Room {
     }
     
     private func resetDoors() {
-        for direction in Direction.orderedDirections {
+        for direction in Direction.allDirectionsOrdered {
             guard let exit = exits[direction] else { continue }
             exit.lock = LockInfo(prototype: exit.prototype)
             exit.flags = exit.prototype.flags
@@ -91,23 +91,12 @@ extension Room {
             })
             if totalCoins < prototype.coinsToLoad {
                 let coins = prototype.coinsToLoad - totalCoins
-                if let prototype = db.pileOfCoinsPrototype {
-                    let item = Item(prototype: prototype, uid: nil, db: db)
-                    if let money = item.asMoney() {
-                        money.amount = coins
-                        item.updateMoneyNameAndDescription()
-                    } else {
-                        logWarning("Unable to create pile of coins from prototype")
-                        logToMud("Прототип предмета \"куча монет\" не существует", verbosity: .brief)
-                    }
+                if let item = Item(coins: coins) {
                     item.put(
                         in: self,
                         activateDecayTimer: false,
                         activateGroundTimer: false
                     )
-                } else {
-                    logWarning("Unable to create pile of coins from prototype")
-                    logToMud("Прототип предмета \"куча монет\" не существует", verbosity: .brief)
                 }
             }
         }

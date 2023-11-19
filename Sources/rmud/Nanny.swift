@@ -1000,7 +1000,7 @@ private func raceMenuShow(_ d: Descriptor) {
     var result = "Ваша профессия встречается у следующих рас:"
     
     let creature = d.creature!
-    for (index, race) in Race.playerRaces.enumerated() {
+    for (index, race) in Race.playerRacesOrdered.enumerated() {
         guard creature.classId.info.racesAllowed.contains(race) else { continue }
         let name = race.info.namesByGender[creature.gender]?.capitalizingFirstLetter() ?? "ошибка"
         result += "\n\(index + 1). \(name)"
@@ -1011,7 +1011,7 @@ private func raceMenuShow(_ d: Descriptor) {
 private func chooseRace(raceIndexString: String, classId: ClassId) -> Race? {
     guard let raceIndex = Int(raceIndexString) else { return nil }
 
-    for (index, race) in Race.playerRaces.enumerated() {
+    for (index, race) in Race.playerRacesOrdered.enumerated() {
         guard classId.info.racesAllowed.contains(race) else { continue }
         if index + 1 == raceIndex {
             return race

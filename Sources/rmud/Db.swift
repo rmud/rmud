@@ -7,6 +7,10 @@ class Db {
         return itemPrototypesByVnum[1]
     }
     
+    var corpsePrototype: ItemPrototype? {
+        return itemPrototypesByVnum[2]
+    }
+    
     var areaEntitiesByLowercasedName: [String: AreaEntities] = [:]
     var areaPrototypesByLowercasedName: [String: AreaPrototype] = [:]
     var itemPrototypesByVnum: [Int: ItemPrototype] = [:]
@@ -19,6 +23,7 @@ class Db {
     var creaturesInGame: [Creature] = []
     var creaturesByUid: [UInt64: Creature] = [:]
     var creaturesFighting: [Creature] = []
+    var creaturesDying: [Creature] = []
     var itemsInGame: [Item] = [] // FIXME: too slow, try to remove it
     var itemsByUid: [UInt64: Item] = [:]
     var itemsCountByVnum: [Int: Int] = [:]

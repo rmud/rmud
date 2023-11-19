@@ -1,6 +1,23 @@
 import Foundation
 
 extension Item {
+    convenience init?(coins: Int) {
+        guard let prototype = db.pileOfCoinsPrototype else {
+            logWarning("Unable to create pile of coins from prototype")
+            logToMud("Прототип предмета \"куча монет\" не существует", verbosity: .brief)
+            return nil
+        }
+        self.init(prototype: prototype, uid: nil, db: db)
+        guard let money = asMoney() else {
+            logWarning("Pile of coins should have type 'money'")
+            logToMud("Предмет \"куча монет\" должен иметь тип \"деньги\"", verbosity: .brief)
+            extract(mode: .purgeAllContents)
+            return nil
+        }
+        money.amount = coins
+        updateMoneyNameAndDescription()
+    }
+    
     func updateMoneyNameAndDescription() {
         guard let money = asMoney() else { return }
         let amount = money.amount

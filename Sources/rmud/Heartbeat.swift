@@ -18,18 +18,29 @@ func heartbeat() throws {
     
     if gameTime.gamePulse % UInt64(pulseTick) == 0 {
         areaManager.incrementAreasAge()
-        areaManager.resetAreas { area in
-            area.age >= area.resetInterval
+        areaManager.resetAreas { area in area.age >= area.resetInterval }
+        for creature in db.creaturesInGame {
+            creature.updateOnTick()
+        }
+        for item in db.itemsInGame {
+            item.updateOnTick()
         }
     }
     
     if !players.quitting.isEmpty {
-        players.quitting.forEach {
-            $0.runtimeFlags.remove(.suppressPrompt)
-            $0.performQuit()
+        for creature in players.quitting {
+            creature.runtimeFlags.remove(.suppressPrompt)
+            creature.performQuit()
         }
         players.quitting.removeAll(keepingCapacity: true)
     }
+    if !db.creaturesDying.isEmpty {
+        for creature in db.creaturesDying {
+            creature.actionsAfterDeath()
+        }
+        db.creaturesDying.removeAll(keepingCapacity: true)
+    }
+
     if gameTime.gamePulse % GameTime.pulses(inSeconds: 60) == 0 { // each minute
         try gameTime.saveToDisk()
         accounts.save()

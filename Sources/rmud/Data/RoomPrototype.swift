@@ -112,7 +112,7 @@ class RoomPrototype {
             guard let direction = entity["проход.направление", i]?.direction else { continue }
             readExitProperties({ exits.findOrCreate(in: direction) }, "проход", i)
         }
-        for direction in Direction.orderedDirections {
+        for direction in Direction.allDirectionsOrdered {
             if let toRoom = entity[direction.nameForAreaFile]?.int {
                 exits.findOrCreate(in: direction).toVnum = toRoom
             }
@@ -233,7 +233,7 @@ class RoomPrototype {
             }
         }
         
-        for direction in Direction.orderedDirections {
+        for direction in Direction.allDirectionsOrdered {
             let uppercasedDirection = direction.nameForAreaFile.uppercased()
             guard let exitPrototype = exits[direction] else { continue }
             if exitPrototype.hasOnlyRoom, let toVnum = exitPrototype.toVnum { // use short form

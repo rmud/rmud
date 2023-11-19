@@ -41,10 +41,7 @@ extension Creature {
     }
     
     func performViolence() {
-        guard let fighting = fighting else {
-            logError("performViolence(): creature \(nameNominative) has no enemy")
-            return
-        }
+        guard let fighting else { return }
         
         if position == .sitting && !isHeld() {
             send("\(bCyn())Вам следует встать на ноги!\(nNrm())")
@@ -116,6 +113,8 @@ extension Creature {
         
         damage += victim.damagePositionBonus(damage: damage)
         damage = max(1, damage)
+
+        damage += 50
         
         performDamage(victim: victim, damage: damage)
     }
@@ -153,6 +152,7 @@ extension Creature {
             position = .dead
             act("1и мертв1(,а,о,ы)! R.I.P.", .toRoom, .excluding(self))
             send("Вы мертвы! R.I.P.")
+            db.creaturesDying.append(self)
         } else if hitPoints < -3 {
             position = .dying
             send("Вы смертельно ранены и скоро умрете, если никто не поможет.")
@@ -166,7 +166,22 @@ extension Creature {
     }
     
     func redirectAttentions() {
-        
+        guard let inRoom else { return }
+        for creature in inRoom.creatures {
+            guard creature.fighting == self else { continue }
+
+            creature.stopFighting()
+            
+            guard let creatureRoom = creature.inRoom else { continue }
+            for target in creatureRoom.creatures {
+                guard target != self && target.fighting == creature else { continue }
+                act("Вы переключили свое внимание на 2в.",
+                    .toSleeping, .to(creature), .excluding(target)
+                )
+                guard creature.startFighting(victim: target) else { continue }
+                break
+            }
+        }
     }
     
     func sendMissMessage(victim: Creature, hitType: HitType) {

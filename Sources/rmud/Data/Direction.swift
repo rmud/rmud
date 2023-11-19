@@ -22,13 +22,10 @@ enum Direction: UInt8 {
         ])
     }
 
-    static let count = Direction.orderedDirections.count
+    static let count = Direction.allDirectionsOrdered.count
     
-    static var allDirections: Set<Direction> = {
-       return Set(orderedDirections)
-    }()
-    
-    static var orderedDirections: [Direction] = [.north, .east, .south, .west, .up, .down]
+    static var allDirectionsOrdered: [Direction] = [.north, .east, .south, .west, .up, .down]
+    static var allDirections = Set(allDirectionsOrdered)
 
     // Mapper tries to build horizontal lines first, this way it's decisions are perceived more intuitively in most cases.
     // Use only in mapper as this behavior can be reviewed in the future.
@@ -149,7 +146,7 @@ enum Direction: UInt8 {
     }()
 
     init?(fullName: String) {
-        for direction in Direction.orderedDirections {
+        for direction in Direction.allDirectionsOrdered {
             if direction.name.isEqualCI(to: fullName) {
                 self = direction
                 return
@@ -164,7 +161,7 @@ enum Direction: UInt8 {
     }
     
     init?(abbreviatedName: String) {
-        for direction in Direction.orderedDirections {
+        for direction in Direction.allDirectionsOrdered {
             if direction.name.hasPrefixCI(abbreviatedName) {
                 self = direction
                 return
@@ -179,7 +176,7 @@ enum Direction: UInt8 {
     }
 
     init?(singleLetterName: String) {
-        for direction in Direction.orderedDirections {
+        for direction in Direction.allDirectionsOrdered {
             if direction.singleLetter == singleLetterName {
                 self = direction
                 return

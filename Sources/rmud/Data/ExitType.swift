@@ -18,7 +18,7 @@ enum ExitType: UInt8 {
     case gap = 14
     
     static let aliases = ["проход.тип"] +
-        Direction.orderedDirections.map({ "\($0.nameForAreaFile).тип" })
+        Direction.allDirectionsOrdered.map({ "\($0.nameForAreaFile).тип" })
     
     static func registerDefinitions(in e: Enumerations) {
         e.add(aliases: aliases, namesByValue: [

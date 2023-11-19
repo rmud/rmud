@@ -331,4 +331,19 @@ extension Creature {
             act("1*и исчез1(,ла,ло,ли) в клубах дыма.", .toRoom, .excluding(self))
         }
     }
+    
+    func informNearestRooms(_ message: String, listenersOnly: Bool = false, ignoreDirection: Direction? = nil) {
+        guard let inRoom else { return }
+        for direction in Direction.allDirectionsOrdered {
+            if let ignoreDirection {
+                guard direction != ignoreDirection else { continue }
+            }
+            guard let exit = inRoom.exits[direction] else { continue }
+            guard let toRoom = exit.toRoom() else { continue }
+            for creature in toRoom.creatures {
+                guard !listenersOnly || creature.runtimeFlags.contains(.listening) else { continue }
+                act(message, .to(creature), .text(direction.whereFrom))
+            }
+        }
+    }
 }

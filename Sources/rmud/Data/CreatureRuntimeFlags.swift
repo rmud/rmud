@@ -25,4 +25,5 @@ struct CreatureRuntimeFlags: OptionSet {
     static let sneaking      = T(rawValue: 1 << 16) // Персонаж крадется
     static let orienting     = T(rawValue: 1 << 17)
     static let doublecrossing = T(rawValue: 1 << 18)
+    static let listening     = T(rawValue: 1 << 19)
 }

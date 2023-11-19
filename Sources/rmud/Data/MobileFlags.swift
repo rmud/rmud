@@ -32,7 +32,7 @@ struct MobileFlags: OptionSet {
     static let hunter       = T(rawValue: 1 << 23) // Hunts everyone matching in zone     
     static let help_align   = T(rawValue: 1 << 24) // Помогает только монстрам с теми же наклонностями
     static let paranoid     = T(rawValue: 1 << 25) // Leaves room when someone enters in  
-    static let eatable      = T(rawValue: 1 << 26) // Mob's meat is edible if monster race
+    static let edible       = T(rawValue: 1 << 26) // Mob's meat is edible if monster race
     static let beacon       = T(rawValue: 1 << 27) // Players can teleport to it          
     static let receptionist = T(rawValue: 1 << 28) // Mob is receptionist                 
     static let banker       = T(rawValue: 1 << 29) // Mob is banker                       

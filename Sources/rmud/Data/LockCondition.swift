@@ -7,7 +7,7 @@ enum LockCondition: UInt8 {
     case crashed = 3 // разрушен
 
     static let aliases = ["контейнер.замок_состояние", "проход.замок_состояние"] +
-        Direction.orderedDirections.map({ "\($0.nameForAreaFile).замок_состояние" })
+        Direction.allDirectionsOrdered.map({ "\($0.nameForAreaFile).замок_состояние" })
 
     static func registerDefinitions(in e: Enumerations) {
         e.add(aliases: aliases, namesByValue: [

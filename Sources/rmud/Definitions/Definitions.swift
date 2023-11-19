@@ -229,7 +229,7 @@ class Definitions {
         try d.insert(name: "описание", type: .longText, flags: .required)
 
         // Directions
-        for direction in Direction.orderedDirections.map({ $0.nameForAreaFile }) {
+        for direction in Direction.allDirectionsOrdered.map({ $0.nameForAreaFile }) {
             try d.insert(name: "\(direction)", type: .number)
             try d.insert(name: "\(direction).комната", type: .number, flags: .structureAutoCreate)
             try d.insert(name: "\(direction).тип", type: .enumeration, flags: .structureAutoCreate)

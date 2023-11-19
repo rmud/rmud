@@ -20,6 +20,10 @@ enum Position: UInt8 {
         return self == .stunned || self == .dying || self == .dead
     }
     
+    var isStunnedOrBetter: Bool {
+        return !isDyingOrDead
+    }
+    
     var isDyingOrDead: Bool {
         return self == .dying || self == .dead
     }

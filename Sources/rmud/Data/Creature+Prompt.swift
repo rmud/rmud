@@ -71,7 +71,7 @@ extension Creature {
         let holylight = { self.preferenceFlags?.contains(.holylight) ?? false }
         var output = ""
         
-        for direction in Direction.orderedDirections {
+        for direction in Direction.allDirectionsOrdered {
             guard let exit = room.exits[direction] else { continue }
             
             let c = direction.singleLetter
