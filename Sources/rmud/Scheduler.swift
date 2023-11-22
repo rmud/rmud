@@ -53,6 +53,15 @@ class Scheduler {
         eventsByTarget[targetId] = events
     }
     
+    func cancelAllEvents<T: AnyObject>(target: T) {
+        let targetId = ObjectIdentifier(target)
+        guard var events = eventsByTarget[targetId] else { return }
+        for event in events {
+            eventsByTime.delete(key: event)
+        }
+        eventsByTarget.removeValue(forKey: targetId)
+    }
+    
     func runEvents() {
         let gamePulse = gameTime.gamePulse
         while let event = eventsByTime.minValue() {
@@ -68,7 +77,6 @@ class Scheduler {
             } else {
                 eventsByTarget.removeValue(forKey: targetId)
             }
-            eventsByTarget.removeValue(forKey: targetId)
             
             event.targetAction.performAction()
         }

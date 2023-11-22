@@ -38,6 +38,7 @@ extension Creature {
             break
         }
 
+        scheduler.cancelAllEvents(target: self)
         removeFromRoom()
         
         db.creaturesInGame = db.creaturesInGame.filter { $0 != self }

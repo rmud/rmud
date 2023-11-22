@@ -9,7 +9,7 @@ extension Creature {
         }
         
         makeCorpse()
-
+        
         extract(mode: .leaveItemsOnGround)
         player?.scheduleForSaving()
         players.save()
