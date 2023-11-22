@@ -44,7 +44,7 @@ extension Creature {
             let namePadded = name.rightExpandingTo(30)
             let roomVnum = Format.leftPaddedVnum(inRoom.vnum)
             
-            send("\(bRed())\(namePadded)\(nNrm()) \(cVnum())[\(roomVnum)]\(nNrm()) \(inRoom.name)")
+            send("\(bRed())\(namePadded)\(nNrm()) \(cVnum())[\(roomVnum)]\(nNrm()) \(bCyn())\(inRoom.name)\(nNrm())")
         }
     }
     
@@ -57,7 +57,7 @@ extension Creature {
         let namePadded = name.rightExpandingTo(30)
         let roomVnum = Format.leftPaddedVnum(inRoom.vnum)
 
-        send("М\(indexPadded). \(cMobileVnum())[\(vnum)] \(bRed())\(namePadded)\(nNrm()) \(cRoomVnum())[\(roomVnum)]\(nNrm()) \(inRoom.name)")
+        send("М\(indexPadded). \(cMobileVnum())[\(vnum)] \(bRed())\(namePadded)\(nNrm()) \(cRoomVnum())[\(roomVnum)]\(nNrm()) \(bCyn())\(inRoom.name)\(nNrm())")
     }
         
     private func showItemLocation(_ item: Item, index: ItemIndex) {
@@ -112,7 +112,7 @@ extension Creature {
             }
             send(output)
         } else if let container = item.inContainer {
-            output += "внутри \(cItemVnum())[\(container.vnum)] \(bYel())\(container.nameGenitive)\(nNrm())"
+            output += "\(nGrn())внутри \(cItemVnum())[\(container.vnum)] \(bYel())\(container.nameGenitive)\(nNrm())"
             send(output)
             
             showItemLocation(container, index: .none)
