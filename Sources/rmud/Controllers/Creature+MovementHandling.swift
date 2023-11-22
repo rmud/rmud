@@ -51,12 +51,8 @@ extension Creature {
     }
     
     func removeFromRoom() {
-        if isFighting || position.isStunnedOrWorse {
-            redirectAttentions() // make opponents find another victims
-        }
-        if isFighting {
-            stopFighting()
-        }
+        switchToOtherTargets() // make opponents find another victims
+        stopFighting()
         
         if let previousRoom = inRoom {
             previousRoom.creatures =

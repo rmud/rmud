@@ -159,22 +159,6 @@ func gameLoop() {
             
             scheduler.runEvents()
             
-            // Send prompts to players who are currently not on prompt:
-            for d in networking.descriptors {
-                if !d.isAtPrompt && d.state == .playing {
-                    guard let creature = d.creature else { continue }
-                    guard !(d.creature?.runtimeFlags.contains(.suppressPrompt) ?? false) else { continue }
-                    let prompt = creature.makePrompt()
-
-                    d.sendPrompt(prompt)
-                }
-            }
-            
-            // Send queued output out to the operating system
-            sendQueuedOutput(outputSet: &outputSet)
-            
-            networking.closeClosedDescriptors()
-
             if missedPulses < 0 {
                 log("WARNING: missed pulses count is negative (\(missedPulses)).")
                 logToMud("ВНИМАНИЕ: ЧИСЛО ПРОПУЩЕННЫХ ПУЛЬСОВ ОТРИЦАТЕЛЬНОЕ (\(missedPulses)), " +
@@ -191,7 +175,6 @@ func gameLoop() {
                     verbosity: .normal)
                 missedPulses = 0 // We missed too many pulses, forget it
             }
-
             
             // Now, we execute as many pulses as necessary: just one if we haven't
             // missed any pulses, or make up for lost time if we missed a few
@@ -209,6 +192,22 @@ func gameLoop() {
                 }
                 missedPulses -= 1
             }
+
+            // Send prompts to players who are currently not on prompt:
+            for d in networking.descriptors {
+                if !d.isAtPrompt && d.state == .playing {
+                    guard let creature = d.creature else { continue }
+                    guard !(d.creature?.runtimeFlags.contains(.suppressPrompt) ?? false) else { continue }
+                    let prompt = creature.makePrompt()
+
+                    d.sendPrompt(prompt)
+                }
+            }
+                        
+            // Send queued output out to the operating system
+            sendQueuedOutput(outputSet: &outputSet)
+            networking.closeClosedDescriptors()
+
             DispatchQueue.main.async { loopOnce?() }
         }
     }

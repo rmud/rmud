@@ -165,7 +165,7 @@ extension Creature {
         }
     }
     
-    func redirectAttentions() {
+    func switchToOtherTargets() {
         guard let inRoom else { return }
         for creature in inRoom.creatures {
             guard creature.fighting == self else { continue }
