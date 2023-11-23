@@ -197,8 +197,14 @@ private func tokenize(text: String) -> [Token] {
                         flushOutput()
                     }
                 } else {
-                    if c.shouldCapitalizeNextLetter {
-                        capitalizeNextLetter = true
+                    if capitalizeNextLetter {
+                        if !c.isWhitespace && !c.isNewline {
+                            capitalizeNextLetter = false
+                        }
+                    } else {
+                        if c.shouldCapitalizeNextLetter {
+                            capitalizeNextLetter = true
+                        }
                     }
                 }
                 output.append(c)
