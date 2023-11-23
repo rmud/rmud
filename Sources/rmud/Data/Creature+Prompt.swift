@@ -40,7 +40,7 @@ extension Creature {
         }
 
         if preferenceFlags?.contains(.displayMovementInPrompt) ?? false, !movementPath.isEmpty {
-            let path = movementPath.map { $0.singleLetter }.joined()
+            let path = movementPath.map { $0.direction.singleLetter }.joined()
             promptElements.append("Путь:\(nCyn())\(path)\(nNrm())")
         }
         

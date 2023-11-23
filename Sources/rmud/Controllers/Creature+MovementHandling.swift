@@ -142,13 +142,13 @@ extension Creature {
     }
 
     func handlePostponedMovement() {
-        handlePostponedMovement(interactive: false)
+        handlePostponedMovement(intoUnknown: false)
     }
 
-    func handlePostponedMovement(interactive: Bool) {
-        guard let direction = movementPath.first else { return }
+    func handlePostponedMovement(intoUnknown: Bool) {
+        guard let pathEntry = movementPath.first else { return }
         guard let inRoom = inRoom else { return }
-        guard let toRoom = inRoom.exits[direction]?.toRoom() else {
+        guard let toRoom = inRoom.exits[pathEntry.direction]?.toRoom() else {
             sendCantGoThereMessage()
             movementPath.removeAll()
             return
@@ -157,7 +157,7 @@ extension Creature {
         // Exception is when player attempts to travel without
         // waiting for timer expiration.
         // In both cases there should be no pre-planned path.
-        if (!interactive && movementPathInitialRoom != inRoom.vnum) || movementPath.count >= 2 {
+        if (!intoUnknown && movementPathInitialRoom != inRoom.vnum) || movementPath.count >= 2 {
             if let player = controllingPlayer {
                 guard player.preferenceFlags.contains(.goIntoUnknownRooms) || player.exploredRooms.contains(toRoom.vnum) else {
                     send("Дальше путь Вам незнаком.")
@@ -166,25 +166,40 @@ extension Creature {
                 }
             }
         }
-        let pulsesNeeded = (inRoom.terrain.gamePulsesNeeded + toRoom.terrain.gamePulsesNeeded) / 2
+        let terrainPulsesNeeded = (inRoom.terrain.gamePulsesNeeded + toRoom.terrain.gamePulsesNeeded) / 2
+        let dexterityBonus = affectedDexterity() - 16
+        let pulsesNeeded = max(0, Int(terrainPulsesNeeded) - dexterityBonus)
         let pulsesPassed = gameTime.gamePulse - arrivedAtGamePulse
         guard pulsesPassed >= pulsesNeeded else {
             scheduler.schedule(
-                afterGamePulses: pulsesNeeded - pulsesPassed,
+                afterGamePulses: UInt64(pulsesNeeded) - pulsesPassed,
                 handlerType: .movement,
                 target: self,
                 action: Creature.handlePostponedMovement)
             return
         }
-        
+
         movementPath.removeFirst()
         
         let fromRoom = inRoom
-        showLeaveMessage(direction: direction)
+        if pathEntry.reason == .follow, let following {
+            act("Вы последовали за 2т &.", .to(self), .excluding(following),
+                .text(pathEntry.direction.whereTo))
+        }
+        showLeaveMessage(direction: pathEntry.direction)
         teleportTo(room: toRoom)
-        showArrivalMessage(fromRoom: fromRoom, fromDirection: direction.opposite)
+        showArrivalMessage(
+            fromRoom: fromRoom, fromDirection: pathEntry.direction.opposite
+        )
         
         lookAtRoom(ignoreBrief: false)
+        
+        for follower in followers {
+            guard follower.inRoom == fromRoom else { continue }
+            guard follower.movementPath.isEmpty else { continue }
+            follower.performMove(direction: pathEntry.direction, reason: .follow)
+            follower.handlePostponedMovement(intoUnknown: true)
+        }
     }
 
     private func sendCantGoThereMessage() {
