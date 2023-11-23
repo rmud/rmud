@@ -94,7 +94,6 @@ extension Creature {
             wasDirectionCommand = command.group == .movement && command.flags.contains(.directionCommand)
 
             var context = CommandContext(command: command, scanner: scanner)
-            context.subcommand = command.subcommand
 
             let gotArg1 = fetchArgument(from: scanner,
                           what: command.arg1What,

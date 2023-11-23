@@ -12,21 +12,32 @@ extension Creature {
         case death
     }
     
-    func doMove(context: CommandContext) {
-        let direction: Direction
-        switch context.subcommand {
-        case .north: direction = .north
-        case .east: direction = .east
-        case .south: direction = .south
-        case .west: direction = .west
-        case .up: direction = .up
-        case .down: direction = .down
-        default:
-            assertionFailure()
-            return
-        }
-        
-        let finalDirection = checkSpins(direction: direction)
+    func doMoveNorth(context: CommandContext) {
+        moveWithSpins(initialDirection: .north)
+    }
+
+    func doMoveEast(context: CommandContext) {
+        moveWithSpins(initialDirection: .east)
+    }
+
+    func doMoveSouth(context: CommandContext) {
+        moveWithSpins(initialDirection: .south)
+    }
+
+    func doMoveWest(context: CommandContext) {
+        moveWithSpins(initialDirection: .west)
+    }
+
+    func doMoveUp(context: CommandContext) {
+        moveWithSpins(initialDirection: .up)
+    }
+
+    func doMoveDown(context: CommandContext) {
+        moveWithSpins(initialDirection: .down)
+    }
+
+    private func moveWithSpins(initialDirection: Direction) {
+        let finalDirection = checkSpins(direction: initialDirection)
         performMove(direction: finalDirection)
         
         handlePostponedMovement(interactive: true)

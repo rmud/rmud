@@ -1,16 +1,13 @@
 extension Creature {
-    func doQuit(context: CommandContext) {
+    func doQuitReal(context: CommandContext) {
         guard !descriptors.isEmpty else { return }
 
-        guard let player = player else {
+        guard let player else {
             send("Вы не можете покинуть игру.")
             return
         }
         
-        if context.subcommand != .quit {
-            send("Чтобы выбросить всё и выйти из игры, наберите команду \"конец!\" полностью.\n" +
-                "Чтобы сохранить вещи, Вам нужно уйти на \"постой\" в ближайшей таверне.")
-        } else if player.noQuitTicsLeft > 0 && !isGodMode() {
+        if player.noQuitTicsLeft > 0 && !isGodMode() {
             send("Вы слишком взволнованы и не можете покинуть игру!")
         } else if isAffected(by: .poison) && !isGodMode() {
             send("Вы отравлены и не можете покинуть игру!")

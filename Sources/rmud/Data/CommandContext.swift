@@ -15,7 +15,6 @@ struct CommandContext {
     var item2: Item? { return items2.first }
     var room1: Room?
     var room2: Room?
-    var subcommand: SubCommand = .none
     var hasArgument1: Bool {
         return !creatures1.isEmpty || !items1.isEmpty ||
             room1 != nil || !argument1.isEmpty

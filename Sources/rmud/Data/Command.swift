@@ -5,7 +5,6 @@ struct Command {
     
     var aliases: [String]
     var group: CommandGroup
-    var subcommand: SubCommand
     var flags: CommandFlags
     
     var minimumPosition: Position
@@ -23,7 +22,6 @@ struct Command {
 
     init(_ aliases: [String],
         group: CommandGroup,
-        subcommand: SubCommand = .none,
         _ handler: Handler?,
         
         flags: CommandFlags = [],
@@ -41,7 +39,6 @@ struct Command {
     ) {
         self.aliases = aliases
         self.group = group
-        self.subcommand = subcommand
         self.flags = flags
         self.minimumPosition = minPosition
         self.roles = roles

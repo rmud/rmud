@@ -5,17 +5,17 @@ private let notImplemented: Command.Handler? = nil
 private let commandInfo: [Command] = [
     
     // Movement
-    Command(["север", "north", "\u{1b}[A"], group: .movement, subcommand: .north, Creature.doMove,
+    Command(["север", "north", "\u{1b}[A"], group: .movement, Creature.doMoveNorth,
             flags: [.highPriority, .noFight, .directionCommand]),
-    Command(["восток", "east", "\u{1b}[C"], group: .movement, subcommand: .east, Creature.doMove,
+    Command(["восток", "east", "\u{1b}[C"], group: .movement, Creature.doMoveEast,
             flags: [.highPriority, .noFight, .directionCommand]),
-    Command(["юг", "south", "\u{1b}[B"], group: .movement, subcommand: .south, Creature.doMove,
+    Command(["юг", "south", "\u{1b}[B"], group: .movement, Creature.doMoveSouth,
             flags: [.highPriority, .noFight, .directionCommand]),
-    Command(["запад", "west", "\u{1b}[D"], group: .movement, subcommand: .west, Creature.doMove,
+    Command(["запад", "west", "\u{1b}[D"], group: .movement, Creature.doMoveWest,
             flags: [.highPriority, .noFight, .directionCommand]),
-    Command(["подняться", "вверх", "up"], group: .movement, subcommand: .up, Creature.doMove,
+    Command(["подняться", "вверх", "up"], group: .movement, Creature.doMoveUp,
             flags: [.highPriority, .noFight, .directionCommand]),
-    Command(["опуститься", "вниз", "down"], group: .movement, subcommand: .down, Creature.doMove,
+    Command(["опуститься", "вниз", "down"], group: .movement, Creature.doMoveDown,
             flags: [.highPriority, .noFight, .directionCommand]),
     
     Command(["следовать", "follow"], group: .movement, Creature.doFollow,
@@ -159,10 +159,10 @@ private let commandInfo: [Command] = [
     Command(["помочь", "assist"], group: .combat, notImplemented),
 
     // ShopsAndStables
-    Command(["список", "list", "меню", "menu"], group: .shopsAndStables, subcommand: .shopList, Creature.doService,
+    Command(["список", "list", "меню", "menu"], group: .shopsAndStables, Creature.doList,
             flags: .noFight,
             arg1: .word),
-    Command(["купить", "buy"], group: .shopsAndStables, subcommand: .shopBuy, Creature.doService, flags: .noFight, arg1: .word),
+    Command(["купить", "buy"], group: .shopsAndStables, Creature.doBuy, flags: .noFight, arg1: .word),
     Command(["продать", "sell"], group: .shopsAndStables, notImplemented),
     Command(["чинить", "repair"], group: .shopsAndStables, notImplemented),
     Command(["оценить", "evaluate"], group: .shopsAndStables, notImplemented),
@@ -178,9 +178,9 @@ private let commandInfo: [Command] = [
     Command(["стоимость", "offer"], group: .taverns, notImplemented),
     Command(["прописаться", "register"], group: .taverns, notImplemented),
     Command(["постой", "rent"], group: .taverns, notImplemented),
-    Command(["конец", "quit"], group: .taverns, Creature.doQuit,
+    Command(["конец", "quit"], group: .taverns, Creature.doQuitWarning,
             flags: [.informational, .noFight], minPosition: .sleeping),
-    Command(["конец!", "quit!"], group: .taverns, subcommand: .quit, Creature.doQuit,
+    Command(["конец!", "quit!"], group: .taverns, Creature.doQuitReal,
             flags: [.informational, .noFight, .hidden], minPosition: .sleeping),
 
     // Other
