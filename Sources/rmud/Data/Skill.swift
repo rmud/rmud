@@ -52,7 +52,7 @@ enum Skill: UInt16 {
     //case misc                  = 389
     case staves                = 390
     
-    static let aliases = ["умения"]
+    static let aliases = ["умения", "задержки"]
     
     var name: String {
         switch self {

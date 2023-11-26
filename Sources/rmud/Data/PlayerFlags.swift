@@ -17,4 +17,32 @@ struct PlayerFlags: OptionSet {
     static let deprecated_unused_restoreme = PlayerFlags(rawValue: 1 << 20) // Restore hits and moves on entry
     static let reequip    = PlayerFlags(rawValue: 1 << 21) // Restore training equipment when entering game
     static let newPlayer  = PlayerFlags(rawValue: 1 << 22) // Just created
+
+    static let aliases = ["исвойства"]
+    
+    static func registerDefinitions(in e: Enumerations) {
+        e.add(aliases: aliases, namesByValue: [
+            1: "группа",
+            2: "умер",
+            3: "заморожен",
+            4: "тестер",
+            5: "пишет",
+            6: "почта",
+            7: "сохранить",
+            8: "разрешен",
+            9: "(глюк9)",
+            10: "безтитула",
+            11: "(глюк11)",
+            12: "(глюк12)",
+            13: "(глюк13)",
+            14: "(глюк14)",
+            15: "незаметный",
+            16: "(глюк16)",
+            17: "протокол",
+            18: "рассчитан",
+            19: "безограничений",
+            20: "(глюк19)",
+            21: "восстановить"
+        ])
+    }
 }

@@ -54,6 +54,10 @@ class Definitions {
         Spell.registerDefinitions(in: e)
         Terrain.registerDefinitions(in: e)
         WeaponType.registerDefinitions(in: e)
+        
+        // Not used in world files, but used in game
+        PlayerFlags.registerDefinitions(in: e)
+        PlayerPreferenceFlags.registerDefinitions(in: e)
     }
     
     func registerAreaFields() throws {

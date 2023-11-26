@@ -44,7 +44,7 @@ extension Creature {
             return
         }
         container.flags.insert(isPerson ? .personCorpse : .corpse)
-        container.corpseSize = size
+        container.corpseSize = UInt8(affectedSize())
         let isEdibleMobile = mobile?.flags.contains(.edible) ?? false
         container.corpseIsEdible = isPerson || race == .animal || isEdibleMobile
         container.corpseOfVnum = mobile?.prototype.vnum

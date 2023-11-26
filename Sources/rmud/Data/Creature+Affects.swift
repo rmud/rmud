@@ -3,8 +3,7 @@ import Foundation
 extension Creature {
     func ageModifier(for apply: Apply) -> Int {
         guard let player = player else { return 0 }
-        let affectedAgeComponents = GameTimeComponents(gameSeconds: player.affectedAgeSeconds())
-        var affectedYears = affectedAgeComponents.years
+        var affectedYears = player.affectedAgeYears()
         var modifier = 0
         
         // FIXME сделать в начале рост статов,

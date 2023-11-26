@@ -17,10 +17,10 @@ class MobilePrototype {
     var race: Race // Required
     var gender: Gender // Required
     var classId: ClassId // Required
-    var realAlignment: Alignment // Required
+    var alignment: Alignment // Required
     var level: UInt8 // Required
     var experience: Int // Required
-    var realMaximumHitPoints: Int // Required
+    var maximumHitPoints: Int // Required
     var defense: Int // Required
     var attack: Int // Required
     var absorb: Int? // Optional
@@ -46,14 +46,14 @@ class MobilePrototype {
     var loadMoney: Dice<Int>?
     var wimpLevel: UInt8?
     var procedures: Set<Int> = []
-    var realStrength: UInt8?
-    var realIntelligence: UInt8?
-    var realWisdom: UInt8?
-    var realDexterity: UInt8?
-    var realConstitution: UInt8?
-    var realCharisma: UInt8?
+    var strength: UInt8?
+    var intelligence: UInt8?
+    var wisdom: UInt8?
+    var dexterity: UInt8?
+    var constitution: UInt8?
+    var charisma: UInt8?
     var size: UInt8?
-    var realHealth: UInt8?
+    var health: UInt8?
     var weight: UInt?
     var height: UInt?
     var weaponImmunityPercentage: UInt8?
@@ -113,10 +113,10 @@ class MobilePrototype {
         race = entity["раса"]?.uint8.flatMap { Race(rawValue: $0) } ?? .monster
         gender = entity["пол"]?.uint8.flatMap { Gender(rawValue: $0) } ?? .masculine
         classId = entity["профессия"]?.uint8.flatMap { ClassId(rawValue: $0) } ?? .amalgamated // FIXME: introduce 'none'
-        realAlignment = Alignment(clamping: entity["наклонности"]?.int ?? 0)
+        alignment = Alignment(clamping: entity["наклонности"]?.int ?? 0)
         level = entity["уровень"]?.uint8 ?? 0
         experience = entity["опыт"]?.int ?? 0
-        realMaximumHitPoints = entity["жизнь"]?.int ?? 0
+        maximumHitPoints = entity["жизнь"]?.int ?? 0
         defense = entity["защита"]?.int ?? 0
         attack = entity["атака"]?.int ?? 0
         if let absorb = entity["поглощение"]?.int {
@@ -143,6 +143,8 @@ class MobilePrototype {
             self.attacks2 = attacks2
         }
 
+        
+        
         // MARK: Other optional fields
         grip = entity["хватка"]?.uint8
         corpsePoisonLevel = entity["яд"]?.uint8
@@ -217,7 +219,7 @@ class MobilePrototype {
         }
 
         // FIXME: ensure that it's set when insantiating mobile
-        // realMaxMovement = 50
+        // maxMovement = 50
         
         if let procedures = entity["процедура"]?.list {
             self.procedures = Set(procedures.compactMap {
@@ -229,29 +231,29 @@ class MobilePrototype {
             })
         }
 
-        if let realStrength = entity["сила"]?.uint8 {
-            self.realStrength = realStrength
+        if let strength = entity["сила"]?.uint8 {
+            self.strength = strength
         }
-        if let realDexterity = entity["ловкость"]?.uint8 {
-            self.realDexterity = realDexterity
+        if let dexterity = entity["ловкость"]?.uint8 {
+            self.dexterity = dexterity
         }
-        if let realConstitution = entity["телосложение"]?.uint8 {
-            self.realConstitution = realConstitution
+        if let constitution = entity["телосложение"]?.uint8 {
+            self.constitution = constitution
         }
-        if let realIntelligence = entity["разум"]?.uint8 {
-            self.realIntelligence = realIntelligence
+        if let intelligence = entity["разум"]?.uint8 {
+            self.intelligence = intelligence
         }
-        if let realWisdom = entity["мудрость"]?.uint8 {
-            self.realWisdom = realWisdom
+        if let wisdom = entity["мудрость"]?.uint8 {
+            self.wisdom = wisdom
         }
         // FIXME: charisma?
-        //realCharisma = 13
+        //charisma = 13
 
         if let size = entity["размер"]?.uint8 {
             self.size = size
         }
-        if let realHealth = entity["здоровье"]?.uint8 {
-            self.realHealth = realHealth
+        if let health = entity["здоровье"]?.uint8 {
+            self.health = health
         }
         if let weight = entity["вес"]?.uint {
             self.weight = weight
@@ -513,10 +515,10 @@ class MobilePrototype {
             let enumSpec = definitions.enumerations.enumSpecsByAlias["профессия"]
             result += "  ПРОФЕССИЯ \(Value(enumeration: classId).formatted(for: style, enumSpec: enumSpec))\n"
         }
-        result += "  НАКЛОННОСТИ \(Value(number: realAlignment.value).formatted(for: style))\n"
+        result += "  НАКЛОННОСТИ \(Value(number: alignment.value).formatted(for: style))\n"
         result += "  УРОВЕНЬ \(Value(number: level).formatted(for: style))\n"
         result += "  ОПЫТ \(Value(number: experience).formatted(for: style))\n"
-        result += "  ЖИЗНЬ \(Value(number: realMaximumHitPoints).formatted(for: style))\n"
+        result += "  ЖИЗНЬ \(Value(number: maximumHitPoints).formatted(for: style))\n"
         result += "  ЗАЩИТА \(Value(number: defense).formatted(for: style))\n"
         result += "  АТАКА \(Value(number: attack).formatted(for: style))\n"
         if let absorb = absorb {
@@ -597,32 +599,32 @@ class MobilePrototype {
             result += "  ТРУСОСТЬ \(Value(number: wimpLevel).formatted(for: style))\n"
         }
         // FIXME: ensure that it's set when insantiating mobile
-        // realMaxMovement = 50
+        // maxMovement = 50
         if !procedures.isEmpty {
             result += "  ПРОЦЕДУРА \(Value(list: procedures).formatted(for: style))\n"
         }
-        if let realStrength = realStrength {
-            result += "  СИЛА \(Value(number: realStrength).formatted(for: style))\n"
+        if let strength {
+            result += "  СИЛА \(Value(number: strength).formatted(for: style))\n"
         }
-        if let realDexterity = realDexterity {
-            result += "  ЛОВКОСТЬ \(Value(number: realDexterity).formatted(for: style))\n"
+        if let dexterity {
+            result += "  ЛОВКОСТЬ \(Value(number: dexterity).formatted(for: style))\n"
         }
-        if let realConstitution = realConstitution {
-            result += "  ТЕЛОСЛОЖЕНИЕ \(Value(number: realConstitution).formatted(for: style))\n"
+        if let constitution {
+            result += "  ТЕЛОСЛОЖЕНИЕ \(Value(number: constitution).formatted(for: style))\n"
         }
-        if let realIntelligence = realIntelligence {
-            result += "  РАЗУМ \(Value(number: realIntelligence).formatted(for: style))\n"
+        if let intelligence {
+            result += "  РАЗУМ \(Value(number: intelligence).formatted(for: style))\n"
         }
-        if let realWisdom = realWisdom {
-            result += "  МУДРОСТЬ \(Value(number: realWisdom).formatted(for: style))\n"
+        if let wisdom {
+            result += "  МУДРОСТЬ \(Value(number: wisdom).formatted(for: style))\n"
         }
         // FIXME: charisma?
-        //realCharisma = 13
+        // charisma = 13
         if let size = size {
             result += "  РАЗМЕР \(Value(number: size).formatted(for: style))\n"
         }
-        if let realHealth = realHealth {
-            result += "  ЗДОРОВЬЕ \(Value(number: realHealth).formatted(for: style))\n"
+        if let health {
+            result += "  ЗДОРОВЬЕ \(Value(number: health).formatted(for: style))\n"
         }
         if let weight = weight {
             result += "  ВЕС \(Value(number: weight).formatted(for: style))\n"

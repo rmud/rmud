@@ -186,8 +186,7 @@ extension Creature {
                 attractiveness <= 22 ? "очаровательн1(ый,ая,ое,ые) " :
                 "соблазнительн1(ый,ая,ое,ые) "
             
-            let affectedAgeComponents = GameTimeComponents(gameSeconds: targetPlayer.affectedAgeSeconds())
-            let affectedYears = affectedAgeComponents.years
+            let affectedYears = targetPlayer.affectedAgeYears()
             result +=
                 affectedYears < 20 ? "юн1(ый,ая,ое,ые)" :
                 affectedYears < 25 ? "молод1(ой,ая,ое,ые)" :

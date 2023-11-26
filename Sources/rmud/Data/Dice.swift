@@ -44,12 +44,12 @@ struct Dice<T: FixedWidthInteger>: CustomStringConvertible {
         if add != 0 {
             // Not '&&' to log '0d5', '5d0' cases otherwise that would be information loss
             if number != 0 || size != 0 {
-                return "\(creature.bBlu())\(number)\(creature.nNrm())к\(creature.bBlu())\(size)\(creature.nNrm())+\(creature.bBlu())\(add)\(creature.nNrm())"
+                return "\(creature.nCyn())\(number)\(creature.nNrm())к\(creature.nCyn())\(size)\(creature.nNrm())+\(creature.nCyn())\(add)\(creature.nNrm())"
             } else {
-                return "\(creature.bBlu())\(add)\(creature.nNrm())"
+                return "\(creature.nCyn())\(add)\(creature.nNrm())"
             }
         } else {
-            return "\(creature.bBlu())\(number)\(creature.nNrm())к\(creature.bBlu())\(size)\(creature.nNrm())"
+            return "\(creature.nCyn())\(number)\(creature.nNrm())к\(creature.nCyn())\(size)\(creature.nNrm())"
         }
     }
 

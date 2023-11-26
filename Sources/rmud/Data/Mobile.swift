@@ -21,13 +21,6 @@ class Mobile {
     var movementType: MovementType = .walk
     var pathName = ""
     var defaultPosition: Position = .standing
-    //var maximumCountInWorld: UInt8 = 0
-    //var loadChancePercentage: UInt8 = 0
-    //var loadCommand: String? // FIXME: deprecated
-    //var loadEquipmentWhereByVnum: [Int: EquipWhere] = [:] // Equip mob with this stuff on load
-    //var loadInventoryCountByVnum: [Int: Int] = [:]
-    //var loadItemsOnDeathCountByVnum: [Int: Int] = [:] // Put this stuff into corpse
-    //var loadMoney: Dice<Int> = Dice<Int>() // Money dice
     var procedures: Set<Int> = []
     var weaponImmunityPercentage: UInt8 = 0
     var affects: Set<AffectType> = []

@@ -17,6 +17,13 @@ class Creature {
     var nameAccusative: MultiwordName = MultiwordName("")
     var nameInstrumental: MultiwordName = MultiwordName("")
     var namePrepositional: MultiwordName = MultiwordName("")
+    func nameCompressed() -> String {
+        let isAnimate = !(mobile?.prototype.flags.contains(.inanimate) ?? false)
+        return endings.compress(
+            names: [nameNominative.full, nameGenitive.full, nameDative.full, nameAccusative.full, nameInstrumental.full, namePrepositional.full],
+            isAnimate: isAnimate
+        )
+    }
     
     func nameNominativeVisible(of whom: Creature) -> String {
         return canSee(whom) ? whom.nameNominative.full : "кто-то"
@@ -171,7 +178,14 @@ class Creature {
     func affectedAlignment() -> Alignment {
         return Alignment(clamping: affected(baseValue: realAlignment.value, by: .custom(.alignment)))
     }
-    var size: UInt8 = 30
+    var realSize: UInt8 = 30
+    func affectedSize() -> Int {
+        return affected(
+            baseValue: Int(realSize),
+            by: .custom(.size),
+            clampedTo: 1...250
+        )
+    }
     func defaultWeight(forSize size: UInt8) -> UInt {
         return UInt(size) * 5
     }
@@ -222,13 +236,71 @@ class Creature {
             clampedTo: 3...(isMobile ? 36 : 28))
     }
     var realHealth: UInt8 = 100
+    func affectedHealth() -> Int {
+        return affected(baseValue: Int(realHealth), by: .custom(.health))
+    }
     
     // Attack, defense and dam absorbtion
-    var attack = 0
-    var defense = 0
-    var absorb = 0
+    var realAttack = 0
+    func affectedAttack() -> Int {
+        return affected(baseValue: realAttack, by: .custom(.attack))
+    }
+    var realDefense = 0
+    func affectedDefense() -> Int {
+        return affected(baseValue: realDefense, by: .custom(.defense))
+    }
+    var realAbsorb = 0
+    func affectedAbsorb() -> Int {
+        return affected(baseValue: realAbsorb, by: .custom(.absorb))
+    }
     // FIXME: make this separate damroll, use full attack1 dice for mobiles
-    var damroll: Int8 = 0 // Any bonus or penalty to dam in hits
+    var realDamroll: Int8 = 0 // Any bonus or penalty to dam in hits
+    func affectedDamroll() -> Int {
+        return affected(baseValue: Int(realDamroll), by: .custom(.damroll))
+    }
+    
+    var realSaves: [Frag: Int16] = [:]
+    func affectedSave(_ frag: Frag) -> Int {
+        var save = Int(realSaves[frag] ?? 0)
+        save += affected(baseValue: 0, by: .save(frag: frag))
+        save += affected(baseValue: 0, by: .custom(.savingAll))
+        //TODO сделать ещё отдельную обработку поглощения для SAVING_CRUSH
+        switch race {
+        case .dwarf:
+            save += frag == .heat ? 30 : 20
+        case .highElf, .wildElf:
+            save += frag == .electricity ? 20 : 10
+        case .construct:
+            switch frag {
+            case .heat: save += 40
+            case .crush: save += 20
+            case .magic: save += 10
+            default: break
+            }
+        case .dragon:
+            save += 40
+        case .goblin:
+            save += frag == .acid ? 15 : -10
+        case .undead:
+            if frag == .cold {
+                save += 50
+            }
+        default:
+            break
+        }
+        
+        // special holy bonus for solamnic kights
+        if classId == .solamnic {
+            let alig = affectedAlignment()
+            if alig.value > 700 {
+                let k1 = 1 + Int(level) / 6
+                let k2 = alig.value - 700
+                save += k1 * k2 / 75
+            }
+        }
+
+        return save
+    }
     
     // Hit points
     var hitPoints: Int = 1
@@ -305,7 +377,14 @@ class Creature {
             send("Вы не получили никакого опыта.")
         }
     }
-    var wimpLevel: UInt8 = 0 // Flee if below this % of hit points
+    var realWimpLevel: UInt8 = 0 // Flee if below this % of hit points
+    func affectedWimpLevel() -> Int {
+        return affected(
+            baseValue: Int(realWimpLevel),
+            by: .custom(.wimpyLevel),
+            clampedTo: 0...100
+        )
+    }
     
     // skillNum: knowledgeLevel
     var skillKnowledgeLevels: [Skill: UInt8] = [:]
@@ -406,8 +485,8 @@ class Creature {
             }
         }
         
-        size = playerFile[s, "РАЗМЕР"] ?? size
-        weight = playerFile[s, "ВЕС"] ?? defaultWeight(forSize: size)
+        realSize = playerFile[s, "РАЗМЕР"] ?? realSize
+        weight = playerFile[s, "ВЕС"] ?? defaultWeight(forSize: realSize)
         height = playerFile[s, "РОСТ"] ?? height
         
         gender = Gender(rawValue: playerFile[s, "ПОЛ"] ?? Gender.masculine.rawValue) ?? .masculine
@@ -423,17 +502,24 @@ class Creature {
         realCharisma = playerFile[s, "ОБА"] ?? 0
         
         realHealth = playerFile[s, "ЗДОРОВЬЕ"] ?? 0
-        damroll = playerFile[s, "ВРЕД"] ?? 0
+        realDamroll = playerFile[s, "ВРЕД"] ?? 0
         
+        realSaves[.magic] = playerFile[s, "ЗМАГИЯ"] ?? 0
+        realSaves[.heat] = playerFile[s, "ЗОГОНЬ"] ?? 0
+        realSaves[.cold] = playerFile[s, "ЗХОЛОД"] ?? 0
+        realSaves[.acid] = playerFile[s, "ЗКИСЛОТА"] ?? 0
+        realSaves[.electricity] = playerFile[s, "ЗЭЛЕКТРИЧЕСТВО"] ?? 0
+        realSaves[.crush] = playerFile[s, "ЗУДАР"] ?? 0
+
         hitPoints = playerFile[s, "ТЕКЖИЗНЬ"] ?? 0
         realMaximumHitPoints = playerFile[s, "ЖИЗНЬ"] ?? 0
         movement = playerFile[s, "ТЕКБОДРОСТЬ"] ?? 0
         realMaximumMovement = playerFile[s, "БОДРОСТЬ"] ?? 0
         movement = min(movement, realMaximumMovement)
         
-        attack = playerFile[s, "АТАКА"] ?? 0
-        defense = playerFile[s, "ЗАЩИТА"] ?? 0
-        absorb = playerFile[s, "ПОГЛОЩЕНИЕ"] ?? 0
+        realAttack = playerFile[s, "АТАКА"] ?? 0
+        realDefense = playerFile[s, "ЗАЩИТА"] ?? 0
+        realAbsorb = playerFile[s, "ПОГЛОЩЕНИЕ"] ?? 0
 
         gold = playerFile[s, "ДЕНЬГИ"] ?? 0
         experience = playerFile[s, "ОПЫТ"] ?? 0
@@ -492,7 +578,7 @@ class Creature {
         
         memorizationTimeLeft = playerFile[s, "ЗАП.ВРЕМЯ"] ?? 0
         
-        wimpLevel = playerFile[s, "ТРУСОСТЬ"] ?? 0
+        realWimpLevel = playerFile[s, "ТРУСОСТЬ"] ?? 0
         let hunger: Int8 = playerFile[s, "ГОЛОД"] ?? 0
         self.hunger = hunger != -1 ? hunger : nil
         let thirst: Int8 = playerFile[s, "ЖАЖДА"] ?? 0
@@ -522,28 +608,30 @@ class Creature {
         classId = prototype.classId
         race = prototype.race
         level = prototype.level
-        realAlignment = prototype.realAlignment
-        size = prototype.size ?? size
-        weight = prototype.weight ?? defaultWeight(forSize: size)
+        realAlignment = prototype.alignment
+        realSize = prototype.size ?? realSize
+        weight = prototype.weight ?? defaultWeight(forSize: realSize)
         height = prototype.height ?? height
 
-        realStrength = prototype.realStrength ?? realStrength
-        realDexterity = prototype.realDexterity ?? realDexterity
-        realConstitution = prototype.realConstitution ?? realConstitution
-        realIntelligence = prototype.realIntelligence ?? realIntelligence
-        realWisdom = prototype.realWisdom ?? realWisdom
-        realCharisma = prototype.realCharisma ?? realCharisma
+        realStrength = prototype.strength ?? realStrength
+        realDexterity = prototype.dexterity ?? realDexterity
+        realConstitution = prototype.constitution ?? realConstitution
+        realIntelligence = prototype.intelligence ?? realIntelligence
+        realWisdom = prototype.wisdom ?? realWisdom
+        realCharisma = prototype.charisma ?? realCharisma
         
-        realHealth = prototype.realHealth ?? realHealth
+        realHealth = prototype.health ?? realHealth
         
-        attack = prototype.attack
-        defense = prototype.defense
-        absorb = prototype.absorb ?? absorb
+        realSaves = prototype.saves
         
-        realMaximumHitPoints = prototype.realMaximumHitPoints
+        realAttack = prototype.attack
+        realDefense = prototype.defense
+        realAbsorb = prototype.absorb ?? realAbsorb
+        
+        realMaximumHitPoints = prototype.maximumHitPoints
 
         experience = prototype.experience // FIXME: calculate automatically
-        wimpLevel = prototype.wimpLevel ?? wimpLevel
+        realWimpLevel = prototype.wimpLevel ?? realWimpLevel
         
         skillKnowledgeLevels = prototype.skillKnowledgeLevels.mapValues { $0 ?? tableB(level) }
         spellsKnown = prototype.spellsKnown
@@ -667,7 +755,7 @@ class Creature {
             configFile[s, "ЗАДЕРЖКА[\(index)].ВЕЛИЧИНА"] = element.value
         }
 
-        configFile[s, "РАЗМЕР"] = size
+        configFile[s, "РАЗМЕР"] = realSize
         configFile[s, "ВЕС"] = weight
         configFile[s, "РОСТ"] = height
 
@@ -684,16 +772,23 @@ class Creature {
         configFile[s, "ОБА"] = realCharisma
 
         configFile[s, "ЗДОРОВЬЕ"] = realHealth
-        configFile[s, "ВРЕД"] = damroll
+        configFile[s, "ВРЕД"] = realDamroll
+        
+        configFile[s, "ЗМАГИЯ"] = realSaves[.magic]
+        configFile[s, "ЗОГОНЬ"] = realSaves[.heat]
+        configFile[s, "ЗХОЛОД"] = realSaves[.cold]
+        configFile[s, "ЗКИСЛОТА"] = realSaves[.acid]
+        configFile[s, "ЗЭЛЕКТРИЧЕСТВО"] = realSaves[.electricity]
+        configFile[s, "ЗУДАР"] = realSaves[.crush]
 
         configFile[s, "ТЕКЖИЗНЬ"] = hitPoints
         configFile[s, "ЖИЗНЬ"] = realMaximumHitPoints
         configFile[s, "ТЕКБОДРОСТЬ"] = movement
         configFile[s, "БОДРОСТЬ"] = realMaximumMovement
 
-        configFile[s, "АТАКА"] = attack
-        configFile[s, "ЗАЩИТА"] = defense
-        configFile[s, "ПОГЛОЩЕНИЕ"] = absorb
+        configFile[s, "АТАКА"] = realAttack
+        configFile[s, "ЗАЩИТА"] = realDefense
+        configFile[s, "ПОГЛОЩЕНИЕ"] = realAbsorb
         
         configFile[s, "ДЕНЬГИ"] = gold
         configFile[s, "ОПЫТ"] = experience
@@ -737,7 +832,7 @@ class Creature {
         
         configFile[s, "ЗАП.ВРЕМЯ"] = memorizationTimeLeft
 
-        configFile[s, "ТРУСОСТЬ"] = wimpLevel
+        configFile[s, "ТРУСОСТЬ"] = realWimpLevel
         configFile[s, "ГОЛОД"] = hunger ?? -1
         configFile[s, "ЖАЖДА"] = thirst ?? -1
         configFile[s, "ОПЬЯНЕНИЕ"] = drunk ?? -1

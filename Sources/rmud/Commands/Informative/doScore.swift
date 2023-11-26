@@ -6,9 +6,11 @@ extension Creature {
 
         if let player = player {
             do {
-                let affectedAgeComponents = GameTimeComponents(gameSeconds: player.affectedAgeSeconds())
-                act("Вы &1 1и, &2 #1 уровня. Вам #2 #2(год,года,лет).", .toSleeping,
-                    .to(self), .text(raceName), .text(className), .number(Int(level)), .number(affectedAgeComponents.years))
+                let realAge = GameTimeComponents(gameSeconds: player.realAgeSeconds)
+                let affectedYears = player.affectedAgeYears()
+                act("Вы &1 1и, &2 #1 уровня. Вам #2 #2(год,года,лет), #3 месяц#3(,а,ев) и #4 д#4(еь,ня,ней).", .toSleeping,
+                    .to(self), .text(raceName), .text(className), .number(Int(level)),
+                    .number(affectedYears), .number(realAge.months), .number(realAge.days))
             }
             
             do {
@@ -71,10 +73,7 @@ extension Creature {
         act("У Вас есть # стальн#(ая,ые,ых) монет#(а,ы,).", .toSleeping, .to(self), .number(gold))
 
         if let player = player {
-            let seconds = player.playedSecondsSaved + player.playedSecondsUnsaved
-            let hours = (seconds / secondsPerRealHour) % 24 // 0..23 hours
-            let days = (seconds / secondsPerRealDay) // 0..34 days
-            //seconds -= (secondsPerRealDay * days)
+            let (days: days, hours: hours) = player.playedTime
             
             act("Вы играете #1 д#1(ень,ня,ней) и #2 час#2(,а,ов).", .toSleeping,
                 .to(self), .number(Int(days)), .number(Int(hours)))

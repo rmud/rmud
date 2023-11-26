@@ -12,7 +12,7 @@ extension Creature {
         let raceInfo = race.info
         let classInfo = classId.info
         
-        size = raceInfo.size
+        realSize = raceInfo.size
         realMaximumMovement = raceInfo.movement
         
         switch gender {

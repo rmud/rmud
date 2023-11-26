@@ -3,6 +3,10 @@ import Foundation
 extension Creature {
     private enum ShowMode {
         case areas
+        case room
+        case mobile
+        case item
+        case path
         case player
         case statistics
         case snoop
@@ -13,10 +17,6 @@ extension Creature {
         case multiplay
         case cases
         case materials
-        case room
-        case mobile
-        case item
-        case path
     }
     
     private struct ShowSubcommand {
@@ -42,7 +42,7 @@ extension Creature {
         ShowSubcommand("mobile",    "монстр",     "монстра",    .admin, .mobile),
         ShowSubcommand("item",      "предмет",    "предмет",    .admin, .item),
         ShowSubcommand("paths",     "путь",       "путь",       .admin, .path),
-        ShowSubcommand("player",    "персонаж",   "персонажа",  .admin, .player ),
+        ShowSubcommand("player",    "игрок",      "игрока",     .admin, .player ),
         ShowSubcommand("stats",     "статистика", "статистику", .admin, .statistics ),
         ShowSubcommand("snooping",  "шпионаж",    "шпионаж",    .admin, .snoop ),
         ShowSubcommand("spells",    "заклинание", "заклинание", .admin, .spells ),
@@ -78,6 +78,38 @@ extension Creature {
                 return
             }
             showArea(name: areaName(fromArgument: value))
+        case .room:
+            guard !value.isEmpty else {
+                listRooms()
+                return
+            }
+            guard let vnum = roomVnum(fromArgument: value) else {
+                send("Некорректный номер комнаты.")
+                return
+            }
+            showRoom(vnum: vnum)
+        case .mobile:
+            guard !value.isEmpty else {
+                listMobiles()
+                return
+            }
+            if let vnum = Int(value) {
+                showMobile(vnum: vnum)
+            } else {
+                showCreature(named: value)
+            }
+        case .item:
+            guard !value.isEmpty else {
+                listItems()
+                return
+            }
+            guard let vnum = Int(value) else {
+                send("Некорректный номер предмета.")
+                return
+            }
+            showItem(vnum: vnum)
+        case .path:
+            listPaths()
         case .player:
             break
         case .statistics:
@@ -98,38 +130,6 @@ extension Creature {
             showCases()
         case .materials:
             showMaterials()
-        case .room:
-            guard !value.isEmpty else {
-                listRooms()
-                return
-            }
-            guard let vnum = roomVnum(fromArgument: value) else {
-                send("Некорректный номер комнаты.")
-                return
-            }
-            showRoom(vnum: vnum)
-        case .mobile:
-            guard !value.isEmpty else {
-                listMobiles()
-                return
-            }
-            guard let vnum = Int(value) else {
-                send("Некорректный номер существа.")
-                return
-            }
-            showMobile(vnum: vnum)
-        case .item:
-            guard !value.isEmpty else {
-                listItems()
-                return
-            }
-            guard let vnum = Int(value) else {
-                send("Некорректный номер предмета.")
-                return
-            }
-            showItem(vnum: vnum)
-        case .path:
-            listPaths()
         }
     }
 
@@ -275,6 +275,10 @@ extension Creature {
         }
         let mobileString = mobilePrototype.save(for: .ansiOutput(creature: self), with: db.definitions)
         send(mobileString.trimmingCharacters(in: .newlines))
+    }
+    
+    private func showMobile(name: String) {
+        
     }
     
     private func listItems() {

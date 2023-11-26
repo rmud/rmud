@@ -186,7 +186,7 @@ enum Value {
         case .number(let value):
             switch style {
             case .areaFile: return String(value)
-            case .ansiOutput(let creature): return "\(creature.bBlu())\(value)\(creature.nNrm())"
+            case .ansiOutput(let creature): return "\(creature.nCyn())\(value)\(creature.nNrm())"
             }
         case .enumeration(let value):
             let result = enumSpec?()?.lowercasedNamesByValue[value]?.uppercased() ?? String(value)
@@ -235,7 +235,7 @@ enum Value {
             }
         case .longText(let values):
             let separator: String
-            if let continuationIndent = continuationIndent {
+            if let continuationIndent {
                 separator = "\n" + String(repeating: " ", count: continuationIndent())
             } else {
                 separator = " "

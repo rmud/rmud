@@ -5,6 +5,7 @@ enum Apply: RawRepresentable, Hashable, Equatable {
     case skill(Skill)
     case spell(Spell)
     case slotCount(circle: UInt8) // used to be 423...431
+    case save(frag: Frag)
     case custom(ApplyCustom)
     
     init?(rawValue: UInt16) {
@@ -17,6 +18,9 @@ enum Apply: RawRepresentable, Hashable, Equatable {
         } else if 423...431 ~= rawValue {
             guard let circle = UInt8(exactly: rawValue - 423 + 1) else { return nil }
             self = .slotCount(circle: circle)
+        } else if 433...438 ~= rawValue {
+            guard let frag = Frag(rawValue: UInt8(rawValue - 433)) else { return nil }
+            self = .save(frag: frag)
         } else if let custom = ApplyCustom(rawValue: rawValue) {
             self = .custom(custom)
         } else {
@@ -30,6 +34,7 @@ enum Apply: RawRepresentable, Hashable, Equatable {
         case .skill(let skill): return skill.rawValue
         case .spell(let spell): return spell.rawValue
         case .slotCount(let circle): return UInt16(circle) - 1 + 423
+        case .save(let frag): return UInt16(frag.rawValue) + 433
         case .custom(let applyCustom): return applyCustom.rawValue
         }
     }
@@ -51,6 +56,8 @@ enum Apply: RawRepresentable, Hashable, Equatable {
         namesByValue[429] = "круг7" // Изменение прогрессии круга 7
         namesByValue[430] = "круг8" // Изменение прогрессии круга 8
         namesByValue[431] = "круг9" // Изменение прогрессии круга 9
+        
+        namesByValue[432] = "трусость"
 
         ApplyCustom.definitions.forEach { namesByValue[$0] = $1 }
         

@@ -5,7 +5,6 @@ enum Gender: UInt8 {
     case feminine = 1
     case neuter = 2
     case plural = 3
-    case genderNotSpecifiedForCorpse = 0xff // FIXME: shouldn't be here
     
     var singleLetter: String {
         switch self {
@@ -13,7 +12,6 @@ enum Gender: UInt8 {
         case .feminine: return "ж"
         case .neuter: return "н"
         case .plural: return "*"
-        case .genderNotSpecifiedForCorpse: return "т"
         }
     }
     

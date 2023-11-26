@@ -78,12 +78,22 @@ class Player {
             lastPlayedSecondsUnsavedCheckpointAt = gameTime.seconds - newValue
         }
     }
+    var playedTime: (days: UInt64, hours: UInt64) {
+        let seconds = playedSecondsSaved + playedSecondsUnsaved
+        let hours = (seconds / secondsPerRealHour) % 24 // 0..23 hours
+        let days = (seconds / secondsPerRealDay) // 0..34 days
+        //seconds -= (secondsPerRealDay * days)
+        return (days: days, hours: hours)
+    }
     //let time = TimeData() // player age
     var realAgeSeconds: UInt64 {
         return playerStartAgeYears * secondsPerGameYear + gameTime.seconds - createdAtGameTimeSeconds
     }
-    func affectedAgeSeconds() -> UInt64 {
-        return affected(baseValue: realAgeSeconds, by: .custom(.age), clampedTo: (10*secondsPerGameYear)...(1024*secondsPerGameYear))
+    var realAgeYears: Int {
+        return Int(realAgeSeconds / secondsPerGameYear)
+    }
+    func affectedAgeYears() -> Int {
+        return affected(baseValue: realAgeYears, by: .custom(.age), clampedTo: 10...1024)
     }
     
     //

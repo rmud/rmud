@@ -16,7 +16,7 @@ extension Creature {
             player.mapHeight = defaultMapHeight
             player.pageWidth = defaultPageWidth
             player.pageLength = defaultPageLength
-            wimpLevel = 0
+            realWimpLevel = 0
             player.maxIdle = defaultMaxIdle
             send("Все настройки сброшены в состояние по умолчанию.")
         } else if option(name, matches: "краткий", "brief") {
@@ -223,7 +223,7 @@ extension Creature {
             send("простой         Разрывать соединение, если простой привысил: \(player.maxIdle) минут\(player.maxIdle.ending("у", "ы", "")).")
         }
         send("тренировка      Не получать опыт за смерть монстра: \(training).")
-        send("трусость        Уровень трусости: \(wimpLevel)%.")
+        send("трусость        Уровень трусости: \(realWimpLevel)%.")
         send("")
         
         var modes = ""
@@ -350,8 +350,8 @@ extension Creature {
             return
         }
         
-        wimpLevel = newWimpy
-        send("Теперь Ваш уровень трусости \(wimpLevel).")
+        realWimpLevel = newWimpy
+        send("Теперь Ваш уровень трусости \(realWimpLevel).")
     }
     
     private func toggleStatus(_ value: String) {

@@ -71,7 +71,7 @@ extension Creature {
             } else if isMisty {
                 var size = 0
                 for creature in toRoom.creatures {
-                    size += Int(creature.size)
+                    size += Int(creature.affectedSize())
                     if size >= 100 {
                         send("\(bGra())...Смутные тени мелькают в тумане...\(nNrm())")
                         break
