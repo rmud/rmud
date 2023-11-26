@@ -589,10 +589,10 @@ class Creature {
         db.creaturesByUid[self.uid] = self
     }
     
-    init?(prototype: MobilePrototype, uid: UInt64?, db: Db, room: Room) {
+    init(prototype: MobilePrototype, uid: UInt64?, db: Db, room: Room) {
         self.uid = uid ?? db.createCreatureUid()
 
-        guard let mobile = Mobile(prototype: prototype, creature: self) else { return nil }
+        let mobile = Mobile(prototype: prototype, creature: self)
         
         nameNominative = MultiwordName(prototype.nameNominative)
         nameGenitive = MultiwordName(prototype.nameGenitive)

@@ -55,11 +55,16 @@ extension Creature {
     }
                 
     private func statusHealth(target: Creature) -> String {
+        let isHolylight = self.preferenceFlags?.contains(.holylight) ?? false
+
         let targetName = nameNominativeVisible(of: target)
         let targetPercent = target.hitPointsPercentage()
         let statusColor = percentageColor(targetPercent)
         let targetCondition = CreatureCondition(hitPointsPercentage: targetPercent, position: target.position)
-        let conditionString = targetCondition.shortDescription(gender: genderVisible(of: target))
+        var conditionString = targetCondition.shortDescription(gender: genderVisible(of: target))
+        if isHolylight {
+            conditionString += " \(target.hitPoints)ж"
+        }
         let conditionStringColored = "\(statusColor)\(conditionString)\(nNrm())"
         
         return "[\(targetName):\(conditionStringColored)]"

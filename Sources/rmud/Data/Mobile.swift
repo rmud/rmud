@@ -38,7 +38,7 @@ class Mobile {
     var isShopkeeper: Bool { return shopkeeper != nil }
     var stablemanNoteVnum: Int?
 
-    init?(prototype: MobilePrototype, creature: Creature) {
+    init(prototype: MobilePrototype, creature: Creature) {
         self.creature = creature
 
         vnum = prototype.vnum

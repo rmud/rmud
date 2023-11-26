@@ -114,8 +114,6 @@ extension Creature {
         damage += victim.damagePositionBonus(damage: damage)
         damage = max(1, damage)
 
-        damage += 50
-        
         performDamage(victim: victim, damage: damage)
     }
     
