@@ -208,24 +208,24 @@ extension Creature {
             ])
         }
         
-        do {
-            var stats: [StatInfo] = [
-                .init("обаяние", creature.realCharisma,
-                      modifier: creature.affectedCharisma() - Int(creature.realCharisma)),
-                .init("вес", creature.weight),
-                .init("рост", creature.height),
-                .init("размер", creature.realSize,
-                      modifier: creature.affectedSize() - Int(creature.realSize))
-            ]
-            if let player = creature.player {
-                let age = GameTimeComponents(gameSeconds: player.realAgeSeconds)
-                stats.append(.init("возраст", "\(age.years)г \(age.months)м \(age.days)д \(age.hours)ч"))
-                stats.append(.init("лет", player.realAgeYears,
-                                   modifier: player.affectedAgeYears() - player.realAgeYears))
-            }
-            stats.append(.init("здоровье", creature.realHealth,
-                               modifier: creature.affectedHealth() - Int(creature.realHealth)))
-            sendStatGroup(stats)
+        sendStatGroup([
+            .init("обаяние", creature.realCharisma,
+                  modifier: creature.affectedCharisma() - Int(creature.realCharisma)),
+            .init("вес", creature.weight),
+            .init("рост", creature.height),
+            .init("размер", creature.realSize,
+                  modifier: creature.affectedSize() - Int(creature.realSize)),
+            .init("здоровье", creature.realHealth,
+                           modifier: creature.affectedHealth() - Int(creature.realHealth))
+        ])
+
+        if let player = creature.player {
+            let age = GameTimeComponents(gameSeconds: player.realAgeSeconds)
+            sendStatGroup([
+                .init("возраст", "\(age.years)г \(age.months)м \(age.days)д \(age.hours)ч"),
+                .init("лет", player.realAgeYears,
+                      modifier: player.affectedAgeYears() - player.realAgeYears)
+            ])
         }
         
         do {

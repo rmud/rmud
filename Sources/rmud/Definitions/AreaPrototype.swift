@@ -63,7 +63,11 @@ public class AreaPrototype {
             content += "    ПЕРВАЯ \(Value(number: vnumRange.lowerBound).formatted(for: style))\n"
             content += "    ПОСЛЕДНЯЯ \(Value(number: vnumRange.upperBound).formatted(for: style))\n"
             if let originVnum = originVnum {
-                content += "    ОСНОВНАЯ \(Value(number: originVnum).formatted(for: style))\n"
+                var comment = ""
+                if case .ansiOutput(_) = style, let room = roomPrototypesByVnum[originVnum] {
+                    comment = " " + Comment("\(room.name)").formatted()
+                }
+                content += "    ОСНОВНАЯ \(Value(number: originVnum).formatted(for: style))\(comment)\n"
             }
         }
         
@@ -86,9 +90,15 @@ public class AreaPrototype {
         }
         if !paths.isEmpty {
             for (name, rooms) in paths {
-                result += structureIfNotEmpty("ПУТИ") { content in
+                result += structureIfNotEmpty("ПУТЬ") { content in
                     content += "    НАЗВАНИЕ \(Value(line: name).formatted(for: style))\n"
                     if !rooms.isEmpty {
+                        if case .ansiOutput(_) = style {
+                            for roomVnum in rooms.sorted() {
+                                guard let room = roomPrototypesByVnum[roomVnum] else { continue }
+                                content += "    \(Comment("\(roomVnum): \(room.name)").formatted())\n"
+                            }
+                        }
                         content += "    КОМНАТЫ \(Value(list: rooms).formatted(for: style))\n"
                     }
                 }
