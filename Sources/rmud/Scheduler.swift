@@ -55,7 +55,7 @@ class Scheduler {
     
     func cancelAllEvents<T: AnyObject>(target: T) {
         let targetId = ObjectIdentifier(target)
-        guard var events = eventsByTarget[targetId] else { return }
+        guard let events = eventsByTarget[targetId] else { return }
         for event in events {
             eventsByTime.delete(key: event)
         }

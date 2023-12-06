@@ -42,6 +42,9 @@ class Db {
 
         log("Loading last UID - NOT IMPLEMENTED")
 
+        log("Loading balance tables")
+        balance.parseInfo()
+        
         log("Loading classes information")
         classes.parseInfo()
         

@@ -282,7 +282,7 @@ extension Creature {
         // TODO: footmarks
         
         if !creature.skillLag.isEmpty {
-            var lags: [(Int64, Int64?)] = creature.skillLag.map { (skill, lag) in
+            let lags: [(Int64, Int64?)] = creature.skillLag.map { (skill, lag) in
                 (Int64(skill.rawValue), Int64(lag))
             }
             sendStat(.init("задержки", .dictionary(Dictionary(uniqueKeysWithValues: lags))))

@@ -63,7 +63,7 @@ extension Creature {
 
         if isPlayer && level <= maximumMortalLevel {
             var format = "Вы набрали #1 очк#1(о,а,ов) опыта."
-            let experienceNeeded = classId.info.experience(forLevel: level + 1) - experience
+            let experienceNeeded = classId.info.experienceForLevel(level + 1) - experience
             if experienceNeeded > 0 {
                 format += " До следующего уровня осталось #2."
             }

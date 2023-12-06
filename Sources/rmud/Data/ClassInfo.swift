@@ -8,7 +8,7 @@ class ClassInfo {
     var namesByGender: [Gender: String] = [:]
     var classGroup: ClassGroup = .none
     var startingHitPoints = 0
-    var experienceMultiplier = 0
+    var experienceMultiplierPercentage = 100
     
     var hitPointGain = Dice<Int>()
     var maxHitPerLevel = 0
@@ -33,11 +33,12 @@ class ClassInfo {
     var slotsPerCirclePerLevel: [Int: SlotsPerCircle] = [:]
     var newbieEquipment: [EquipmentSlot] = []
     
-    func experience(forLevel level: UInt8) -> Int {
-        guard let baseValue = baseLevelExperience[validating: Int(level)] else {
+    func experienceForLevel(_ level: UInt8) -> Int {
+        guard let metadata = balance.levelMetadata[validating: Int(level)] else {
             fatalError("Requested experience for invalid level \(level)")
         }
-        return baseValue * experienceMultiplier
+        let levelExperience = Int64(metadata.levelExperience)
+        return Int(levelExperience * Int64(experienceMultiplierPercentage) / 100)
     }
 }
 

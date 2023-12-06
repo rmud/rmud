@@ -81,7 +81,7 @@ class Classes {
             }
         case "профессии_опыт":
             for (index, line) in lines.enumerated() {
-                getClassInfo(byId: index).experienceMultiplier = Int(line) ?? 0
+                getClassInfo(byId: index).experienceMultiplierPercentage = Int(line) ?? 0
             }
         case "профессии_плюс_жизнь":
             parseClassHitGain(lines)

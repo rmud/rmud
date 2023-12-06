@@ -19,8 +19,8 @@ class MobilePrototype {
     var classId: ClassId // Required
     var alignment: Alignment // Required
     var level: UInt8 // Required
-    var experience: Int // Required
-    var maximumHitPoints: Int // Required
+    var experience: Int?
+    var maximumHitPoints: Int?
     var defense: Int // Required
     var attack: Int // Required
     var absorb: Int? // Optional
@@ -115,8 +115,8 @@ class MobilePrototype {
         classId = entity["профессия"]?.uint8.flatMap { ClassId(rawValue: $0) } ?? .amalgamated // FIXME: introduce 'none'
         alignment = Alignment(clamping: entity["наклонности"]?.int ?? 0)
         level = entity["уровень"]?.uint8 ?? 0
-        experience = entity["опыт"]?.int ?? 0
-        maximumHitPoints = entity["жизнь"]?.int ?? 0
+        experience = entity["опыт"]?.int
+        maximumHitPoints = entity["жизнь"]?.int
         defense = entity["защита"]?.int ?? 0
         attack = entity["атака"]?.int ?? 0
         if let absorb = entity["поглощение"]?.int {
@@ -517,8 +517,12 @@ class MobilePrototype {
         }
         result += "  НАКЛОННОСТИ \(Value(number: alignment.value).formatted(for: style))\n"
         result += "  УРОВЕНЬ \(Value(number: level).formatted(for: style))\n"
-        result += "  ОПЫТ \(Value(number: experience).formatted(for: style))\n"
-        result += "  ЖИЗНЬ \(Value(number: maximumHitPoints).formatted(for: style))\n"
+        if let experience {
+            result += "  ОПЫТ \(Value(number: experience).formatted(for: style))\n"
+        }
+        if let maximumHitPoints {
+            result += "  ЖИЗНЬ \(Value(number: maximumHitPoints).formatted(for: style))\n"
+        }
         result += "  ЗАЩИТА \(Value(number: defense).formatted(for: style))\n"
         result += "  АТАКА \(Value(number: attack).formatted(for: style))\n"
         if let absorb = absorb {

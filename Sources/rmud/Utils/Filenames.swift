@@ -10,6 +10,7 @@ class Filenames
     var logFilename = ""
     
     // Game
+    var balance: String { return makePath(dataPrefix, "game/balance") }
     var classes: String { return makePath(dataPrefix, "game/classes") }
     var messages: String { return makePath(dataPrefix, "game/messages") }
     var socials: String { return makePath(dataPrefix, "game/socials") }

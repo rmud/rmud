@@ -88,11 +88,11 @@ class Creature {
     func adjustLevel() {
         guard isPlayer else { return }
         
-        while level <= maximumMortalLevel && experience >= classId.info.experience(forLevel: level + 1) {
+        while level <= maximumMortalLevel && experience >= classId.info.experienceForLevel(level + 1) {
             advanceLevel()
             act("&1Вы получили уровень!&2", .toSleeping, .to(self), .text(bWht()), .text(nNrm()))
         }
-        while level > 1 && experience < classId.info.experience(forLevel: level) - levelLossBuffer() {
+        while level > 1 && experience < classId.info.experienceForLevel(level) - levelLossBuffer() {
             loseLevel()
             act("&1Вы потеряли уровень!&2", .toSleeping, .to(self), .text(bWht()), .text(nNrm()))
         }
@@ -134,8 +134,8 @@ class Creature {
     }
     
     private func levelLossBuffer() -> Int {
-        return (classId.info.experience(forLevel: level) -
-            classId.info.experience(forLevel: level - 1)) / 10
+        return (classId.info.experienceForLevel(level) -
+            classId.info.experienceForLevel(level - 1)) / 10
     }
     
     private func loseLevel() {
@@ -344,8 +344,8 @@ class Creature {
         if gain > 0 {
             let isTraining = preferenceFlags?.contains(.training) ?? false
             guard !isTraining else { return }
-            gain = min((classId.info.experience(forLevel: level + 1) -
-                classId.info.experience(forLevel: level)) / (level > 5 ? 25 : 20 + Int(level)),
+            gain = min((classId.info.experienceForLevel(level + 1) -
+                classId.info.experienceForLevel(level)) / (level > 5 ? 25 : 20 + Int(level)),
                        min(500000, gain))
             
             experience += gain
@@ -357,7 +357,7 @@ class Creature {
             //XXX а не ограничить ли макс.потерю опыть не 10млн, а, скажем, 5?
             gain = max(-experience, max(-10000000, gain))
             // Don't lose more than 1 level
-            gain = max(-(classId.info.experience(forLevel: level) - classId.info.experience(forLevel: level - 1)), gain)
+            gain = max(-(classId.info.experienceForLevel(level) - classId.info.experienceForLevel(level - 1)), gain)
             experience += gain
             
             let message: String
@@ -628,9 +628,11 @@ class Creature {
         realDefense = prototype.defense
         realAbsorb = prototype.absorb ?? realAbsorb
         
-        realMaximumHitPoints = prototype.maximumHitPoints
+        realMaximumHitPoints = prototype.maximumHitPoints ??
+            balance.mobileMaximumHitpoints(level: Int(level))
 
-        experience = prototype.experience // FIXME: calculate automatically
+        experience = prototype.experience ??
+            balance.mobileExperience(level: Int(level))
         realWimpLevel = prototype.wimpLevel ?? realWimpLevel
         
         skillKnowledgeLevels = prototype.skillKnowledgeLevels.mapValues { $0 ?? tableB(level) }
