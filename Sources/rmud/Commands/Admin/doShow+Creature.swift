@@ -305,9 +305,27 @@ extension Creature {
         
         // TODO: affects
         
+        if !creature.attackedByAtGamePulse.isEmpty {
+            let attackers = creature.attackedByAtGamePulse.map { (uid: UInt64, gamePulse: UInt64) in
+                let name = db.creaturesByUid[uid]?.nameNominative.full ?? "\(uid)"
+                let ticsAgo = GameTime.tics(
+                    fromPulses: gameTime.pulsesSince(gamePulse: gamePulse)
+                )
+                return "\(name):\(ticsAgo)"
+            }.joined(separator: ", ")
+            sendStat(.init("атакован", attackers))
+        }
+
+        if !creature.lastBattleParticipants.isEmpty {
+            let participants = creature.lastBattleParticipants.map { uid in
+                db.creaturesByUid[uid]?.nameNominative.full ?? "\(uid)"
+            }.joined(separator: ", ")
+            sendStat(.init("бой", participants))
+        }
+        
         // TODO: scripts
     }
-                
+    
     private func sendStat(_ stat: StatInfo, indent: Int = 2) {
         let indentString = String(repeating: " ", count: indent)
         send(indentString + stat.description(for: self, indent: indent))

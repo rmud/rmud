@@ -4,9 +4,13 @@ extension Creature {
     func updateOnTick() {
         if position.isStunnedOrBetter {
             if isMobile || isConnected {
-                hitPoints = min(
-                    hitPoints + hitPointsGain(), affectedMaximumHitPoints()
-                )
+                let maximumHitPoints = affectedMaximumHitPoints()
+                if hitPoints < maximumHitPoints {
+                    hitPoints = min(hitPoints + hitPointsGain(), maximumHitPoints)
+                }
+                if hitPoints == maximumHitPoints {
+                    lastBattleParticipants.removeAll()
+                }
             }
             if position == .stunned {
                 updatePosition()

@@ -15,6 +15,10 @@ enum Position: UInt8 {
         default: return false
         }
     }
+
+    var isSleepingOrWorse: Bool {
+        return self == .sleeping || self == .stunned || self == .dying || self == .dead
+    }
     
     var isStunnedOrWorse: Bool {
         return self == .stunned || self == .dying || self == .dead

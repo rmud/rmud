@@ -27,6 +27,9 @@ extension Creature {
             db.creaturesFighting.append(victim)
         }
         
+        victim.attackedByAtGamePulse[uid] = gameTime.gamePulse
+        victim.lastBattleParticipants.insert(uid)
+        
         return true
     }
             
@@ -79,9 +82,9 @@ extension Creature {
         return clamping(100 - penaltyPercents, to: 0...100)
     }
     
-    private func hasLandedHit(with weapon: Item?) -> Bool {
-        let attack = 0
-        let defense = 0
+    private func hasLandedHit(on target: Creature, with weapon: Item?) -> Bool {
+        let attack = totalAttack(target: target)
+        let defense = target.totalDefense(against: self)
         
         // 1...50 = miss, 51...100 = hit. 50% chance
         let isAttackThrowSuccesful =
@@ -100,7 +103,7 @@ extension Creature {
             weapon.weaponType.hitType
         } else { .hit }
         
-        guard hasLandedHit(with: weaponItem) else {
+        guard hasLandedHit(on: victim, with: weaponItem) else {
             sendMissMessage(victim: victim, hitType: hitType)
             return
         }
@@ -151,6 +154,7 @@ extension Creature {
             act("1и мертв1(,а,о,ы)! R.I.P.", .toRoom, .excluding(self))
             send("Вы мертвы! R.I.P.")
             db.creaturesDying.append(self)
+            awardExperienceToAttackers()
         } else if hitPoints < -3 {
             position = .dying
             send("Вы смертельно ранены и скоро умрете, если никто не поможет.")
@@ -180,6 +184,53 @@ extension Creature {
                 break
             }
         }
+    }
+    
+    func awardExperienceToAttackers() {
+        guard let inRoom else { return }
+        let gainers = inRoom.creatures.filter { creature in
+            lastBattleParticipants.contains(creature.uid)
+        }
+        
+        let minLevel = gainers.min { creature1, creature2 in
+            creature1.level < creature2.level
+        }?.level ?? 1
+        
+        let coefs = gainers.map { gainer in
+            gainer.experienceGainCoef(gainersMinLevel: Int(minLevel))
+        }
+        
+        let totalCoef = coefs.reduce(0, +)
+        
+        for gainer in gainers {
+            let coef = gainer.experienceGainCoef(gainersMinLevel: Int(minLevel))
+            let gain = Int(
+                (
+                    Double(experience * coef) / Double(totalCoef)
+                ).rounded()
+            )
+            gainer.gainExperience(gain)
+        }
+    }
+    
+    func gainExperience(_ gain: Int) {
+        guard gain != 0 else {
+            send("Вы не получили никакого опыта.")
+            return
+        }
+        experience += gain
+        if gain > 0 {
+            act("Вы получили # очк#(о,а,ов) опыта.",
+                .toSleeping, .to(self), .number(gain))
+        } else {
+            act("Вы потеряли # очк#(о,а,ов) опыта.",
+                .toSleeping, .to(self), .number(-gain))
+        }
+        adjustLevel()
+    }
+        
+    private func experienceGainCoef(gainersMinLevel: Int) -> Int {
+        return Int(level) - Int(gainersMinLevel) + 3
     }
     
     func sendMissMessage(victim: Creature, hitType: HitType) {

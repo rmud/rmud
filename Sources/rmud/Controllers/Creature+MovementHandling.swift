@@ -37,11 +37,15 @@ extension Creature {
         case .keepItems:
             break
         }
+        
+        attackedByAtGamePulse.removeAll()
+        lastBattleParticipants.removeAll()
 
         scheduler.cancelAllEvents(target: self)
         removeFromRoom()
         
         db.creaturesInGame = db.creaturesInGame.filter { $0 != self }
+        db.creaturesInGameByUid.removeValue(forKey: self.uid)
         
         if isPlayer {
             descriptors.forEach { descriptor in

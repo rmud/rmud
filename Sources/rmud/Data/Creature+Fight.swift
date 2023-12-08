@@ -42,4 +42,36 @@ extension Creature {
         else if position == .sitting { return damage / 4 }
         return 0
     }
+    
+    func totalAttack(target: Creature) -> Int {
+        var attack = affectedAttack()
+        
+        if target.isHelpless() {
+            attack += 40
+        } else if target.position == .resting {
+            attack += 30
+        } else if target.position == .sitting {
+            attack += 20
+        }
+        
+        if canSee(target) {
+            if !target.canSee(self) {
+                if target.fighting == self {
+                    attack += 20
+                } else {
+                    attack += 40
+                }
+            }
+        } else {
+            attack -= 40
+        }
+            
+        return attack
+    }
+    
+    func totalDefense(against attacker: Creature) -> Int {
+        let defense = affectedDefense()
+        
+        return defense
+    }
 }

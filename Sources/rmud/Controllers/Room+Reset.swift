@@ -71,6 +71,7 @@ extension Room {
                     guard Random.probability(loadChance) else { continue }
                     let creature = Creature(prototype: prototype, uid: nil, db: db, room: self)
                     db.creaturesInGame.append(creature)
+                    db.creaturesInGameByUid[creature.uid] = creature
                     creature.mobile?.homeArea = area
                     creature.mobile?.homeRoom = vnum
                     

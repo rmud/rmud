@@ -6,8 +6,16 @@ class GameTime {
     var gamePulse: UInt64 = 0
     var seconds: UInt64 { return gamePulse / 10 }
     
+    func pulsesSince(gamePulse: UInt64) -> UInt64 {
+        return self.gamePulse - gamePulse
+    }
+    
     static func pulses(inSeconds seconds: UInt64) -> UInt64 {
         return seconds * 10
+    }
+    
+    static func tics(fromPulses pulses: UInt64) -> UInt64 {
+        return pulses / 600
     }
     
     func loadFromDisk() throws {

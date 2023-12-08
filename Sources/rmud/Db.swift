@@ -21,6 +21,7 @@ class Db {
 
     var roomsByVnum: [Int: Room] = [:]
     var creaturesInGame: [Creature] = []
+    var creaturesInGameByUid: [UInt64: Creature] = [:]
     var creaturesByUid: [UInt64: Creature] = [:]
     var creaturesFighting: [Creature] = []
     var creaturesDying: [Creature] = []

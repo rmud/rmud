@@ -5,6 +5,10 @@ extension Creature {
         return preferenceFlags?.contains(.godMode) ?? false
     }
     
+    func isHelpless() -> Bool {
+        return position.isSleepingOrWorse || isHeld()
+    }
+    
     func isHeld() -> Bool {
         return isAffected(by: .hold) && !isAffected(by: .freeAction)
     }

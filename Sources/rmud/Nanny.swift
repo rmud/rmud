@@ -795,6 +795,7 @@ private func stateCreatureMenu(_ d: Descriptor, _ arg: String) {
             creature.teleportTo(room: loadRoom)
             
             db.creaturesInGame.append(creature)
+            db.creaturesInGameByUid[creature.uid] = creature
             
             if let player = creature.player {
                 let isNewOrDied = player.flags.contains(anyOf: [.newPlayer, .died])

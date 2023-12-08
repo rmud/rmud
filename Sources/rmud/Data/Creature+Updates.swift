@@ -8,7 +8,7 @@ extension Creature {
         } else {
             let health = 100
             let bonus = 0
-            gain += classId.info.maxHitPerLevel * health * (100 + bonus)
+            gain += classId.info.maxHitPerLevel * health * (100 + bonus) / 10000
         }
 
         if let room = inRoom, room.flags.contains(.recuperate) {
