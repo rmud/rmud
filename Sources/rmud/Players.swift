@@ -69,6 +69,11 @@ class Players {
         creature.player?.account.creatures.remove(creature)
         scheduledForSaving.remove(creature)
 
+        for d in networking.descriptors {
+            guard creature == d.creature else { continue }
+            d.creature = nil
+        }
+
         let filename = filenames.playerFileName(forPlayerName: creature.nameNominative.full)
         let fileManager = FileManager.default
         do {
