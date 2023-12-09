@@ -13,6 +13,11 @@ let pulseMobile = pulseViolence
 let pulseMobileOffset = pulseViolence / 2
 let pulseTick =  60 * passesPerSec
 
+enum Constants {
+    // 3 real life months equivalent of game time
+    static let expForRepeatedKillsUnmaxPeriodPulses = pulseTick * 60 * 24 * 30 * 3
+}
+
 let playerNameAllowedLettersLowercased = CharacterSet(charactersIn: "абвгдеёжзийклмнопрстуфхцчшщъыьэюя")
 let playerMaxNameLength = 20 // Player's name length
 let playerMaxPasswordLength = 255 // Player's password length

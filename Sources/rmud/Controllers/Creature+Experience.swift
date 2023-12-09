@@ -1,5 +1,8 @@
+import Foundation
+
 extension Creature {
     func awardExperienceToAttackers() {
+        guard let mobile else { return }
         guard let inRoom else { return }
         let gainers = inRoom.creatures.filter { creature in
             lastBattleParticipants.contains(creature.uid)
@@ -16,13 +19,20 @@ extension Creature {
         let totalCoef = coefs.reduce(0, +)
         
         for gainer in gainers {
+            guard let gainerPlayer = gainer.player else { continue }
+            
             let coef = gainer.experienceGainCoef(gainersMinLevel: Int(minLevel))
             let gain = Int(
                 (
                     Double(experience * coef) / Double(totalCoef)
                 ).rounded()
             )
-            gainer.gainExperience(gain)
+            let limitedGain = gainer.expLimitedForRepeatedKills(gain: gain, vnum: mobile.vnum)
+            gainer.gainExperience(limitedGain)
+            
+            gainerPlayer.killedMobVnumsAtTimestamps[
+                mobile.vnum, default: []
+            ].append(gameTime.gamePulse)
         }
     }
     
@@ -40,6 +50,32 @@ extension Creature {
                 .toSleeping, .to(self), .number(-gain))
         }
         adjustLevel()
+        
+        player?.scheduleForSaving()
+    }
+    
+    private func expLimitedForRepeatedKills(gain: Int, vnum: Int) -> Int {
+        guard gain > 0 else { return gain }
+        guard let player else { return gain }
+        
+        let kills = player.killedMobVnumsAtTimestamps[vnum] ?? []
+        let recentKills = kills.filter { gainGamePulse in
+            let pulsesAgo = gameTime.gamePulse - gainGamePulse
+            return pulsesAgo <= Constants.expForRepeatedKillsUnmaxPeriodPulses
+        }
+        
+        let recentKillsCount = recentKills.count
+        
+        if kills.count != recentKillsCount {
+            if recentKills.isEmpty {
+                player.killedMobVnumsAtTimestamps.removeValue(forKey: vnum)
+            } else {
+                player.killedMobVnumsAtTimestamps[vnum] = recentKills
+            }
+        }
+        
+        let adjustedGain = Double(gain) * pow(0.9, Double(recentKillsCount))
+        return Int(adjustedGain.rounded())
     }
 
     private func experienceGainCoef(gainersMinLevel: Int) -> Int {

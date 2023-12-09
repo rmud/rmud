@@ -155,6 +155,7 @@ extension Creature {
             send("Вы мертвы! R.I.P.")
             db.creaturesDying.append(self)
             awardExperienceToAttackers()
+            
         } else if hitPoints < -3 {
             position = .dying
             send("Вы смертельно ранены и скоро умрете, если никто не поможет.")

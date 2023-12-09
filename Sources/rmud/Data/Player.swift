@@ -58,10 +58,7 @@ class Player {
     var loadRoom = vnumMortalStartRoom // which room to enter game in
     var bankGold = 0 // bank account
 
-    //
-    // Same mob kill EXP gain limitation arrays
-    typealias KillInfo = (vnum: Int, killCount: UInt16)
-    var kills = [KillInfo]()
+    var killedMobVnumsAtTimestamps: [Int: [UInt64]] = [:]
 
     var watching: Creature?
     
@@ -194,28 +191,29 @@ class Player {
         }
         
         do {
-            // Note that these arrays will contain zeros in empty slots
-            let killVnumsString = playerFile[s, "УБ.НОМ"] ?? ""
-            let killVnums: [Int] = killVnumsString.components(separatedBy: ",")
-                .map { $0.trimmingCharacters(in: .whitespaces) }
-                .map { Int($0) ?? 0 }
-            let killCountsString = playerFile[s, "УБ.КОЛ"] ?? ""
-            let killCounts: [UInt16] = killCountsString.components(separatedBy: ",")
-                .map { $0.trimmingCharacters(in: .whitespaces) }
-                .map { UInt16($0) ?? 0 }
-            if killVnums.count != killCounts.count {
-                logError("Player \(nameNominative): kill vnums count (\(killVnums.count)) not equal to killCounts size (\(killCounts.count))")
-            }
-            let vnumsAndCounts = Array(zip(killVnums, killCounts))
-            let killPosition = playerFile[s, "УБ.ПОЗ"] ?? vnumsAndCounts.count
-            let vnumsAndCountsReordered =
-                vnumsAndCounts[killPosition ..< vnumsAndCounts.count] +
-                vnumsAndCounts[0 ..< killPosition]
-            let vnumsAndCountsTrimmed = vnumsAndCountsReordered.filter {
-                vnum, killCount in
-                return vnum != 0 && killCount != 0
-            }
-            kills = vnumsAndCountsTrimmed.map { KillInfo(vnum: $0, killCount: $1) }
+            let killsString = playerFile[s, "УБИЙСТВА"] ?? ""
+            let kills: [Dictionary<Int, [UInt64]>.Element] = killsString
+                .split(separator: " ")
+                .map { pair in
+                    let result = pair.split(separator: ":", maxSplits: 1)
+                    guard result.count == 2,
+                          let vnumString = result.first,
+                          let vnum = Int(String(vnumString)),
+                          let timestampStrings = result.last
+                    else {
+                        logFatal("Player \(nameNominative): ОПЫТ: invalid format")
+                    }
+                    let timestamps: [UInt64] = timestampStrings
+                        .split(separator: ",")
+                        .map {
+                            guard let timestamp = UInt64(String($0)) else {
+                                logFatal("Player \(nameNominative): ОПЫТ: invalid timestamp")
+                            }
+                            return timestamp
+                        }
+                    return (key: vnum, value: timestamps)
+                }
+            killedMobVnumsAtTimestamps = .init(uniqueKeysWithValues: kills)
         }
         
         noShoutTicsLeft = playerFile[s, "ПРОСТУДА"] ?? 0
@@ -286,9 +284,19 @@ class Player {
 
         configFile[s, "ПРИРОСТЫ"] = hitPointGains.map { String($0) }.joined(separator: ", ")
 
-        configFile[s, "УБ.НОМ"] = kills.map { String($0.vnum) }.joined(separator: ", ")
-        configFile[s, "УБ.КОЛ"] = kills.map { String($0.killCount) }.joined(separator: ", ")
-        configFile[s, "УБ.ПОЗ"] = kills.count
+        do {
+            let kills = killedMobVnumsAtTimestamps
+                .sorted(by: { $0.key < $1.key })
+                .map { vnum, timestamps in
+                    let timestampsFormatted = timestamps
+                        .sorted()
+                        .map({ String($0) })
+                        .joined(separator: ",")
+                    return "\(vnum):\(timestampsFormatted)"
+                }
+                .joined(separator: " ")
+            configFile[s, "УБИЙСТВА"] = kills
+        }
 
         configFile[s, "ПРОСТУДА"] = noShoutTicsLeft
         configFile[s, "КОМНАТА"] = loadRoom
