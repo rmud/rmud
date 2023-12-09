@@ -8,7 +8,7 @@ extension Creature {
             do {
                 let realAge = GameTimeComponents(gameSeconds: player.realAgeSeconds)
                 let affectedYears = player.affectedAgeYears()
-                act("Вы &1 1и, &2 #1 уровня. Вам #2 #2(год,года,лет), #3 месяц#3(,а,ев) и #4 д#4(еь,ня,ней).", .toSleeping,
+                act("Вы &1 1и, &2 #1 уровня. Вам #2 #2(год,года,лет), #3 месяц#3(,а,ев) и #4 д#4(ень,ня,ней).", .toSleeping,
                     .to(self), .text(raceName), .text(className), .number(Int(level)),
                     .number(affectedYears), .number(realAge.months), .number(realAge.days))
             }
