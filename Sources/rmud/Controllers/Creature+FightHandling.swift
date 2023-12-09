@@ -117,18 +117,16 @@ extension Creature {
         damage += victim.damagePositionBonus(damage: damage)
         damage = max(1, damage)
 
+        sendHitMessage(victim: victim, hitType: hitType, damage: damage)
         performDamage(victim: victim, damage: damage)
     }
     
     private func performDamage(victim: Creature, damage: Int) {
-
         if damage > 0 && victim.position == .sleeping {
             victim.position = .sitting
             victim.send("Вы проснулись.")
             act("1*и проснул1(ся,ась,ось,ись).", .toRoom, .excluding(victim))
         }
-
-        sendHitMessage(victim: victim, hitType: .hit, damage: damage)
         
         victim.hitPoints -= damage
         victim.updatePosition()
@@ -188,21 +186,32 @@ extension Creature {
     }
     
     func sendMissMessage(victim: Creature, hitType: HitType) {
-        act("Вы попытались &1 2в, но промахнулись.", .toSleeping, .to(self), .excluding(victim), .text(hitType.indefinite), .text(hitType.past))
+        act("Вы попытались &1 2в, но промахнулись.",
+            .toSleeping, .to(self), .excluding(victim),
+            .text(hitType.indefinite), .text(hitType.past))
 
-        act("1и попытал1(ся,ась,ось,ись) &1 ВАС, но промахнул1(ся,ась,ось,ись).", .toSleeping, .excluding(self), .to(victim), .text(hitType.indefinite), .text(hitType.past))
+        act("1и попытал1(ся,ась,ось,ись) &1 ВАС, но промахнул1(ся,ась,ось,ись).",
+            .toSleeping, .excluding(self), .to(victim),
+            .text(hitType.indefinite), .text(hitType.past))
 
-        act("1и попытал1(ся,ась,ось,ись) &1 2в, но промахнул1(ся,ась,ось,ись).", .toRoom, .excluding(self), .excluding(victim), .text(hitType.indefinite), .text(hitType.past))
+        act("1и попытал1(ся,ась,ось,ись) &1 2в, но промахнул1(ся,ась,ось,ись).",
+            .toRoom, .excluding(self), .excluding(victim),
+            .text(hitType.indefinite), .text(hitType.past))
     }
     
     func sendHitMessage(victim: Creature, hitType: HitType, damage: Int) {
         let hitForce = HitForce(damage: damage)
         
-        act("\(bYel())\(hitForce.attacker)\(nNrm())", .toSleeping, .to(self), .excluding(victim), .text(hitType.indefinite), .text(hitType.past))
+        act("\(bYel())\(hitForce.attacker)\(nNrm())",
+            .toSleeping, .to(self), .excluding(victim),
+            .text(hitType.indefinite), .text(hitType.past))
 
-        act("\(victim.bRed())\(hitForce.victim)\(victim.nNrm())", .toSleeping, .excluding(self), .to(victim), .text(hitType.indefinite), .text(hitType.past))
+        act("\(victim.bRed())\(hitForce.victim)\(victim.nNrm())",
+            .toSleeping, .excluding(self), .to(victim),
+            .text(hitType.indefinite), .text(hitType.past))
 
-        act(hitForce.room, .toRoom, .excluding(self), .excluding(victim), .text(hitType.indefinite), .text(hitType.past))
+        act(hitForce.room, .toRoom, .excluding(self), .excluding(victim),
+            .text(hitType.indefinite), .text(hitType.past))
 
         let victimMaxHit = victim.affectedMaximumHitPoints()
         if damage > victimMaxHit / 4 {
