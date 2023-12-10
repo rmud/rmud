@@ -155,11 +155,11 @@ extension Creature {
         if useTake && !canWear(item: item, at: position) {
             switch position {
             case .twoHand, .wield:
-                act("1т вооружиться нельзя. У Вас заняты руки.", .to(self), .item(item))
+                act("@1т вооружиться нельзя. У Вас заняты руки.", .to(self), .item(item))
             case .hold, .light:
-                act("1в взять во вторую руку нельзя. Она занята.", .to(self), .item(item))
+                act("@1в взять во вторую руку нельзя. Она занята.", .to(self), .item(item))
             case .shield:
-                act("1в пристегнуть на руку нельзя. Она занята.", .to(self), .item(item))
+                act("@1в пристегнуть на руку нельзя. Она занята.", .to(self), .item(item))
             default:
                 send("У Вас заняты руки.")
             }
