@@ -141,6 +141,7 @@ extension Creature {
         
         if hitPoints > 0 {
             if position.isStunnedOrWorse {
+                position = .sitting
                 send("Вы пришли в себя.")
                 act("1*и приш1(ёл,ла,ло,ли) в себя.", .toRoom, .excluding(self))
             }
