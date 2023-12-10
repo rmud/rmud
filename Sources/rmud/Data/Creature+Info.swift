@@ -116,14 +116,14 @@ extension Creature {
             }
         }
         
-        var actArguments: [ActArgument] = [
-            .to(self),
-            .excluding(creature)
-        ]
-        actArguments.append(.excluding(creature.riding ?? creature))
-        actArguments.append(.excluding(creature.fighting ?? creature))
         var result = ""
-        act(formatString, .toSleeping, actArguments) { target, output in
+        act(formatString,
+            .toSleeping,
+            .to(self),
+            .excluding(creature),
+            .excluding(creature.riding ?? creature),
+            .excluding(creature.fighting ?? creature)
+        ) { target, output in
             assert(result.isEmpty) // should be only one target
 
             if preferenceFlags?.contains(.autostat) ?? false {
@@ -146,11 +146,7 @@ extension Creature {
     
     // Describes the item from viewpoint of the creature
     func describe(item: Item) -> String {
-        var vnumString = ""
-        if preferenceFlags?.contains(.autostat) ?? false {
-            vnumString = "\(cItemVnum())[\(Format.leftPaddedVnum(item.vnum))] \(bYel())"
-        }
-        var formatString = "" //"&1" // placeholder for vnumString
+        var formatString = ""
 
         if item.inRoom != nil {
             formatString.append(item.groundDescription)
@@ -163,49 +159,23 @@ extension Creature {
             }
         }
         
-        if item.extraFlags.contains(.buried) {
-            formatString += " (закопан@1(,а,о,ы))"
+        let flagsString = formatFlagsForAct(item: item, itemIndex: 1)
+        if !flagsString.isEmpty {
+            formatString += " \(flagsString)"
         }
-        if item.extraFlags.contains(.invisible) {
-            formatString += " (невидим@1(ый,ая,ое,ые))"
-        }
-        if item.extraFlags.contains(.bless) && isAffected(by: .detectMagic) {
-            formatString += " (светлая аура)"
-        }
-        if item.extraFlags.contains(.cursed) && isAffected(by: .detectMagic) {
-            formatString += " (темная аура)"
-        }
-        if item.extraFlags.contains(.magic) && isAffected(by: .detectMagic) {
-            formatString += " (голубая аура)"
-        }
-        if isAffected(by: .detectPoison) {
-            let isPoisonedVessel = { item.asVessel()?.isPoisoned ?? false }
-            let isPoisonedFountain = { item.asFountain()?.isPoisoned ?? false }
-            let isPoisonedFood = { item.asFood()?.isPoisoned ?? false }
-            let isPoisonedWeapon = { item.asWeapon()?.isPoisoned ?? false }
-            if isPoisonedVessel() || isPoisonedFountain() || isPoisonedFood() || isPoisonedWeapon() {
-                formatString += " (зеленая аура)"
-            }
-        }
-        if item.extraFlags.contains(.glow) {
-            formatString += " (мягко свет@1(и,и,и,я)тся)"
-        }
-        if item.extraFlags.contains(.hum) {
-            formatString += " (тихо шум@1(и,и,и,я)т)"
-        }
-        if item.extraFlags.contains(.stink) {
-            formatString += " (неприятно пахн@1(е,е,е,у)т)"
-        }
-        if item.extraFlags.contains(.fragrant) {
-            formatString += " (благоуха@1(е,е,е,ю)т)"
-        }
-   
+
         var result = ""
         act(formatString,
-            .toSleeping, .to(self),
-            .item(item), .text(vnumString)) { target, output in
-                assert(result.isEmpty) // should be only one target
+            [.toSleeping, .dontCapitalize], .to(self), .item(item)
+        ) { target, output in
+            assert(result.isEmpty) // should be only one target
+            
+            if preferenceFlags?.contains(.autostat) ?? false {
+                let vnumString = "\(cItemVnum())[\(Format.leftPaddedVnum(item.vnum))] \(bYel())"
+                result = "\(vnumString) \(output)"
+            } else {
                 result = output
+            }
         }
         return result
     }
@@ -243,6 +213,47 @@ extension Creature {
         }
         if creature.isAffected(by: .fly) && creature.position == .standing {
             flags.append("(лета\(creatureIndex)(е,е,е,ю)т)")
+        }
+        return flags.joined(separator: " ")
+    }
+    
+    private func formatFlagsForAct(item: Item, itemIndex: Int) -> String {
+        var flags: [String] = []
+        if item.extraFlags.contains(.buried) {
+            flags.append("(закопан@\(itemIndex)(,а,о,ы))")
+        }
+        if item.extraFlags.contains(.invisible) {
+            flags.append("(невидим@\(itemIndex)(ый,ая,ое,ые))")
+        }
+        if item.extraFlags.contains(.bless) && isAffected(by: .detectMagic) {
+            flags.append(" (светлая аура)")
+        }
+        if item.extraFlags.contains(.cursed) && isAffected(by: .detectMagic) {
+            flags.append(" (темная аура)")
+        }
+        if item.extraFlags.contains(.magic) && isAffected(by: .detectMagic) {
+            flags.append(" (голубая аура)")
+        }
+        if isAffected(by: .detectPoison) {
+            let isPoisonedVessel = { item.asVessel()?.isPoisoned ?? false }
+            let isPoisonedFountain = { item.asFountain()?.isPoisoned ?? false }
+            let isPoisonedFood = { item.asFood()?.isPoisoned ?? false }
+            let isPoisonedWeapon = { item.asWeapon()?.isPoisoned ?? false }
+            if isPoisonedVessel() || isPoisonedFountain() || isPoisonedFood() || isPoisonedWeapon() {
+                flags.append("(зеленая аура)")
+            }
+        }
+        if item.extraFlags.contains(.glow) {
+            flags.append("(мягко свет@\(itemIndex)(и,и,и,я)тся)")
+        }
+        if item.extraFlags.contains(.hum) {
+            flags.append("(тихо шум@\(itemIndex)(и,и,и,я)т)")
+        }
+        if item.extraFlags.contains(.stink) {
+            flags.append("(неприятно пахн@\(itemIndex)(е,е,е,у)т)")
+        }
+        if item.extraFlags.contains(.fragrant) {
+            flags.append("(благоуха@\(itemIndex)(е,е,е,ю)т)")
         }
         return flags.joined(separator: " ")
     }

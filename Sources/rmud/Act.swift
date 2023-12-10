@@ -7,6 +7,7 @@ struct ActFlags: OptionSet {
 
     static let toRoom = T(rawValue: 1 << 0)
     static let toSleeping = T(rawValue: 1 << 1)
+    static let dontCapitalize = T(rawValue: 1 << 2)
 }
 
 enum ActArgument {
@@ -65,7 +66,7 @@ private struct Token {
 func act(_ text: String, _ flags: ActFlags, _ args: [ActArgument], completion: (_ target: Creature, _ output: String)->()) {
     guard !text.isEmpty else { return }
     
-    let tokens = tokenize(text: text)
+    let tokens = tokenize(text: text, flags: flags)
     
     let targets = targetCreatures(from: args, flags: flags)
     
@@ -127,11 +128,11 @@ private func targetCreatures(from args: [ActArgument], flags: ActFlags) -> Set<C
     return targets
 }
 
-private func tokenize(text: String) -> [Token] {
+private func tokenize(text: String, flags: ActFlags) -> [Token] {
     var result: [Token] = []
     
     var token = Token(type: .partOfFormatString)
-    token.capitalize = true
+    token.capitalize = flags.contains(.dontCapitalize) ? false : true
 
     var state: State = .searchToken
     var capitalizeNextLetter = false
