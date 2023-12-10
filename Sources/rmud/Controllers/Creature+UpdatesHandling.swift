@@ -8,7 +8,7 @@ extension Creature {
                 if hitPoints < maximumHitPoints {
                     hitPoints = min(hitPoints + hitPointsGain(), maximumHitPoints)
                 }
-                if hitPoints == maximumHitPoints {
+                if !isFighting && hitPoints == maximumHitPoints {
                     lastBattleParticipants.removeAll()
                 }
             }
