@@ -28,7 +28,8 @@ extension Creature {
                 ).rounded()
             )
             let limitedGain = gainer.expLimitedForRepeatedKills(gain: gain, vnum: mobile.vnum)
-            gainer.gainExperience(limitedGain)
+            let cappedGain = gainer.expCappedByLevel(gain: gain)
+            gainer.gainExperience(cappedGain)
             
             gainerPlayer.killedMobVnumsAtTimestamps[
                 mobile.vnum, default: []
@@ -76,6 +77,11 @@ extension Creature {
         
         let adjustedGain = Double(gain) * pow(0.9, Double(recentKillsCount))
         return Int(adjustedGain.rounded())
+    }
+    
+    private func expCappedByLevel(gain: Int) -> Int {
+        let maxGain = balance.mobileExperience(level: Int(level))
+        return min(gain, maxGain)
     }
 
     private func experienceGainCoef(gainersMinLevel: Int) -> Int {
