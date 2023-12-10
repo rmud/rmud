@@ -109,7 +109,7 @@ private let commandInfo: [Command] = [
             flags: .highPriority, minPosition: .resting,
             arg1: [.item], cases1: .accusative, where1: .inventory),
     Command(["убрать", "remove"], group: .items, Creature.doRemove,
-            flags: .highPriority, minPosition: .resting,
+            minPosition: .resting,
             arg1: [.item, .many], cases1: .accusative, where1: .equipment),
 
     // DoorsAndContainers
