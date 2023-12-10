@@ -52,36 +52,7 @@ extension Creature {
 
     // Shows a creature to a creature
     func describe(creature: Creature) -> String {
-        let isCreatureRiddenByMe: ()->Bool = {
-            if let creatureRiddenBy = creature.riddenBy,
-                    creatureRiddenBy.inRoom == creature.inRoom &&
-                    creatureRiddenBy == self {
-                return true
-            }
-            return false
-        }
-        // FIXME: по логике мне кажется здесь должно быть еще creature.riding == self
-        let isCreatureRidingSomeone: ()->Bool = {
-            if let creatureRiding = creature.riding,
-                    creatureRiding.inRoom == creature.inRoom {
-                return true
-            }
-            return false
-        }
-        
-        let autostat = preferenceFlags?.contains(.autostat) ?? false
-        var autostatString = ""
-        var formatString = "&1" // for autostatString, which will be first text argument to act()
-        if autostat {
-            if let mobile = creature.mobile {
-                let vnumString = Format.leftPaddedVnum(mobile.vnum)
-                autostatString = "\(cMobileVnum())[\(vnumString)] \(bRed())"
-            } else {
-                let levelString = String(creature.level).leftExpandingTo(2, with: "0")
-                let classAbbreviation = creature.classId.info.abbreviation.leftExpandingTo(3)
-                autostatString = "\(cMobileVnum())[\(levelString) \(classAbbreviation)] \(bRed())"
-            }
-        }
+        var formatString = ""
 
         let holylight = { self.preferenceFlags?.contains(.holylight) ?? false }
         let isCreatureHiding = {
@@ -90,7 +61,7 @@ extension Creature {
         
         // FIXME: check mounts logic here
         // FIXME: also canSee likely checks hiding state too?
-        if !isCreatureRiddenByMe() && !isCreatureRidingSomeone() && !holylight() &&
+        if creature.riddenBy != self && !creature.isRiding && !holylight() &&
             (!canSee(creature) || isCreatureHiding()) {
             if hasLitOrGlowingItems() {
                 formatString += "Блики света выдают присутствие здесь кого-то постороннего."
@@ -105,14 +76,14 @@ extension Creature {
             }
         } else {
             if let mobile = creature.mobile,
-                !mobile.groundDescription.isEmpty && !isCreatureRiddenByMe() && !isCreatureRidingSomeone() && creature.position == mobile.defaultPosition && !creature.isFighting && !creature.isCharmed() {
-                formatString += mobile.groundDescription.capitalizingFirstLetter()
+               !mobile.groundDescription.isEmpty && creature.riddenBy != self && !creature.isRiding && creature.position == mobile.defaultPosition && !creature.isFighting && !creature.isCharmed() {
+                formatString += mobile.groundDescription
             } else {
-                if creature.isMobile || isCreatureRidingSomeone() || creature.isFighting {
-                    formatString += "2^и"
+                if creature.isMobile || creature.isRiding || creature.isFighting {
+                    formatString += "2и"
                 } else if canSee(creature), let creaturePlayer = creature.player {
                     let title = creaturePlayer.titleWithFallbackToRace(order: .raceThenName)
-                    formatString += title.capitalizingFirstLetter()
+                    formatString += title
                     if title.contains(",") {
                         formatString += ","
                     }
@@ -120,10 +91,10 @@ extension Creature {
                     formatString += "Кто-то"
                 }
                 
-                if isCreatureRidingSomeone() {
+                if creature.isRiding {
                     formatString += " сидит здесь верхом на "
                     formatString += creature.riding == self ? "Вас." : "3п."
-                } else if isCreatureRiddenByMe() {
+                } else if creature.riddenBy == self {
                     formatString += " держит Вас на себе."
                 } else if let creatureFighting = creature.fighting {
                     formatString += " сражается здесь с "
@@ -139,54 +110,37 @@ extension Creature {
                 }
             }
             
-            if creature.isPlayer {
-                if !creature.descriptors.isEmpty {
-                    if isGodMode() {
-                        formatString += " (неуязвим)"
-                    }
-                } else {
-                    formatString += " (потерял2(,а,о,и) связь)"
-                }
-            }
-            if let mobile = creature.mobile, mobile.flags.contains(.tethered) {
-                formatString += " (привязан2(,а,о,ы))"
-            }
-            if creature.isAffected(by: .invisible) {
-                formatString += " (невидим2(ый,ая,ое,ые))"
-            }
-            if creature.runtimeFlags.contains(.hiding) {
-                formatString += " (пряч2(е,е,е,у)тся)"
-            }
-            
-            let creatureAlignment = creature.affectedAlignment()
-            if isAffected(by: .detectEvil) && creatureAlignment.isEvil {
-                formatString += " (красная аура)"
-            }
-            if isAffected(by: .detectGood) && creatureAlignment.isGood {
-                formatString += " (белая аура)"
-            }
-            if isAffected(by: .detectPoison) && creature.isAffected(by: .poison) {
-                formatString += " (зеленая аура)"
-            }
-            if creature.isAffected(by: .fly) && creature.position == .standing {
-                formatString += " (лета2(е,е,е,ю)т)"
+            let flagsString = formatFlagsForAct(creature: creature, creatureIndex: 2)
+            if !flagsString.isEmpty {
+                formatString += " \(flagsString)"
             }
         }
         
-        var actArguments: [ActArgument] = [.to(self),
-                                           .excluding(creature)]
-        if let creatureRiding = creature.riding {
-            actArguments.append(.excluding(creatureRiding))
-        }
-        if let creatureFighting = creature.fighting {
-            actArguments.append(.excluding(creatureFighting))
-        }
-        actArguments.append(.text(autostatString))
+        var actArguments: [ActArgument] = [
+            .to(self),
+            .excluding(creature)
+        ]
+        actArguments.append(.excluding(creature.riding ?? creature))
+        actArguments.append(.excluding(creature.fighting ?? creature))
         var result = ""
         act(formatString, .toSleeping, actArguments) { target, output in
             assert(result.isEmpty) // should be only one target
-            result = output
-        }
+
+            if preferenceFlags?.contains(.autostat) ?? false {
+                var autostatString: String
+                if let mobile = creature.mobile {
+                    let vnumString = Format.leftPaddedVnum(mobile.vnum)
+                    autostatString = "\(cMobileVnum())[\(vnumString)] \(bRed())"
+                } else {
+                    let levelString = String(creature.level).leftExpandingTo(2, with: "0")
+                    let classAbbreviation = creature.classId.info.abbreviation.leftExpandingTo(3)
+                    autostatString = "\(cMobileVnum())[\(levelString) \(classAbbreviation)] \(bRed())"
+                }
+                result = "\(autostatString) \(output)"
+            } else {
+                result = output
+            }
+        }   
         return result
     }
     
@@ -196,7 +150,7 @@ extension Creature {
         if preferenceFlags?.contains(.autostat) ?? false {
             vnumString = "\(cItemVnum())[\(Format.leftPaddedVnum(item.vnum))] \(bYel())"
         }
-        var formatString = "&1" // placeholder for vnumString
+        var formatString = "" //"&1" // placeholder for vnumString
 
         if item.inRoom != nil {
             formatString.append(item.groundDescription)
@@ -254,5 +208,42 @@ extension Creature {
                 result = output
         }
         return result
+    }
+    
+    private func formatFlagsForAct(creature: Creature, creatureIndex: Int) -> String {
+        var flags: [String] = []
+        if creature.isPlayer {
+            if !creature.descriptors.isEmpty {
+                if isGodMode() {
+                    flags.append("(неуязвим)")
+                }
+            } else {
+                flags.append("(потерял\(creatureIndex)(,а,о,и) связь)")
+            }
+        }
+        if let mobile = creature.mobile, mobile.flags.contains(.tethered) {
+            flags.append("(привязан\(creatureIndex)(,а,о,ы))")
+        }
+        if creature.isAffected(by: .invisible) {
+            flags.append("(невидим\(creatureIndex)(ый,ая,ое,ые))")
+        }
+        if creature.runtimeFlags.contains(.hiding) {
+            flags.append("(пряч\(creatureIndex)(е,е,е,у)тся)")
+        }
+        
+        let creatureAlignment = creature.affectedAlignment()
+        if isAffected(by: .detectEvil) && creatureAlignment.isEvil {
+            flags.append("(красная аура)")
+        }
+        if isAffected(by: .detectGood) && creatureAlignment.isGood {
+            flags.append("(белая аура)")
+        }
+        if isAffected(by: .detectPoison) && creature.isAffected(by: .poison) {
+            flags.append("(зеленая аура)")
+        }
+        if creature.isAffected(by: .fly) && creature.position == .standing {
+            flags.append("(лета\(creatureIndex)(е,е,е,ю)т)")
+        }
+        return flags.joined(separator: " ")
     }
 }

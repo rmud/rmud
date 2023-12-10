@@ -452,8 +452,6 @@ private func render(_ tokens: [Token], for target: Creature, with args: [ActArgu
                     if strings.indices.contains(2) { output = strings[2] }
                 case .plural:
                     if strings.indices.contains(3) { output = strings[3] }
-                default:
-                    break
                 }
             default: output = "(ошибка:формат)"
             }
@@ -484,8 +482,6 @@ private func render(_ tokens: [Token], for target: Creature, with args: [ActArgu
                     if strings.indices.contains(2) { output = strings[2] }
                 case .plural:
                     if strings.indices.contains(3) { output = strings[3] }
-                default:
-                    break
                 }
             default: output = "(ошибка:формат)"
             }
