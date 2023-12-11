@@ -33,8 +33,8 @@ class ClassInfo {
     var slotsPerCirclePerLevel: [Int: SlotsPerCircle] = [:]
     var newbieEquipment: [EquipmentSlot] = []
     
-    func experienceForLevel(_ level: UInt8) -> Int {
-        guard let metadata = balance.levelMetadata[validating: Int(level)] else {
+    func experienceForLevel(_ level: Int) -> Int {
+        guard let metadata = balance.levelMetadata[validating: level] else {
             fatalError("Requested experience for invalid level \(level)")
         }
         let levelExperience = Int64(metadata.levelExperience)

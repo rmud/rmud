@@ -2,11 +2,11 @@ extension Creature {
     func adjustLevel() {
         guard isPlayer else { return }
         
-        while level <= maximumMortalLevel && experience >= classId.info.experienceForLevel(level + 1) {
+        while level < maximumMortalLevel && experience >= classId.info.experienceForLevel(Int(level) + 1) {
             advanceLevel()
             act("&1Вы получили уровень!&2", .toSleeping, .to(self), .text(bWht()), .text(nNrm()))
         }
-        while level > 1 && experience < classId.info.experienceForLevel(level) - levelLossBuffer() {
+        while level > 1 && experience < classId.info.experienceForLevel(Int(level)) - levelLossBuffer() {
             loseLevel()
             act("&1Вы потеряли уровень!&2", .toSleeping, .to(self), .text(bWht()), .text(nNrm()))
         }
@@ -15,7 +15,7 @@ extension Creature {
     private func advanceLevel() {
         guard let player = player else { return }
         
-        if level >= 1 && level <= maximumMortalLevel {
+        if level >= 1 {
             if let gain = player.hitPointGains[validating: Int(level)] {
                 realMaximumHitPoints += Int(gain)
             } else {
@@ -48,8 +48,9 @@ extension Creature {
     }
     
     private func levelLossBuffer() -> Int {
-        return (classId.info.experienceForLevel(level) -
-            classId.info.experienceForLevel(level - 1)) / 10
+        guard level > 1 else { return 0 }
+        return (classId.info.experienceForLevel(Int(level)) -
+            classId.info.experienceForLevel(Int(level) - 1)) / 10
     }
     
     private func loseLevel() {
@@ -63,13 +64,8 @@ extension Creature {
             log("\(nameNominative) hasn't got hitpoint gains logged")
             logToMud("У персонажа \(nameNominative) не запомнены значения жизни для уровней", verbosity: .brief)
         }
-        
-        // FIXME
-        //for (circle = max_circle(ch); circle >= 1; --circle)
-        //for (slot = CH_SLOT_AVAIL(ch, circle) + 1; slot <= 18; ++slot) {
-        //    CH_SLOT(ch, circle, slot) = 0;
-        //    REMOVE_BIT_AR(CH_SLOTSTATE(ch), 18 * (circle - 1) + slot);
-        //}
+
+        level -= 1
         
         realMaximumHitPoints -= hitpointsLoss
         if realMaximumHitPoints < 1 {
@@ -79,6 +75,13 @@ extension Creature {
         if hitPoints > affectedHitPoints {
             hitPoints = affectedHitPoints
         }
+        
+        // FIXME
+        //for (circle = max_circle(ch); circle >= 1; --circle)
+        //for (slot = CH_SLOT_AVAIL(ch, circle) + 1; slot <= 18; ++slot) {
+        //    CH_SLOT(ch, circle, slot) = 0;
+        //    REMOVE_BIT_AR(CH_SLOTSTATE(ch), 18 * (circle - 1) + slot);
+        //}
         
         log("\(nameNominative) descends to level \(level)")
         logToMud("Персонаж \(nameNominative) спускается на уровень \(level).", verbosity: .brief)

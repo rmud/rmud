@@ -247,50 +247,7 @@ class Creature {
 
     var attackedByAtGamePulse: [UInt64: UInt64] = [:]
     var lastBattleParticipants: Set<UInt64> = .init()
-    
-    func gainExperience(_ gain: Int, mode: GainExperienceMode) {
-        guard isPlayer else { return }
-        guard level <= maximumMortalLevel else { return }
 
-        // Wiscom affects experience gain: 28 - 130%, 8 - 90%
-        var gain = ((100 + (affectedWisdom() - 13) * 2) * gain) / 100
-
-        if gain > 0 {
-            let isTraining = preferenceFlags?.contains(.training) ?? false
-            guard !isTraining else { return }
-            gain = min((classId.info.experienceForLevel(level + 1) -
-                classId.info.experienceForLevel(level)) / (level > 5 ? 25 : 20 + Int(level)),
-                       min(500000, gain))
-            
-            experience += gain
-            if mode != .silent {
-                act("Вы получили # очк#(о,а,ов) опыта.", .toSleeping, .to(self), .number(gain))
-            }
-            adjustLevel()
-        } else if gain < 0 {
-            //XXX а не ограничить ли макс.потерю опыть не 10млн, а, скажем, 5?
-            gain = max(-experience, max(-10000000, gain))
-            // Don't lose more than 1 level
-            gain = max(-(classId.info.experienceForLevel(level) - classId.info.experienceForLevel(level - 1)), gain)
-            experience += gain
-            
-            let message: String
-            switch mode {
-            case .normal:
-                message = "Вы потеряли # очк#(о,а,ов) опыта!"
-            case .expend:
-                message = "Вы потратили # очк#(о,а,ов) опыта."
-            default:
-                message = ""
-            }
-            if !message.isEmpty {
-                act(message, .toSleeping, .to(self), .number(-gain))
-            }
-            adjustLevel()
-        } else {
-            send("Вы не получили никакого опыта.")
-        }
-    }
     var realWimpLevel: UInt8 = 0 // Flee if below this % of hit points
     func affectedWimpLevel() -> Int {
         return affected(

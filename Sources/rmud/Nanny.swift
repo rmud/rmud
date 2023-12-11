@@ -382,7 +382,7 @@ func nanny(_ d: Descriptor, line: String) {
         creature.level = 1
 
         // Use game's leveling mechanism for advancing levels (if needed):
-        creature.experience = creature.classId.info.experienceForLevel(targetLevel)
+        creature.experience = creature.classId.info.experienceForLevel(Int(targetLevel))
         creature.adjustLevel()
         // Immortals over level 30 don't level automatically, so up the level manually:
         creature.level = targetLevel

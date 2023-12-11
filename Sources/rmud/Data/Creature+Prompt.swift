@@ -24,7 +24,7 @@ extension Creature {
 
         if let player = player, player.preferenceFlags.contains(.displayXpInPrompt) &&
                 level <= maximumMortalLevel {
-            let experienceToLevel = classId.info.experienceForLevel(level + 1) - experience
+            let experienceToLevel = classId.info.experienceForLevel(Int(level) + 1) - experience
             promptElements.append("\(experienceToLevel)о")
         }
         

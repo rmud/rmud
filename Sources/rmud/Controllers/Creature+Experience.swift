@@ -28,8 +28,7 @@ extension Creature {
                 ).rounded()
             )
             let limitedGain = gainer.expLimitedForRepeatedKills(gain: gain, vnum: mobile.vnum)
-            let cappedGain = gainer.expCappedByLevel(gain: gain)
-            gainer.gainExperience(cappedGain)
+            gainer.gainExperience(limitedGain, withSafetyLimits: true)
             
             gainerPlayer.killedMobVnumsAtTimestamps[
                 mobile.vnum, default: []
@@ -37,12 +36,21 @@ extension Creature {
         }
     }
     
-    func gainExperience(_ gain: Int) {
+    func gainExperience(_ initialGain: Int, withSafetyLimits: Bool) {
+        var gain = initialGain
+
+        if withSafetyLimits {
+            if gain > 0 {
+                gain = expCappedByLevel(gain: gain)
+            } else if gain < 0 {
+                gain = expPreventLosingMultipleLevels(gain: gain)
+            }
+        }
+        
         guard gain != 0 else {
             send("Вы не получили никакого опыта.")
             return
         }
-        experience += gain
         if gain > 0 {
             act("Вы получили # очк#(о,а,ов) опыта.",
                 .toSleeping, .to(self), .number(gain))
@@ -50,6 +58,8 @@ extension Creature {
             act("Вы потеряли # очк#(о,а,ов) опыта.",
                 .toSleeping, .to(self), .number(-gain))
         }
+
+        experience = max(experience + gain, 0)
         adjustLevel()
         
         player?.scheduleForSaving()
@@ -77,6 +87,18 @@ extension Creature {
         
         let adjustedGain = Double(gain) * pow(0.9, Double(recentKillsCount))
         return Int(adjustedGain.rounded())
+    }
+    
+    private func expPreventLosingMultipleLevels(gain: Int) -> Int {
+        let expFromPreviousToCurrentLevel: Int
+        if level > 1 {
+            let currentLevelExp = classId.info.experienceForLevel(Int(level))
+            let previousLevelExp = classId.info.experienceForLevel(Int(level) - 1)
+            expFromPreviousToCurrentLevel = currentLevelExp - previousLevelExp
+        } else {
+            expFromPreviousToCurrentLevel = 0
+        }
+        return max(-expFromPreviousToCurrentLevel, gain)
     }
     
     private func expCappedByLevel(gain: Int) -> Int {
