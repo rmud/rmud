@@ -35,6 +35,7 @@ class Definitions {
         ItemEventId.registerDefinitions(in: e)
         ItemExtraFlags.registerDefinitions(in: e)
         ItemAccessFlags.registerDefinitions(in: e)
+        ItemStateFlags.registerDefinitions(in: e)
         ItemType.registerDefinitions(in: e)
         ItemTypeFlagsDeprecated.registerDefinitions(in: e)
         ItemWearFlags.registerDefinitions(in: e)
@@ -86,9 +87,9 @@ class Definitions {
         // Required fields
         try d.insert(name: "название", type: .line, flags: .required)
         try d.insert(name: "материал", type: .enumeration, flags: .required)
-        try d.insert(name: "вес", type: .number, flags: .required)
         
         // Optional fields
+        try d.insert(name: "вес", type: .number)
         try d.insert(name: "влияние", type: .dictionary)
         try d.insert(name: "деньги", type: .number)
         try d.insert(name: "дополнительно.ключ", type: .line, flags: .structureStart)

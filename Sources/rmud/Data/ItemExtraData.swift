@@ -52,10 +52,10 @@ struct ItemExtraData {
         static let itemType: ItemType = .weapon
         static let defaults = Weapon()
         
-        // Уровень магичности. +1, +2 и т.п. Предполагалось, что могут быть монстры, которых бьёт только магическое оружие.
         var damage: Dice<Int> = Dice(number: 0, size: 0, add: 0) // ВРЕД (ЗНАЧ1 d ЗНАЧ2 + ЗНАЧ4)
-        var weaponType: WeaponType = .bareHand // УДАР (ЗНАЧ3)
+        var weaponType: WeaponType = .bareHand // ТИП, УДАР(устар.) (ЗНАЧ3)
         var poisonLevel: UInt8 = 0 // ЯД
+        // Уровень магичности. +1, +2 и т.п. Предполагалось, что могут быть монстры, которых бьёт только магическое оружие.
         var magicalityLevel: UInt8 = 0 // ВОЛШЕБСТВО (ЗНАЧ0) - не используется
 
         var isPoisoned: Bool { return poisonLevel != 0 }
@@ -112,7 +112,7 @@ struct ItemExtraData {
         var flags: ContainerFlags = [] // КОСВОЙСТВА (ЗНАЧ1)
         var keyVnum: Int = 0 // КЛЮЧ (ЗНАЧ2)
         var poisonLevel: UInt8 = 0 // for ContainerFlags.corpse: ЯД (ЗНАЧ3)
-        var mobileVnum: Int = 0 // for ContainerFlags.corpse: vnum of the creature (ЗНАЧ4)
+        var mobileVnum: Int? // for ContainerFlags.corpse: vnum of the creature (ЗНАЧ4)
         //var convenience: Int = 0 // УДОБСТВО (ЗНАЧ3) - похоже, не используется в коде
         var lockDifficulty: UInt8 = 0 // КОСЛОЖНОСТЬ (0...7 bits of ЗНАЧ4)
         // Состояние: задавалось через старшие биты КОСЛОЖНОСТЬ (8...15  bits of ЗНАЧ4),
@@ -120,8 +120,7 @@ struct ItemExtraData {
         var lockCondition: LockCondition = .ok
         var lockDamage: UInt8 = 0
         var corpseSize: UInt8?
-        var corpseIsEdible: Bool?
-        var corpseOfVnum: Int?
+        var isEdible: Bool { return flags.contains(.edible) }
     }
     
     final class Note: ItemExtraDataType {
@@ -220,7 +219,7 @@ struct ItemExtraData {
 
         var mountVnum: Int = 0 // СКАКУН (ЗНАЧ0)
         var stablemanVnums: Set<Int> = [] // КОНЮХ1 КОНЮХ2 КОНЮХ3 (ЗНАЧ1 ЗНАЧ2 ЗНАЧ3)
-        var stableRoomVnum: Int = 0 // КОНЮШНЯ (ЗНАЧ4)
+        var stableRoomVnum: Int? // КОНЮШНЯ (ЗНАЧ4)
     }
 
     final class Token: ItemExtraDataType {

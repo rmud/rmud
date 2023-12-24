@@ -11,7 +11,7 @@ extension Creature {
         }
         
         if item.isLight() {
-            performWear(item: item, positions: [.light], isSilent: false)
+            performWearOrHold(item: item, positions: [.light], isSilent: false)
         } else if !item.wearFlags.contains(.hold) &&
                 !item.isWand() &&
                 !item.isStaff() &&
@@ -19,7 +19,7 @@ extension Creature {
                 !item.isPotion() {
             act("@1в держать в руке нельзя.", .to(self), .item(item))
         } else {
-            performWear(item: item, positions: [.hold], isSilent: false)
+            performWearOrHold(item: item, positions: [.hold], isSilent: false)
         }
     }
 }

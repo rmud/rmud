@@ -42,7 +42,7 @@ struct StatInfo {
         
         var enumSpec: Enumerations.EnumSpec?
         switch value {
-        case .enumeration(_), .flags(_), .dictionary(_):
+        case .enumeration(_), .flags(_), .list(_), .dictionary(_):
             let enumAlias = enumAlias ?? label
             enumSpec = db.definitions.enumerations.enumSpecsByAlias[enumAlias]
         default:
@@ -53,7 +53,7 @@ struct StatInfo {
             for: style, continuationIndent: finalIndent, enumSpec: enumSpec
         )
         switch value {
-        case .enumeration(_), .flags(_), .dictionary(_):
+        case .enumeration(_), .flags(_), .list(_), .dictionary(_):
             formatted = formatted.lowercased()
         default:
             break

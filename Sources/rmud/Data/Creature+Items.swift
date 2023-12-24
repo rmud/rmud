@@ -102,7 +102,7 @@ extension Creature {
             return false
         }
         
-        if item.wearFlags.contains(.take), let money = item.asMoney(), money.amount > 0 {
+        if item.isCarryable, let money = item.asMoney(), money.amount > 0 {
             return true
         }
         
@@ -125,7 +125,7 @@ extension Creature {
                 act("Вы не смогли поднять @1в.", .to(self), .item(item))
             }
             return false
-        } else if !item.wearFlags.contains(.take) {
+        } else if !item.isCarryable {
             if !isSilent {
                 act("@1в взять нельзя.", .to(self), .item(item))
             }

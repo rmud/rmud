@@ -55,7 +55,6 @@ extension Creature {
     // with equip(), but both are used in Mobile.loadEquipment()
     func wear(item: Item, isSilent: Bool) {
         var wearFlags = item.wearFlags
-        wearFlags.remove(.take)
         wearFlags.remove(.hold)
         
         guard !wearFlags.isEmpty && !item.isWeapon() else {
@@ -93,36 +92,22 @@ extension Creature {
 
         for (flag, positions) in flagsAndPositions {
             guard item.wearFlags.contains(flag) else { continue }
-            performWear(item: item, positions: positions, isSilent: isSilent)
+            performWearOrHold(item: item, positions: positions, isSilent: isSilent)
             if item.isWornBySomeone { break }
         }
     }
     
-    //static const bitv32 wear_bitvectors[] = {
-    //    ITEM_WEAR_TAKE, ITEM_WEAR_FINGER, ITEM_WEAR_FINGER, ITEM_WEAR_NECK,
-    //    ITEM_WEAR_NECK_ABOUT, ITEM_WEAR_BODY, ITEM_WEAR_HEAD, ITEM_WEAR_FACE,
-    //    ITEM_WEAR_LEGS, ITEM_WEAR_FEET, ITEM_WEAR_HANDS, ITEM_WEAR_ARMS,
-    //    ITEM_WEAR_SHIELD, ITEM_WEAR_ABOUT, ITEM_WEAR_BACK, ITEM_WEAR_WAIST,
-    //  ITEM_WEAR_WRIST, ITEM_WEAR_WRIST, ITEM_WEAR_EARS, ITEM_WEAR_WIELD,
-    //  ITEM_WEAR_TAKE /* ITEM_WEAR_HOLD */, ITEM_WEAR_TWOHAND
-    //};
-    //FIXME arilou:
-    // Тут у нас большая фигня с тем, что свиткам, бутылкам и проч. мы не ставим явную
-    // возможность держать их, а потом при использовании, чтобы их можно было взять во
-    // вторую руку, нам нужно в этом векторе на позиции WEAR_HOLD ставить ITEM_WEAR_TAKE
-    // надо либо явно требовать ставить это держание таким предметам, либо просто в
-    // парcере автоматически добавлять его.
-    func performWear(item: Item, positions: [EquipmentPosition], isSilent: Bool) {
+    func performWearOrHold(item: Item, positions: [EquipmentPosition], isSilent: Bool) {
         let sendCantWear = {
             if isSilent { return }
-            act("@1в надеть на эту часть тела нельзя.",
-                .to(self), .item(item))
+            act("@1в надеть на эту часть тела нельзя.", .to(self), .item(item))
         }
         
-        // first, make sure that the wear position is valid
+        // First, make sure that the wear position is valid
         for position in positions {
             let bodypart = position.bodypartInfo
-            guard item.wearFlags.contains(bodypart.itemWearFlags) else {
+            guard bodypart.itemWearFlags.isEmpty ||
+                    item.wearFlags.contains(bodypart.itemWearFlags) else {
                 if let mobile = mobile {
                     logError("Mobile \(mobile.vnum) (\(nameNominative)) is trying to wear item  \(item.vnum) (\(item.nameNominative)) in position \(position.rawValue)")
                 }

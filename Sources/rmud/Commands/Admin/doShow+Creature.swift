@@ -175,6 +175,12 @@ extension Creature {
                 ])
             }
             
+            let realSaveMagic = Int(creature.realSaves[.magic] ?? 0)
+            let realSaveHeat = Int(creature.realSaves[.heat] ?? 0)
+            let realSaveCold = Int(creature.realSaves[.cold] ?? 0)
+            let realSaveAcid = Int(creature.realSaves[.acid] ?? 0)
+            let realSaveElectricity = Int(creature.realSaves[.electricity] ?? 0)
+            let realSaveCrush = Int(creature.realSaves[.crush] ?? 0)
             let affectedSaveMagic = creature.affectedSave(.magic)
             let affectedSaveHeat = creature.affectedSave(.heat)
             let affectedSaveCold = creature.affectedSave(.cold)
@@ -182,18 +188,18 @@ extension Creature {
             let affectedSaveElectricity = creature.affectedSave(.electricity)
             let affectedSaveCrush = creature.affectedSave(.crush)
             sendStatGroup([
-                .init("змагия", affectedSaveMagic,
-                      modifier: affectedSaveMagic - (Int(creature.realSaves[.magic] ?? 0))),
-                .init("зогонь", affectedSaveHeat,
-                      modifier: affectedSaveHeat - (Int(creature.realSaves[.heat] ?? 0))),
-                .init("зхолод", affectedSaveCold,
-                      modifier: affectedSaveCold - (Int(creature.realSaves[.cold] ?? 0))),
-                .init("зкислота", affectedSaveAcid,
-                      modifier: affectedSaveAcid - (Int(creature.realSaves[.acid] ?? 0))),
-                .init("зэлектричество", affectedSaveElectricity,
-                      modifier: affectedSaveElectricity - (Int(creature.realSaves[.electricity] ?? 0))),
-                .init("зудар", affectedSaveCrush,
-                      modifier: affectedSaveCrush - (Int(creature.realSaves[.crush] ?? 0))),
+                .init("змагия", realSaveMagic,
+                      modifier: affectedSaveMagic - realSaveMagic),
+                .init("зогонь", realSaveHeat,
+                      modifier: affectedSaveHeat - realSaveHeat),
+                .init("зхолод", realSaveCold,
+                      modifier: affectedSaveCold - realSaveCold),
+                .init("зкислота", realSaveAcid,
+                      modifier: affectedSaveAcid - realSaveAcid),
+                .init("зэлектричество", realSaveElectricity,
+                      modifier: affectedSaveElectricity - realSaveElectricity),
+                .init("зудар", realSaveCrush,
+                      modifier: affectedSaveCrush - realSaveCrush),
             ])
         }
             
@@ -303,7 +309,12 @@ extension Creature {
             }
         }
         
-        // TODO: affects
+        if !creature.affects.isEmpty {
+            let affectTypes: Set<Int64> = Set(creature.affects.map { affect in
+                Int64(affect.type.rawValue)
+            })
+            sendStat(.init("мэффекты", .list(affectTypes)))
+        }
         
         if !creature.attackedByAtGamePulse.isEmpty {
             let attackers = creature.attackedByAtGamePulse.map { (uid: UInt64, gamePulse: UInt64) in
@@ -324,18 +335,5 @@ extension Creature {
         }
         
         // TODO: scripts
-    }
-    
-    private func sendStat(_ stat: StatInfo, indent: Int = 2) {
-        let indentString = String(repeating: " ", count: indent)
-        send(indentString + stat.description(for: self, indent: indent))
-    }
-    
-    private func sendStatGroup(_ stats: [StatInfo], indent: Int = 2) {
-        let strings = stats.map { stat in
-            stat.description(for: self, indent: indent)
-        }
-        let indentString = String(repeating: " ", count: indent)
-        send(indentString + strings.joined(separator: " : "))
     }
 }

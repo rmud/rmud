@@ -142,7 +142,7 @@ extension Mobile {
     
     private func tryWearing(item: Item, ifHasFlags flags: ItemWearFlags, at positions: [EquipmentPosition]) -> Bool {
         if item.wearFlags.contains(anyOf: flags) {
-            creature.performWear(item: item, positions: positions, isSilent: true)
+            creature.performWearOrHold(item: item, positions: positions, isSilent: true)
         }
         return item.isWornBySomeone
     }

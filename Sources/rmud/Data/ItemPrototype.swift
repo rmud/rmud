@@ -16,7 +16,7 @@ class ItemPrototype {
     var extraDescriptions: [ExtraDescription] = [] // Optional
     var gender: Gender?
     var material: Material
-    var weight: Int // Required
+    var weight: Int?
 
     // The rest are optional
     var extraDataByItemType: [ItemType: ItemExtraDataType] = [:]
@@ -29,7 +29,7 @@ class ItemPrototype {
     var wearFlags: ItemWearFlags = []
     var qualityPercentage: UInt16? // can go over 100
     var eventOverrides: [Event<ItemEventId>] = []
-    var repairCompexity: UInt8?
+    var repairComplexity: UInt8?
     var maximumCountInWorld: Int?
     var procedures: Set<Int> = []
     var affects: Set<AffectType> = []
@@ -87,7 +87,7 @@ class ItemPrototype {
             logError("Item \(vnum): 'материал': invalid material")
             return nil
         }
-        weight = entity["вес"]?.int ?? 0
+        weight = entity["вес"]?.int
 
         // MARK: Item types
         
@@ -378,7 +378,11 @@ class ItemPrototype {
             if let damage = entity["оружие.вред", i]?.dice?.intDice {
                 (findOrCreateExtraData() as ItemExtraData.Weapon).damage = damage
             }
+            // FIXME: deprecated, use оружие.тип instead
             if let weaponType = entity["оружие.удар", i]?.uint16 {
+                (findOrCreateExtraData() as ItemExtraData.Weapon).weaponType = WeaponType(rawValue: weaponType) ?? .bareHand
+            }
+            if let weaponType = entity["оружие.тип", i]?.uint16 {
                 (findOrCreateExtraData() as ItemExtraData.Weapon).weaponType = WeaponType(rawValue: weaponType) ?? .bareHand
             }
             if let poisonLevel = entity["оружие.яд", i]?.uint8 {
@@ -559,23 +563,10 @@ class ItemPrototype {
         decayTimerTics = entity["жизнь"]?.int
         do {
             restrictFlags = ItemAccessFlags(rawValue: entity["запрет"]?.uint32 ?? 0)
-            var allowFlags = ItemAccessFlags(rawValue: entity["разрешение"]?.uint32 ?? 0)
-            // If none of flags in a subgroup were specified, allow all of them for that subgroup:
-            if !allowFlags.contains(anyOf: ItemAccessFlags.alignmentMask) {
-                allowFlags.formUnion(ItemAccessFlags.alignmentMask)
-            }
-            if !allowFlags.contains(anyOf: ItemAccessFlags.classGroupMask) {
-                allowFlags.formUnion(ItemAccessFlags.classGroupMask)
-            }
-            //if !allowFlags.contains(anyOf: ItemAccessFlags.genderMask) {
-            //    allowFlags.formUnion(ItemAccessFlags.genderMask)
-            //}
-            if !allowFlags.contains(anyOf: ItemAccessFlags.raceMask) {
-                allowFlags.formUnion(ItemAccessFlags.raceMask)
-            }
-            // Invert to get restrictFlags, but keep only existing flags after inverting:
-            restrictFlags.formUnion(
-                ItemAccessFlags(rawValue: ~allowFlags.rawValue).intersection(ItemAccessFlags.all)
+            let allowFlags = ItemAccessFlags(rawValue: entity["разрешение"]?.uint32 ?? 0)
+            
+            restrictFlags = ItemAccessFlags.combineIntoRestrictFlags(
+                restrictFlags: restrictFlags, allowFlags: allowFlags
             )
         }
         legend = entity["знание"]?.stringArray ?? []
@@ -608,7 +599,7 @@ class ItemPrototype {
             
             eventOverrides.append(eventOverride)
         }
-        repairCompexity = entity["починка"]?.uint8
+        repairComplexity = entity["починка"]?.uint8
         maximumCountInWorld = entity["предел"]?.int
         if let procedures = entity["процедура"]?.list {
             self.procedures = Set(procedures.compactMap {
@@ -680,7 +671,7 @@ class ItemPrototype {
                 }
             }
         }
-        if let gender = gender {
+        if let gender {
             let enumSpec = definitions.enumerations.enumSpecsByAlias["род"]
             result += "  РОД \(Value(enumeration: gender).formatted(for: style, enumSpec: enumSpec))\n"
             
@@ -689,7 +680,9 @@ class ItemPrototype {
             let enumSpec = definitions.enumerations.enumSpecsByAlias["материал"]
             result += "  МАТЕРИАЛ \(Value(enumeration: material).formatted(for: style, enumSpec: enumSpec))\n"
         }
-        result += "  ВЕС \(Value(number: weight).formatted(for: style))\n"
+        if let weight {
+            result += "  ВЕС \(Value(number: weight).formatted(for: style))\n"
+        }
 
         // MARK: Item types
         
@@ -788,8 +781,10 @@ class ItemPrototype {
                 if container.poisonLevel != ItemExtraData.Container.defaults.poisonLevel {
                     content += "    ЯД \(Value(number: container.poisonLevel).formatted(for: style))\n"
                 }
-                if container.mobileVnum != ItemExtraData.Container.defaults.mobileVnum {
-                    content += "    МОНСТР \(Value(number: container.mobileVnum).formatted(for: style))\n"
+                if let mobileVnum = container.mobileVnum,
+                   mobileVnum != ItemExtraData.Container.defaults.mobileVnum
+                {
+                    content += "    МОНСТР \(Value(number: mobileVnum).formatted(for: style))\n"
                 }
                 if container.lockDifficulty != ItemExtraData.Container.defaults.lockDifficulty {
                     content += "    ЗАМОК_СЛОЖНОСТЬ \(Value(number: container.lockDifficulty).formatted(for: style))\n"
@@ -800,6 +795,11 @@ class ItemPrototype {
                 }
                 if container.lockDamage != ItemExtraData.Container.defaults.lockDamage {
                     content += "    ЗАМОК_ПОВРЕЖДЕНИЕ \(Value(number: container.lockDamage).formatted(for: style))\n"
+                }
+                if let corpseSize = container.corpseSize,
+                   corpseSize != ItemExtraData.Container.defaults.corpseSize
+                {
+                    content += "    ТРУП_РАЗМЕР \(Value(number: corpseSize).formatted(for: style))\n"
                 }
             }
         }
@@ -893,8 +893,10 @@ class ItemPrototype {
                 if receipt.stablemanVnums != ItemExtraData.Receipt.defaults.stablemanVnums {
                     content += "    КОНЮХИ \(Value(list: receipt.stablemanVnums).formatted(for: style))\n"
                 }
-                if receipt.stableRoomVnum != ItemExtraData.Receipt.defaults.stableRoomVnum {
-                    content += "    КОНЮШНЯ \(Value(number: receipt.stableRoomVnum).formatted(for: style))\n"
+                if let stableRoomVnum = receipt.stableRoomVnum,
+                   stableRoomVnum != ItemExtraData.Receipt.defaults.stableRoomVnum
+                {
+                    content += "    КОНЮШНЯ \(Value(number: stableRoomVnum).formatted(for: style))\n"
                 }
             }
         }
@@ -907,60 +909,39 @@ class ItemPrototype {
             let enumSpec = definitions.enumerations.enumSpecsByAlias["влияние"]
             result += "  ВЛИЯНИЕ \(Value(dictionary: appliesAndModifiers).formatted(for: style, enumSpec: enumSpec))\n"
         }
-        if let coinsToLoad = coinsToLoad {
+        if let coinsToLoad {
             result += "  ДЕНЬГИ \(Value(number: coinsToLoad).formatted(for: style))\n"
         }
-        if let decayTimerTics = decayTimerTics {
+        if let decayTimerTics {
             result += "  ЖИЗНЬ \(Value(number: decayTimerTics).formatted(for: style))\n"
         }
         do {
-            let allowFlags = ItemAccessFlags(rawValue: ~restrictFlags.rawValue).intersection(ItemAccessFlags.all)
-            var resultingRestrictFlags: ItemAccessFlags = []
-            var resultingAllowFlags: ItemAccessFlags = []
-            
-            // Full "restrict" set case would produce empty "allow" set, which is invalid,
-            // so fallback to "restrict" in these cases too.
-            if restrictFlags.alignmentSetBitsCount() == ItemAccessFlags.alignmentTotalBitsCount ||
-                    restrictFlags.alignmentSetBitsCount() <= ItemAccessFlags.alignmentTotalBitsCount / 2 {
-                resultingRestrictFlags.formUnion(restrictFlags.intersection(.alignmentMask))
-            } else {
-                resultingAllowFlags.formUnion(allowFlags.intersection(.alignmentMask))
-            }
-
-            if restrictFlags.classGroupSetBitsCount() == ItemAccessFlags.classGroupTotalBitsCount ||
-                restrictFlags.classGroupSetBitsCount() <= ItemAccessFlags.classGroupTotalBitsCount / 2 {
-                resultingRestrictFlags.formUnion(restrictFlags.intersection(.classGroupMask))
-            } else {
-                resultingAllowFlags.formUnion(allowFlags.intersection(.classGroupMask))
-            }
-
-            if restrictFlags.raceSetBitsCount() == ItemAccessFlags.raceTotalBitsCount ||
-                restrictFlags.raceSetBitsCount() <= ItemAccessFlags.raceTotalBitsCount / 2 {
-                resultingRestrictFlags.formUnion(restrictFlags.intersection(.raceMask))
-            } else {
-                resultingAllowFlags.formUnion(allowFlags.intersection(.raceMask))
-            }
-
-            if !resultingRestrictFlags.isEmpty {
+            let (restrictFlags: restrict, allowFlags: allow) =
+                ItemAccessFlags.split(restrictFlags: restrictFlags)
+            if !restrict.isEmpty {
                 let enumSpec = definitions.enumerations.enumSpecsByAlias["запрет"]
-                result += "  ЗАПРЕТ \(Value(flags: resultingRestrictFlags).formatted(for: style, enumSpec: enumSpec))\n"
+                let restrictFormatted = Value(flags: restrict)
+                    .formatted(for: style, enumSpec: enumSpec)
+                result += "  ЗАПРЕТ \(restrictFormatted)\n"
             }
-            if !resultingAllowFlags.isEmpty {
+            if !allow.isEmpty {
                 let enumSpec = definitions.enumerations.enumSpecsByAlias["разрешение"]
-                result += "  РАЗРЕШЕНИЕ \(Value(flags: resultingAllowFlags).formatted(for: style, enumSpec: enumSpec))\n"
+                let allowFormatted = Value(flags: allow)
+                    .formatted(for: style, enumSpec: enumSpec)
+                result += "  РАЗРЕШЕНИЕ \(allowFormatted)\n"
             }
         }
         if !legend.isEmpty {
             result += "  ЗНАНИЕ \(Value(longText: legend).formatted(for: style, continuationIndent: 9))\n"
         }
-        if let wearPercentage = wearPercentage {
+        if let wearPercentage {
             result += "  ИЗНОС \(Value(number: wearPercentage).formatted(for: style))\n"
         }
         if !wearFlags.isEmpty {
             let enumSpec = definitions.enumerations.enumSpecsByAlias["использование"]
             result += "  ИСПОЛЬЗОВАНИЕ \(Value(flags: wearFlags).formatted(for: style, enumSpec: enumSpec))\n"
         }
-        if let qualityPercentage = qualityPercentage {
+        if let qualityPercentage {
             result += "  КАЧЕСТВО \(Value(number: qualityPercentage).formatted(for: style))\n"
         }
         
@@ -985,11 +966,11 @@ class ItemPrototype {
                 }
             }
         }
-        if let repairComplexity = repairCompexity {
+        if let repairComplexity {
             result += "  ПОЧИНКА \(Value(number: repairComplexity).formatted(for: style))\n"
         }
-        if let loadMaximum = maximumCountInWorld {
-            result += "  ПРЕДЕЛ \(Value(number: loadMaximum).formatted(for: style))\n"
+        if let maximumCountInWorld {
+            result += "  ПРЕДЕЛ \(Value(number: maximumCountInWorld).formatted(for: style))\n"
         }
         if !procedures.isEmpty {
             result += "  ПРОЦЕДУРА \(Value(list: procedures).formatted(for: style))\n"
@@ -1007,10 +988,10 @@ class ItemPrototype {
             result += "  СОДЕРЖИМОЕ \(Value(dictionary: contentsToLoad).formatted(for: style))\n"
 
         }
-        if let cost = cost {
+        if let cost {
             result += "  ЦЕНА \(Value(number: cost).formatted(for: style))\n"
         }
-        if let loadChancePercentage = loadChancePercentage {
+        if let loadChancePercentage {
             result += "  ШАНС \(Value(number: loadChancePercentage).formatted(for: style))\n"
         }
         return result

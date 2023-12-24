@@ -215,7 +215,7 @@ enum Value {
             case .ansiOutput(let creature): return "\(creature.nCyn())\(result)\(creature.nNrm())"
             }
         case .dictionary(let keysAndValues):
-            let result = keysAndValues.map { key, value in
+            let result = keysAndValues.sorted(by: { $0.key < $1.key }).map { key, value in
                 let key = enumSpec?()?.lowercasedNamesByValue[key]?.uppercased() ?? String(key)
                 if let value = value {
                     return "\(key)=\(value)"

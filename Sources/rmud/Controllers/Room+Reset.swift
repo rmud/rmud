@@ -20,7 +20,7 @@ extension Room {
     
     private func purgeUntouchedItems() {
         for item in items {
-            if item.isUntouchedByPlayers || !item.wearFlags.contains(.take) {
+            if item.isUntouchedByPlayers || !item.isCarryable {
                 // FIXME: what if someone did put something into "untouched" item? Should try to preserve player's items
                 item.extract(mode: .purgeAllContents)
             }

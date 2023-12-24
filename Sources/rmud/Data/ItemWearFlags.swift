@@ -9,7 +9,7 @@ struct ItemWearFlags: OptionSet {
     // 2. Добавить слоты:
     // на поясе (его можно украсть)
     // хвост (для животных) 
-    static let take      = T(rawValue: 1 << 0)  // Item can be taken
+    static let _deprecated_take      = T(rawValue: 1 << 0)  // Item can be taken
     static let finger    = T(rawValue: 1 << 1)  // Can be worn on finger
     static let neck      = T(rawValue: 1 << 2)  // Can be worn on neck (jewelry)
     static let neckAbout = T(rawValue: 1 << 3)  // Can be worn around neck (armor)
@@ -34,7 +34,7 @@ struct ItemWearFlags: OptionSet {
     
     static func registerDefinitions(in e: Enumerations) {
         e.add(aliases: aliases, namesByValue: [
-            1:  "взять",            // Поднимается с земли
+            // DEPRECATED 1:  "взять",            // Поднимается с земли
             2:  "палец",            // Надевается на пальцы
             3:  "шея",              // Надевается на шеию (укращение)
             4:  "вокругшеи",        // Надевается вокруг шеи (доспехи)

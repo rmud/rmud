@@ -103,11 +103,11 @@ extension Creature {
                 listItems()
                 return
             }
-            guard let vnum = Int(value) else {
-                send("Некорректный номер предмета.")
-                return
+            if let vnum = Int(value) {
+                showItem(vnum: vnum)
+            } else {
+                showItem(named: value)
             }
-            showItem(vnum: vnum)
         case .path:
             listPaths()
         case .player:

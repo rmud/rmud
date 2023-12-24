@@ -13,6 +13,13 @@ class Item {
     var nameAccusative = MultiwordName("")
     var nameInstrumental = MultiwordName("")
     var namePrepositional = MultiwordName("")
+    func nameCompressed() -> String {
+        let isAnimate = false
+        return endings.compress(
+            names: [nameNominative.full, nameGenitive.full, nameDative.full, nameAccusative.full, nameInstrumental.full, namePrepositional.full],
+            isAnimate: isAnimate
+        )
+    }
     func setNames(_ compressed: String, isAnimate: Bool) {
         let names = endings.decompress(names: compressed, isAnimate: isAnimate)
         nameNominative = MultiwordName(names[0])
@@ -42,9 +49,9 @@ class Item {
     
     var isCursed: Bool { return extraFlags.contains(.cursed) && !extraFlags.contains(.uncursed) }
 
-    var weight = 0 // Weight
+    var weight: Int?
     func weightWithContents() -> Int {
-        var totalWeight = weight
+        var totalWeight = weight ?? 0
         
         // Process liquids:
         if let vessel = asVessel() {
@@ -61,6 +68,7 @@ class Item {
         }
         return totalWeight
     }
+    var isCarryable: Bool { weight != nil }
     var cost = 0 // Value when sold (coins)
 
     var decayTimerTicsLeft: Int? = nil // Decay timer, nil - never decays
@@ -81,6 +89,13 @@ class Item {
     var affects: Set<AffectType> = [] // Creature affects
     var inRoom: Room? // In what room?
     var isInRoom: Bool { return inRoom != nil }
+    func findNearestRoom() -> Room? {
+        if let inRoom { return inRoom }
+        if let carriedBy { return carriedBy.inRoom }
+        if let wornBy { return wornBy.inRoom }
+        if let inContainer { return inContainer.findNearestRoom() }
+        return nil
+    }
     var carriedBy: Creature? // Carried by?
     var isCarried: Bool { return carriedBy != nil }
     var wornBy: Creature? // Worn by?
@@ -146,7 +161,7 @@ class Item {
         affects = prototype.affects
         
         db.itemsInGame.append(self)
-        db.itemsCountByVnum[prototype.vnum]? += 1
+        db.itemsCountByVnum[prototype.vnum, default: 0] += 1
         db.itemsByUid[self.uid] = self
 
         /*

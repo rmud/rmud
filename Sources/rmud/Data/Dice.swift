@@ -103,8 +103,17 @@ struct Dice<T: FixedWidthInteger>: CustomStringConvertible {
         return sum
     }
     
+    func minimum() -> Int {
+        return Int(number) * min(Int(size), 1) + Int(add)
+    }
+    
     func maximum() -> Int {
         return Int(number) * Int(size) + Int(add)
+    }
+    
+    func average() -> Double {
+        let averageRoll = Double(size + 1) / 2
+        return Double(number) * averageRoll + Double(add)
     }
     
     private static func scanNumberWithoutSign(_ scanner: Scanner) -> T? {

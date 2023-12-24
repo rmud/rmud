@@ -62,7 +62,7 @@ extension Creature {
     }
     
     func setMobilePrototypeField(vnum: Int, fieldName: String, value: String) {
-        guard let mobile = db.mobilePrototypesByVnum[vnum] else {
+        guard nil == db.mobilePrototypesByVnum[vnum] else {
             send("Монстра с виртуальным номером \(vnum) не существует.")
             return
         }

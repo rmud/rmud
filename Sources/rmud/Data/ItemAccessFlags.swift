@@ -84,5 +84,64 @@ struct ItemAccessFlags: OptionSet {
             26: "гоблин",       // Гоблины
         ])
     }
+    
+    static func combineIntoRestrictFlags(
+        restrictFlags: ItemAccessFlags, allowFlags: ItemAccessFlags
+    ) -> ItemAccessFlags {
+        var restrictFlags = restrictFlags
+        var allowFlags = allowFlags
+        // If none of flags in a subgroup were specified, allow all of them for that subgroup:
+        if !allowFlags.contains(anyOf: ItemAccessFlags.alignmentMask) {
+            allowFlags.formUnion(ItemAccessFlags.alignmentMask)
+        }
+        if !allowFlags.contains(anyOf: ItemAccessFlags.classGroupMask) {
+            allowFlags.formUnion(ItemAccessFlags.classGroupMask)
+        }
+        //if !allowFlags.contains(anyOf: ItemAccessFlags.genderMask) {
+        //    allowFlags.formUnion(ItemAccessFlags.genderMask)
+        //}
+        if !allowFlags.contains(anyOf: ItemAccessFlags.raceMask) {
+            allowFlags.formUnion(ItemAccessFlags.raceMask)
+        }
+        // Invert to get restrictFlags, but keep only existing flags after inverting:
+        restrictFlags.formUnion(
+            ItemAccessFlags(rawValue: ~allowFlags.rawValue).intersection(ItemAccessFlags.all)
+        )
+        
+        return restrictFlags
+    }
+
+    static func split(restrictFlags: ItemAccessFlags) -> (
+        restrictFlags: ItemAccessFlags, allowFlags: ItemAccessFlags
+    ) {
+        let allowFlags = ItemAccessFlags(rawValue: ~restrictFlags.rawValue).intersection(ItemAccessFlags.all)
+        var resultingRestrictFlags: ItemAccessFlags = []
+        var resultingAllowFlags: ItemAccessFlags = []
+        
+        // Full "restrict" set case would produce empty "allow" set, which is invalid,
+        // so fallback to "restrict" in these cases too.
+        if restrictFlags.alignmentSetBitsCount() == ItemAccessFlags.alignmentTotalBitsCount ||
+                restrictFlags.alignmentSetBitsCount() <= ItemAccessFlags.alignmentTotalBitsCount / 2 {
+            resultingRestrictFlags.formUnion(restrictFlags.intersection(.alignmentMask))
+        } else {
+            resultingAllowFlags.formUnion(allowFlags.intersection(.alignmentMask))
+        }
+
+        if restrictFlags.classGroupSetBitsCount() == ItemAccessFlags.classGroupTotalBitsCount ||
+            restrictFlags.classGroupSetBitsCount() <= ItemAccessFlags.classGroupTotalBitsCount / 2 {
+            resultingRestrictFlags.formUnion(restrictFlags.intersection(.classGroupMask))
+        } else {
+            resultingAllowFlags.formUnion(allowFlags.intersection(.classGroupMask))
+        }
+
+        if restrictFlags.raceSetBitsCount() == ItemAccessFlags.raceTotalBitsCount ||
+            restrictFlags.raceSetBitsCount() <= ItemAccessFlags.raceTotalBitsCount / 2 {
+            resultingRestrictFlags.formUnion(restrictFlags.intersection(.raceMask))
+        } else {
+            resultingAllowFlags.formUnion(allowFlags.intersection(.raceMask))
+        }
+
+        return (restrictFlags: resultingRestrictFlags, allowFlags: resultingAllowFlags)
+    }
 }
 

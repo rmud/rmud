@@ -140,11 +140,16 @@ extension Creature {
                 act("@1и (&1) закрыт@1(,а,о,ы).",
                     .to(self), .item(item), .text(item.location))
             } else {
-                act("Внутри @1р (&1):",
-                    .to(self), .item(item), .text(item.location))
-                sendDescriptions(of: item.contains,
-                                 withGroundDescriptionsOnly: false,
-                                 bigOnly: false)
+                if item.contains.first(where: canSee) != nil {
+                    act("Внутри @1р (&1):",
+                        .to(self), .item(item), .text(item.location))
+                    sendDescriptions(of: item.contains,
+                                     withGroundDescriptionsOnly: false,
+                                     bigOnly: false)
+                } else {
+                    act("Внутри @1р (&1) ничего нет.",
+                        .to(self), .item(item), .text(item.location))
+                }
             }
         }
         

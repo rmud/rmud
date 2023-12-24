@@ -44,10 +44,12 @@ extension Creature {
             return
         }
         container.flags.insert(isPerson ? .personCorpse : .corpse)
-        container.corpseSize = UInt8(affectedSize())
         let isEdibleMobile = mobile?.flags.contains(.edible) ?? false
-        container.corpseIsEdible = isPerson || race == .animal || isEdibleMobile
-        container.corpseOfVnum = mobile?.prototype.vnum
+        if isPerson || race == .animal || isEdibleMobile {
+            container.flags.insert(.edible)
+        }
+        container.corpseSize = UInt8(affectedSize())
+        container.mobileVnum = mobile?.prototype.vnum
         
         guard let room = inRoom else {
             logError("Unable to create corpse for creature not in room")

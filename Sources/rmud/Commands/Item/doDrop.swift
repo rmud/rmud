@@ -64,7 +64,7 @@ extension Creature {
             activateGroundTimer: true
         )
 
-        if !item.wearFlags.contains(.take) {
+        if !item.isCarryable {
             item.groundTimerTicsLeft = 0
         }
         player?.scheduleForSaving() // to prevent item and cash cloning

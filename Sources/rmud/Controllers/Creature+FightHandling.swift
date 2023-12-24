@@ -111,7 +111,7 @@ extension Creature {
         var damage = 0
         
         if isPlayer {
-            damage += Int.random(in: 1...2)
+            damage += Int.random(in: 1...2000)
         }
         
         damage += victim.damagePositionBonus(damage: damage)

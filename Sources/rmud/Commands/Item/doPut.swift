@@ -21,7 +21,7 @@ extension Creature {
         for item in items {
             if item !== whereTo {
                 let containedWeight =
-                    whereTo.weightWithContents() - whereTo.weight + item.weight
+                    whereTo.weightWithContents() - (whereTo.weight ?? 0) + (item.weight ?? 0)
                 guard containedWeight <= container.capacity else {
                     act("@1и в @2п не помест@1(и,и,и,я)тся.", .to(self), .item(item), .item(whereTo)) { target, output in
                         stacker.collect(target: target, line: output)

@@ -43,7 +43,7 @@ enum EquipmentPosition: Int8, CaseIterable {
     var bodypartInfo: BodypartInfo {
         //                                     name:           wearFlags:  armor:        fragChance: options:
         switch self {
-        case .light:       return BodypartInfo("свет",         .take,      0,            3,          [])
+        case .light:       return BodypartInfo("свет",         [],         0,            3,          [])
         case .fingerRight: return BodypartInfo("на пальце",    .finger,    0,            1,          [])
         case .fingerLeft:  return BodypartInfo("на пальце",    .finger,    0,            1,          [])
         case .neck:        return BodypartInfo("на шее",       .neck,      0,            2,          [])
@@ -63,7 +63,7 @@ enum EquipmentPosition: Int8, CaseIterable {
         case .wristLeft:   return BodypartInfo("на запястье",  .wrist,     0,            2,          [])
         case .ears:        return BodypartInfo("в ушах",       .ears,      0,            1,          [])
         case .wield:       return BodypartInfo("оружие",       .wield,     0,            0,          [])
-        case .hold:        return BodypartInfo("в руке",       .take,      0,            3,          [])
+        case .hold:        return BodypartInfo("в руке",       [],         0,            3,          [])
         case .twoHand:     return BodypartInfo("в руках",      .twoHand,   0,            0,          [])
         }
     }

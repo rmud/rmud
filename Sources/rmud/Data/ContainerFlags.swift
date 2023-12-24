@@ -13,6 +13,7 @@ struct ContainerFlags: OptionSet {
     static let corpse =       T(rawValue: 1 << 4) // Container is corpse
     static let deprecated_unused_playerCorpse = T(rawValue: 1 << 5) // Container is player's corpse
     static let personCorpse = T(rawValue: 1 << 6) // Об этом трупе писать "тело", а не "труп"
+    static let edible       = T(rawValue: 1 << 7)
     
     static let aliases = ["косвойства", "контейнер.свойства"]
     
@@ -23,7 +24,8 @@ struct ContainerFlags: OptionSet {
             3: "закрыт",         // Контейнер закрыт при загрузке
             4: "заперт",         // Контейнер заперт при загрузке
             5: "труп",           // В контейнер ничего нельзя класть
-            //6: "*"               // Для областей не используется - труп персонажа
+            //6: "*"               // Для областей не используется - труп персонажа,
+            7: "съедобен"
         ])
     }
 }

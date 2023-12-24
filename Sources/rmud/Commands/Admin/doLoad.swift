@@ -49,7 +49,7 @@ extension Creature {
             isOvermax = true
         }
         logIntervention("\(nameNominative) создает\(isOvermax ? ", ПРЕВЫСИВ ПРЕДЕЛ,":"") \(item.nameAccusative) в комнате \"\(inRoom?.name ?? "без имени")\".")
-        if item.wearFlags.contains(.take) {
+        if item.isCarryable {
             item.give(to: self)
         } else {
             guard let room = inRoom else {
