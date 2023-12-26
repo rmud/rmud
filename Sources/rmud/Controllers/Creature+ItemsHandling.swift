@@ -172,7 +172,7 @@ extension Creature {
                 item.removeFromCreature()
             }
             equip(item: item, position: position)
-            if item.isWeapon() && weaponEfficiencyPercent(for: item) < 100 {
+            if item.isWeapon() && weaponEfficiencyPercent(for: item, position: position) < 100 {
                 act("Вы почувствовали, что @1и слишком тяжел@1(,а,о,ы) для Вас.", .to(self), .item(item))
             }
             if item.extraFlags.contains(.stringed) {

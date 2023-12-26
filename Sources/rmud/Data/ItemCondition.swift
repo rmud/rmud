@@ -17,6 +17,18 @@ enum ItemCondition {
             percent >= 10  ? .veryPoor :
            .awful
     }
+    
+    func longDescriptionPrepositional(color: String, normalColor: String) -> String {
+        switch (self) {
+        case .perfect: return "в \(color)великолепном\(normalColor) состоянии"
+        case .veryGood: return "в \(color)очень хорошем\(normalColor) состоянии"
+        case .good: return "в \(color)хорошем\(normalColor) состоянии"
+        case .average: return "в \(color)среднем\(normalColor) состоянии"
+        case .poor: return "в \(color)плохом\(normalColor) состоянии"
+        case .veryPoor: return "в \(color)очень плохом\(normalColor) состоянии"
+        case .awful: return "в \(color)ужасном\(normalColor) состоянии"
+        }
+    }
 
     var shortDescription: String {
         switch self {

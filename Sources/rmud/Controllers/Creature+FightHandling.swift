@@ -58,13 +58,13 @@ extension Creature {
     }
     
     // (0%: will always miss) ... (100%: no strength penalty)
-    func weaponEfficiencyPercent(for weapon: Item) -> Int {
+    func weaponEfficiencyPercent(for weapon: Item, position: EquipmentPosition) -> Int {
         let strength = affectedStrength()
         let weaponWeight = weapon.weightWithContents()
         
         var actualStrength: Int
         
-        switch weapon.wornPosition {
+        switch position {
         case .wield:
             actualStrength = strength
         case .twoHand:
@@ -72,7 +72,7 @@ extension Creature {
         case .hold:
             actualStrength = strength / 2 + 2
         default:
-            logError("ОШИБКА: weaponEfficiencyPercent: unknown weapon position")
+            logError("weaponEfficiencyPercent: unknown weapon position")
             actualStrength = strength
         }
 
@@ -90,11 +90,22 @@ extension Creature {
         let isAttackThrowSuccesful =
             attack + Int.random(in: 1...100) > defense + 50
         
-        let isWeaponThrowSuccesful = if let weapon {
-            weaponEfficiencyPercent(for: weapon) >= Int.random(in: 1...100)
-        } else { true }
+        let isWeaponThrowSuccesful = {
+            if let weapon {
+                guard let position = weapon.wornPosition else {
+                    logError("hasLandedHit: weapon not worn: [\(weapon.vnum)] \(weapon.nameCompressed()), creature: \(self.nameCompressed())")
+                    return false
+                }
+                return self.weaponEfficiencyPercent(
+                    for: weapon,
+                    position: position
+                ) >= Int.random(in: 1...100)
+            } else {
+                return true
+            }
+        }
         
-        return isAttackThrowSuccesful && isWeaponThrowSuccesful
+        return isAttackThrowSuccesful && isWeaponThrowSuccesful()
     }
     
     func hitOnce(victim: Creature) {

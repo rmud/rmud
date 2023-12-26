@@ -81,13 +81,11 @@ extension Creature {
             send(wrapped)
         }
 
-        if let container = item.asContainer() {
-            guard !container.flags.contains(.corpse) else { return }
-            
-            showItemCondition()
-            showItemQuality()
-            showItemRequiredSkill(item: item)
-            showItemWear()
+        let isCorpse = item.asContainer()?.flags.contains(.corpse) ?? false
+        if !isCorpse {
+            showItemConditionAndQuality(item)
+            showItemRequiredSkill(item)
+            showItemWear(item)
         }
         
         if item.isContainer() || item.isFountain() || item.isVessel() {
@@ -223,23 +221,125 @@ extension Creature {
         act(result, .excluding(target), .to(self), .text(conditionString))
     }
     
-    private func showItemCondition() {
-       // TODO
-    }
-    
-    private func showItemQuality() {
-       // TODO
-    }
-    
-    private func showItemRequiredSkill(item: Item) {
-        if let weapon = item.asWeapon() {
-            let skillName = weapon.weaponType.skill.name
-            act("Для использования @1р требуется обладать умением \"&\".",
-                .to(self), .item(item), .text(skillName))
+    private func showItemConditionAndQuality(_ item: Item) {
+        let conditionPercentage = item.conditionPercentage()
+        let conditionColor = percentageColor(conditionPercentage)
+        let condition = ItemCondition(
+            conditionPercentage: conditionPercentage
+        ).longDescriptionPrepositional(color: conditionColor, normalColor: nNrm())
+        
+        let itemName = item.nameNominative.full.capitalizingFirstLetter()
+        if let quality = qualityString(item) {
+            send("\(itemName) \(condition) и \(quality).")
+        } else {
+            send("\(itemName) \(condition).")
         }
     }
     
-    private func showItemWear() {
-        // TODO
+    private func qualityString(_ item: Item) -> String? {
+        let quality = item.qualityPercentage
+        if quality >= 250 {
+            return "великолепного качества"
+        } else if quality >= 150 {
+            return "очень хорошего качества"
+        } else if (quality >= 110) {
+            return "хорошего качества"
+        } else if (quality <= 40) {
+            return "удручающего качества"
+        } else if (quality <= 80) {
+            return "невысокого качества"
+        }
+        return nil
+    }
+    
+    private func showItemRequiredSkill(_ item: Item) {
+        if let weapon = item.asWeapon() {
+            let skillName = weapon.weaponType.skill.name
+            send("Для использования требуется обладать умением \"\(skillName)\".")
+        }
+    }
+    
+    private func showItemWear(_ item: Item) {
+        if item.wearFlags.contains(.finger) {
+            act("Надева@1(е,е,е,ю)тся на палец.", .toSleeping, .to(self), .item(item))
+        }
+        if item.wearFlags.contains(.neck) {
+            act("Надева@1(е,е,е,ю)тся на шею.", .toSleeping, .to(self), .item(item))
+        }
+        if item.wearFlags.contains(.neckAbout) {
+            act("Надева@1(е,е,е,ю)тся вокруг шеи.", .toSleeping, .to(self), .item(item))
+        }
+        if item.wearFlags.contains(.body) {
+            act("Надева@1(е,е,е,ю)тся на тело.", .toSleeping, .to(self), .item(item))
+        }
+        if item.wearFlags.contains(.head) {
+            act("Надева@1(е,е,е,ю)тся на голову.", .toSleeping, .to(self), .item(item))
+        }
+        if item.wearFlags.contains(.face) {
+            act("Надева@1(е,е,е,ю)тся на лицо.", .toSleeping, .to(self), .item(item))
+        }
+        if item.wearFlags.contains(.legs) {
+            act("Надева@1(е,е,е,ю)тся на ноги.", .toSleeping, .to(self), .item(item))
+        }
+        if item.wearFlags.contains(.feet) {
+            act("Надева@1(е,е,е,ю)тся на ступни ног.", .toSleeping, .to(self), .item(item))
+        }
+        if item.wearFlags.contains(.arms) {
+            act("Надева@1(е,е,е,ю)тся на руки.", .toSleeping, .to(self), .item(item))
+        }
+        if item.wearFlags.contains(.hands) {
+            act("Надева@1(е,е,е,ю)тся на кисти рук.", .toSleeping, .to(self), .item(item))
+        }
+        if item.wearFlags.contains(.shield) {
+            act("Надева@1(е,е,е,ю)тся в качестве щита.", .toSleeping, .to(self), .item(item))
+        }
+        if item.wearFlags.contains(.about) {
+            act("Надева@1(е,е,е,ю)тся вокруг тела.", .toSleeping, .to(self), .item(item))
+        }
+        if item.wearFlags.contains(.back) {
+            act("Надева@1(е,е,е,ю)тся за спину.", .toSleeping, .to(self), .item(item))
+        }
+        if item.wearFlags.contains(.waist) {
+            act("Надева@1(е,е,е,ю)тся вокруг пояса.", .toSleeping, .to(self), .item(item))
+        }
+        if item.wearFlags.contains(.wrist) {
+            act("Надева@1(е,е,е,ю)тся на запястье.", .toSleeping, .to(self), .item(item))
+        }
+        if item.wearFlags.contains(.ears) {
+            act("Надева@1(е,е,е,ю)тся в уши.", .toSleeping, .to(self), .item(item))
+        }
+        
+        if item.isWeapon() {
+            let sendLackOfStrengthMessage = {
+                self.send("   ...но у Вас недостаточно сил, чтобы делать это хорошо.")
+            }
+            
+            if item.wearFlags.contains(.shield) {
+                act("Мо@1(жет,жет,жет,гут) использоваться в качестве основного оружия.",
+                    .toSleeping, .to(self), .item(item))
+                if weaponEfficiencyPercent(for: item, position: .wield) < 100 {
+                    sendLackOfStrengthMessage()
+                }
+            }
+            if item.wearFlags.contains(.hold) {
+                act("Мо@1(жет,жет,жет,гут) использоваться в качестве вспомогательного оружия.",
+                    .toSleeping, .to(self), .item(item))
+                if weaponEfficiencyPercent(for: item, position: .hold) < 100 {
+                    sendLackOfStrengthMessage()
+                }
+            }
+            if item.wearFlags.contains(.twoHand) {
+                act("Мо@1(жет,жет,жет,гут) использоваться в качестве двуручного оружия.",
+                    .toSleeping, .to(self), .item(item))
+                if weaponEfficiencyPercent(for: item, position: .twoHand) < 100 {
+                    sendLackOfStrengthMessage()
+                }
+            }
+        }
+
+        if item.wearFlags.contains(.hold) && item.isLight() {
+            act("Использу@1(ется,ется,ется,ются) в качестве источника света.",
+                .toSleeping, .to(self), .item(item))
+        }
     }
 }
